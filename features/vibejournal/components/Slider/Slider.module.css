@@ -1,0 +1,28 @@
+.sliderRow {
+  display: grid;
+  grid-template-columns: 80px 1fr 34px;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.sliderRow input {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.sliderRow strong {
+  color: var(--ink);
+  text-align: right;
+}
+
+@media (max-width: 560px) {
+  .sliderRow {
+    grid-template-columns: 1fr 42px;
+  }
+
+  .sliderRow input {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}

@@ -1,0 +1,151 @@
+.screen,
+.entryForm,
+.editorBlock,
+.tagSelector {
+  display: grid;
+  gap: 16px;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--accent-strong);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.topBar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.topBar h1 {
+  margin: 4px 0 0;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.topBar time {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  padding: 10px 14px;
+  color: var(--ink);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.emojiScroller {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 112px;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.emojiScroller button {
+  display: grid;
+  gap: 8px;
+  min-height: 104px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.emojiScroller span {
+  font-size: 2rem;
+}
+
+.selectedEmoji {
+  border-color: var(--mood-color) !important;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mood-color), transparent 60%);
+}
+
+.sliderCard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 16px;
+}
+
+.promptChips,
+.tagSelector div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.promptChips button,
+.tagSelector button,
+.mediaActions button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 9px 12px;
+}
+
+.editorBlock textarea,
+.tagSelector input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  color: var(--ink);
+  outline: none;
+  padding: 13px 14px;
+}
+
+.editorBlock textarea {
+  resize: vertical;
+  min-height: 180px;
+}
+
+.selectedTag {
+  border-color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent), transparent 86%) !important;
+  color: var(--accent-strong) !important;
+}
+
+.mediaActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mediaActions button {
+  min-height: 54px;
+  border-radius: 8px;
+}
+
+.primaryButton {
+  min-height: 54px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .topBar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sliderCard {
+    grid-template-columns: 1fr;
+  }
+}

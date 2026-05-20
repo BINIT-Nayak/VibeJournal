@@ -1,0 +1,13 @@
+.wordCloud {
+  display: flex;
+  min-height: 180px;
+  align-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.wordCloud span {
+  color: var(--accent-strong);
+  font-weight: 800;
+}

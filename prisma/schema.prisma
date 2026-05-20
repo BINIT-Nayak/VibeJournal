@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  moodEntries   MoodEntry[]
+  journalEntries JournalEntry[]
+  playlistRuns  PlaylistRun[]
+}
+
+model MoodEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  mood      Mood
+  energy    Int
+  stress    Int      @default(5)
+  valence   Int
+  note      String?
+  tags      String[]
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String?
+  content   String
+  prompt    String?
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PlaylistRun {
+  id          String   @id @default(cuid())
+  userId      String
+  mood        Mood
+  intent      Json
+  provider    String
+  externalUrl String?
+  tracks      Json?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Mood {
+  joyful
+  calm
+  anxious
+  sad
+  angry
+  tired
+  hopeful
+  neutral
+}

@@ -1,0 +1,16 @@
+.correlationGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.correlationGrid span {
+  display: grid;
+  min-height: 42px;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--mood-color);
+  color: color-mix(in srgb, var(--ink), transparent 20%);
+  font-size: 0.78rem;
+  font-weight: 800;
+}

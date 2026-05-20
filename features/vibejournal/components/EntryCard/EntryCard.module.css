@@ -1,0 +1,49 @@
+.entryCard {
+  position: relative;
+  border: 1px solid var(--line);
+  border-left: 8px solid var(--mood-color);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 16px;
+}
+
+.entryTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.entryTop span {
+  color: var(--mood-color);
+  font-weight: 800;
+}
+
+.entryTop time,
+.entryMetrics,
+.tagRow span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.entryCard p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.entryMetrics,
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tagRow span {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent), transparent 88%);
+  color: var(--accent-strong);
+  padding: 5px 8px;
+  font-weight: 700;
+}

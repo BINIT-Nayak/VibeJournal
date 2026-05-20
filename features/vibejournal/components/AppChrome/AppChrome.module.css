@@ -1,0 +1,113 @@
+.shell {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.darkShell {
+  --background: #151817;
+  --surface: #1d2422;
+  --surface-strong: #252d2a;
+  --ink: #f2f0e8;
+  --muted: #a7b1ad;
+  --line: rgba(242, 240, 232, 0.14);
+  --accent: #75bdb8;
+  --accent-strong: #a5ddd8;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.appFrame {
+  position: relative;
+  width: min(1180px, 100%);
+  min-height: calc(100vh - 48px);
+  margin: 0 auto;
+  padding: 28px 28px 104px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface), transparent 8%);
+  box-shadow: var(--shadow);
+}
+
+.floatingButton {
+  position: fixed;
+  right: max(24px, calc((100vw - 1180px) / 2 + 28px));
+  bottom: 92px;
+  z-index: 5;
+  width: 62px;
+  height: 62px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 16px 36px rgba(47, 125, 122, 0.28);
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.bottomNav {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(74px, 1fr));
+  width: min(720px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface-strong), transparent 5%);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.bottomNav button {
+  display: grid;
+  gap: 4px;
+  min-height: 64px;
+  place-items: center;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.bottomNav button:last-child {
+  border-right: 0;
+}
+
+.bottomNav span {
+  font-size: 1.25rem;
+}
+
+.activeNavItem {
+  color: var(--accent-strong) !important;
+  background: color-mix(in srgb, var(--accent), transparent 88%) !important;
+}
+
+@media (max-width: 900px) {
+  .shell {
+    padding: 12px;
+  }
+
+  .appFrame {
+    min-height: calc(100vh - 24px);
+    padding: 20px 16px 104px;
+  }
+
+  .bottomNav {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .bottomNav button {
+    min-width: 0;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .floatingButton {
+    right: 20px;
+  }
+}

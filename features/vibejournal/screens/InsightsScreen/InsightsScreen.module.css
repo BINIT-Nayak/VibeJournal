@@ -1,0 +1,73 @@
+.screen {
+  display: grid;
+  gap: 18px;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tabs button,
+.aiCard button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--muted);
+  cursor: pointer;
+  padding: 10px 14px;
+  text-transform: capitalize;
+}
+
+.activeTab {
+  border-color: var(--accent) !important;
+  color: var(--accent-strong) !important;
+}
+
+.panel,
+.aiCard {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 18px;
+}
+
+.largeChart {
+  height: 280px;
+}
+
+.largeChart canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.insightGrid,
+.aiCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.aiCards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.aiCard p {
+  min-height: 72px;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.aiCard div {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .insightGrid,
+  .aiCards {
+    grid-template-columns: 1fr;
+  }
+}
