@@ -4,15 +4,16 @@
 }
 
 .darkShell {
-  --background: #151817;
-  --surface: #1d2422;
-  --surface-strong: #252d2a;
-  --ink: #f2f0e8;
-  --muted: #a7b1ad;
-  --line: rgba(242, 240, 232, 0.14);
-  --accent: #75bdb8;
-  --accent-strong: #a5ddd8;
-  --shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+  --background: var(--color-deep);
+  --surface: var(--color-moss);
+  --surface-strong: #0f352f;
+  --ink: var(--color-cream);
+  --muted: color-mix(in srgb, var(--color-sage), var(--color-cream) 18%);
+  --line: rgba(246, 233, 202, 0.16);
+  --accent: var(--color-sage);
+  --accent-strong: var(--color-cream);
+  --warm: var(--color-clay);
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
 }
 
 .appFrame {
@@ -23,7 +24,9 @@
   padding: 28px 28px 104px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--surface), transparent 8%);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-strong), transparent 20%), color-mix(in srgb, var(--surface), transparent 6%)),
+    var(--surface);
   box-shadow: var(--shadow);
 }
 
@@ -38,7 +41,7 @@
   border-radius: 999px;
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 16px 36px rgba(47, 125, 122, 0.28);
+  box-shadow: 0 16px 36px rgba(11, 43, 38, 0.28);
   cursor: pointer;
   font-size: 2rem;
   font-weight: 500;

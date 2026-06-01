@@ -31,14 +31,14 @@ export const moods: Array<{
   symbol: string;
   color: string;
 }> = [
-  { key: "joyful", label: "Joyful", symbol: "😊", color: "#f7b731" },
-  { key: "calm", label: "Calm", symbol: "😌", color: "#46a6a0" },
-  { key: "anxious", label: "Anxious", symbol: "😟", color: "#7d6fd7" },
-  { key: "sad", label: "Sad", symbol: "😢", color: "#4a79b8" },
-  { key: "angry", label: "Angry", symbol: "😤", color: "#d85b4a" },
-  { key: "tired", label: "Tired", symbol: "😴", color: "#8a817c" },
-  { key: "hopeful", label: "Hopeful", symbol: "🌤️", color: "#4f9d69" },
-  { key: "neutral", label: "Neutral", symbol: "😐", color: "#64748b" }
+  { key: "joyful", label: "Joyful", symbol: "😊", color: "#C69A72" },
+  { key: "calm", label: "Calm", symbol: "😌", color: "#8EB69B" },
+  { key: "anxious", label: "Anxious", symbol: "😟", color: "#155446" },
+  { key: "sad", label: "Sad", symbol: "😢", color: "#13312A" },
+  { key: "angry", label: "Angry", symbol: "😤", color: "#0B2B26" },
+  { key: "tired", label: "Tired", symbol: "😴", color: "#6f8e77" },
+  { key: "hopeful", label: "Hopeful", symbol: "🌤️", color: "#8EB69B" },
+  { key: "neutral", label: "Neutral", symbol: "😐", color: "#5f7669" }
 ];
 
 export const prompts = [

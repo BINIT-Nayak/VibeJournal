@@ -80,7 +80,7 @@
   border-radius: 8px;
   background:
     linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.42)),
-    linear-gradient(135deg, #2f7d7a, #d99058);
+    linear-gradient(135deg, #155446, #C69A72);
   color: #fff;
   padding: 16px;
 }
@@ -131,7 +131,7 @@
   width: 46px;
   height: 46px;
   border-radius: 6px;
-  background: linear-gradient(135deg, #2f7d7a, #d99058);
+  background: linear-gradient(135deg, #155446, #C69A72);
 }
 
 .miniPlayer button {

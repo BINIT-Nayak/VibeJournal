@@ -43,7 +43,7 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
     }
 
     if (entries.length === 0) {
-      ctx.fillStyle = "#6b7280";
+      ctx.fillStyle = "#13312A";
       ctx.font = `${compact ? 12 : 14}px system-ui, sans-serif`;
       ctx.fillText("Your mood trend will draw itself here.", padding, rect.height / 2);
       return;
@@ -60,9 +60,9 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
       });
 
     const gradient = ctx.createLinearGradient(padding, 0, rect.width - padding, 0);
-    gradient.addColorStop(0, "#46a6a0");
-    gradient.addColorStop(0.5, "#f7b731");
-    gradient.addColorStop(1, "#d85b4a");
+    gradient.addColorStop(0, "#8EB69B");
+    gradient.addColorStop(0.5, "#C69A72");
+    gradient.addColorStop(1, "#155446");
 
     ctx.strokeStyle = gradient;
     ctx.lineWidth = 3;
@@ -79,7 +79,7 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
     ctx.stroke();
 
     if (showEnergy) {
-      ctx.strokeStyle = "rgba(47, 125, 122, 0.8)";
+      ctx.strokeStyle = "rgba(21, 84, 70, 0.82)";
       ctx.lineWidth = 2;
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
@@ -102,15 +102,15 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
 
     points.forEach((point) => {
       ctx.beginPath();
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = "#F6E9CA";
       ctx.arc(point.x, point.y, 4 + point.energy * 0.35, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "#1f2937";
+      ctx.strokeStyle = "#051F20";
       ctx.lineWidth = 1.5;
       ctx.stroke();
     });
 
-    ctx.fillStyle = "#475569";
+    ctx.fillStyle = "#13312A";
     ctx.font = "12px system-ui, sans-serif";
     if (!compact) {
       ctx.fillText("low", 4, rect.height - padding + 4);

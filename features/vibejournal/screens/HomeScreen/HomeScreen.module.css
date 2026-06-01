@@ -52,7 +52,7 @@
   border: 14px solid color-mix(in srgb, var(--mood-color), white 36%);
   border-radius: 999px;
   background:
-    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.72)),
+    radial-gradient(circle at 50% 45%, rgba(246, 233, 202, 0.98), rgba(246, 233, 202, 0.74)),
     var(--mood-color);
   box-shadow: 0 24px 70px color-mix(in srgb, var(--mood-color), transparent 68%);
   cursor: pointer;
@@ -137,8 +137,8 @@
   border: 0;
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(16, 24, 22, 0.18), rgba(16, 24, 22, 0.76)),
-    linear-gradient(120deg, #2f7d7a, #d99058 54%, #4a79b8);
+    linear-gradient(135deg, rgba(5, 31, 32, 0.12), rgba(5, 31, 32, 0.82)),
+    linear-gradient(120deg, #155446, #C69A72 56%, #8EB69B);
   color: #fff;
   padding: 22px;
   cursor: pointer;

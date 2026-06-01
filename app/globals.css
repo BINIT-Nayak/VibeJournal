@@ -1,15 +1,23 @@
 :root {
-  --background: #f4f1ea;
-  --surface: #fffdf8;
-  --surface-strong: #ffffff;
-  --ink: #1e2528;
-  --muted: #657071;
-  --line: rgba(30, 37, 40, 0.13);
-  --accent: #2f7d7a;
-  --accent-strong: #205d5a;
-  --warm: #d99058;
-  --danger: #bd4f48;
-  --shadow: 0 18px 50px rgba(34, 42, 46, 0.09);
+  --color-forest: #13312A;
+  --color-clay: #C69A72;
+  --color-cream: #F6E9CA;
+  --color-teal: #155446;
+  --color-sage: #8EB69B;
+  --color-deep: #051F20;
+  --color-moss: #0B2B26;
+
+  --background: var(--color-cream);
+  --surface: #fff7df;
+  --surface-strong: #fffbef;
+  --ink: var(--color-deep);
+  --muted: color-mix(in srgb, var(--color-forest), var(--color-sage) 36%);
+  --line: rgba(19, 49, 42, 0.18);
+  --accent: var(--color-teal);
+  --accent-strong: var(--color-forest);
+  --warm: var(--color-clay);
+  --danger: #9f4f43;
+  --shadow: 0 20px 58px rgba(5, 31, 32, 0.13);
 }
 
 * {
@@ -24,8 +32,9 @@ body {
   min-height: 100%;
   margin: 0;
   background:
-    linear-gradient(135deg, rgba(47, 125, 122, 0.12), transparent 30%),
-    linear-gradient(315deg, rgba(217, 144, 88, 0.14), transparent 34%),
+    radial-gradient(circle at top left, rgba(142, 182, 155, 0.42), transparent 34%),
+    linear-gradient(135deg, rgba(21, 84, 70, 0.14), transparent 30%),
+    linear-gradient(315deg, rgba(198, 154, 114, 0.24), transparent 36%),
     var(--background);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
@@ -43,5 +52,5 @@ a {
 }
 
 ::selection {
-  background: rgba(47, 125, 122, 0.22);
+  background: rgba(142, 182, 155, 0.45);
 }
