@@ -31,16 +31,20 @@ export function NewEntryScreen({
   onSocialLevel,
   onStress,
   onToggleTag,
-  onVoiceNote
+  onVoiceNote,
 }: NewEntryScreenProps) {
   return (
     <section className={styles.screen}>
       <header className={styles.topBar}>
         <div>
           <p className={styles.kicker}>{isEditing ? "Edit entry" : "New entry"}</p>
-          <h1>{new Intl.DateTimeFormat("en", { month: "long", day: "numeric" }).format(new Date())}</h1>
+          <h1>
+            {new Intl.DateTimeFormat("en", { month: "long", day: "numeric" }).format(new Date())}
+          </h1>
         </div>
-        <time>{new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit" }).format(new Date())}</time>
+        <time>
+          {new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit" }).format(new Date())}
+        </time>
       </header>
 
       <form className={styles.entryForm} onSubmit={onSave}>
@@ -105,7 +109,11 @@ export function NewEntryScreen({
         <section className={styles.editorBlock}>
           <div className={styles.promptChips}>
             {reflectionPrompts.map((prompt) => (
-              <button key={prompt} onClick={() => onNote(note ? `${note}\n${prompt} ` : `${prompt} `)} type="button">
+              <button
+                key={prompt}
+                onClick={() => onNote(note ? `${note}\n${prompt} ` : `${prompt} `)}
+                type="button"
+              >
                 {prompt}
               </button>
             ))}
@@ -131,7 +139,11 @@ export function NewEntryScreen({
         </section>
 
         <section className={styles.tagSelector}>
-          <input value={customTag} onChange={(event) => onCustomTag(event.target.value)} placeholder="Search or add a tag" />
+          <input
+            value={customTag}
+            onChange={(event) => onCustomTag(event.target.value)}
+            placeholder="Search or add a tag"
+          />
           <div>
             {journalTags.map((tag) => (
               <button
@@ -165,11 +177,15 @@ export function NewEntryScreen({
         </div>
         {photoNames.length > 0 && (
           <div className={styles.attachmentList}>
-            {photoNames.map((name) => <span key={name}>{name}</span>)}
+            {photoNames.map((name) => (
+              <span key={name}>{name}</span>
+            ))}
           </div>
         )}
 
-        <button className={styles.primaryButton} type="submit">{isEditing ? "Update Entry" : "Save & Get Insight"}</button>
+        <button className={styles.primaryButton} type="submit">
+          {isEditing ? "Update Entry" : "Save & Get Insight"}
+        </button>
       </form>
     </section>
   );

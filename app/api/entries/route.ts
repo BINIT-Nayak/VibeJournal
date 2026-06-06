@@ -7,7 +7,7 @@ export async function GET() {
     const user = await requireUser();
     const entries = await prisma.moodEntry.findMany({
       where: { userId: user.id },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
 
     return Response.json({ entries: entries.map(serializeEntry) });
@@ -39,12 +39,20 @@ export async function POST(request: Request) {
         valence,
         note,
         tags: parseStringArray(body.tags),
-        sleepHours: typeof body.sleepHours === "number" ? parseNumber(body.sleepHours, 7, 0, 14) : null,
-        exerciseMinutes: typeof body.exerciseMinutes === "number" ? parseNumber(body.exerciseMinutes, 0, 0, 240) : null,
-        socialLevel: typeof body.socialLevel === "number" ? parseNumber(body.socialLevel, 5, 1, 10) : null,
-        voiceNote: typeof body.voiceNote === "string" && body.voiceNote.trim() ? body.voiceNote.trim() : null,
-        photoNames: parseStringArray(body.photoNames)
-      }
+        sleepHours:
+          typeof body.sleepHours === "number" ? parseNumber(body.sleepHours, 7, 0, 14) : null,
+        exerciseMinutes:
+          typeof body.exerciseMinutes === "number"
+            ? parseNumber(body.exerciseMinutes, 0, 0, 240)
+            : null,
+        socialLevel:
+          typeof body.socialLevel === "number" ? parseNumber(body.socialLevel, 5, 1, 10) : null,
+        voiceNote:
+          typeof body.voiceNote === "string" && body.voiceNote.trim()
+            ? body.voiceNote.trim()
+            : null,
+        photoNames: parseStringArray(body.photoNames),
+      },
     });
 
     return Response.json({ entry: serializeEntry(entry) }, { status: 201 });

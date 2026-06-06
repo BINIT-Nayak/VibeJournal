@@ -1,10 +1,10 @@
 .wordCloud {
-  display: flex;
-  min-height: 180px;
   align-content: center;
   align-items: center;
+  display: flex;
   flex-wrap: wrap;
   gap: 14px;
+  min-height: 180px;
 }
 
 .wordCloud span {

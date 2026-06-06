@@ -8,14 +8,14 @@ export const journalTags = [
   "focus",
   "health",
   "stress",
-  "walk"
+  "walk",
 ];
 
 export const reflectionPrompts = [
   "What made me smile?",
   "What drained me?",
   "What do I need?",
-  "What can I release?"
+  "What can I release?",
 ];
 
 export const moodStations = ["Anxious", "Focused", "Grateful", "Sleepy", "Brave", "Unwind"];
@@ -36,7 +36,7 @@ export const starterEntries: MoodEntry[] = [
     valence: 7,
     note: "Slow morning, but I felt grounded after walking.",
     tags: ["walk", "gratitude"],
-    createdAt: daysAgo(0, 8)
+    createdAt: daysAgo(0, 8),
   },
   {
     id: "sample-2",
@@ -46,7 +46,7 @@ export const starterEntries: MoodEntry[] = [
     valence: 4,
     note: "Work messages kept stacking up. I paused before replying.",
     tags: ["work", "stress"],
-    createdAt: daysAgo(1, 18)
+    createdAt: daysAgo(1, 18),
   },
   {
     id: "sample-3",
@@ -56,7 +56,7 @@ export const starterEntries: MoodEntry[] = [
     valence: 8,
     note: "A small win in the afternoon changed the tone of the day.",
     tags: ["work", "gratitude"],
-    createdAt: daysAgo(2, 16)
+    createdAt: daysAgo(2, 16),
   },
   {
     id: "sample-4",
@@ -66,7 +66,7 @@ export const starterEntries: MoodEntry[] = [
     valence: 5,
     note: "Sleep was short, so I kept expectations realistic.",
     tags: ["sleep", "health"],
-    createdAt: daysAgo(4, 10)
+    createdAt: daysAgo(4, 10),
   },
   {
     id: "sample-5",
@@ -76,6 +76,6 @@ export const starterEntries: MoodEntry[] = [
     valence: 9,
     note: "Dinner with family felt easy and warm.",
     tags: ["family", "gratitude"],
-    createdAt: daysAgo(6, 21)
-  }
+    createdAt: daysAgo(6, 21),
+  },
 ];

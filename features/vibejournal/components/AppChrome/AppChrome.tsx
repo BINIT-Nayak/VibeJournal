@@ -17,7 +17,7 @@ const navItems: Array<{ label: string; screen: Screen }> = [
   { label: "Journal", screen: "journal" },
   { label: "Insights", screen: "insights" },
   { label: "Music", screen: "music" },
-  { label: "Profile", screen: "profile" }
+  { label: "Profile", screen: "profile" },
 ];
 
 export function AppChrome({
@@ -25,7 +25,7 @@ export function AppChrome({
   children,
   darkMode,
   onNewEntry,
-  onScreenChange
+  onScreenChange,
 }: AppChromeProps) {
   return (
     <main className={`${styles.shell} ${darkMode ? styles.darkShell : ""}`}>
@@ -33,25 +33,36 @@ export function AppChrome({
         {children}
 
         {activeScreen !== "new" && (
-          <button className={styles.floatingButton} onClick={onNewEntry} type="button" aria-label="New entry">
+          <button
+            className={styles.floatingButton}
+            onClick={onNewEntry}
+            type="button"
+            aria-label="New entry"
+          >
             +
           </button>
         )}
 
         <nav className={styles.bottomNav} aria-label="Primary navigation">
-          {navItems.map((item) => (
-            <button
-              aria-current={activeScreen === item.screen ? "page" : undefined}
-              aria-label={item.label}
-              className={activeScreen === item.screen ? styles.activeNavItem : ""}
-              key={item.screen}
-              onClick={() => onScreenChange(item.screen)}
-              type="button"
-            >
-              <span aria-hidden="true">{navSymbol(item.screen)}</span>
-              <strong>{item.label}</strong>
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const Icon = navSymbol(item.screen);
+
+            return (
+              <button
+                aria-current={activeScreen === item.screen ? "page" : undefined}
+                aria-label={item.label}
+                className={activeScreen === item.screen ? styles.activeNavItem : ""}
+                key={item.screen}
+                onClick={() => onScreenChange(item.screen)}
+                type="button"
+              >
+                <span aria-hidden="true">
+                  <Icon size={16} strokeWidth={2.4} />
+                </span>
+                <strong>{item.label}</strong>
+              </button>
+            );
+          })}
         </nav>
       </section>
     </main>

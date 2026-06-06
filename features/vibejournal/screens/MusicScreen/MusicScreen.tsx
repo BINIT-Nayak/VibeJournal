@@ -11,14 +11,22 @@ type MusicScreenProps = {
 };
 
 export function MusicScreen({ latestMood, playlist }: MusicScreenProps) {
-  const [intent, setIntent] = useState("I feel overwhelmed but hopeful. Make me something steady and warm.");
+  const [intent, setIntent] = useState(
+    "I feel overwhelmed but hopeful. Make me something steady and warm."
+  );
   const [station, setStation] = useState(latestMood.label);
-  const audioProfile = useMemo(() => mapIntentToAudioProfile(intent, latestMood.label), [intent, latestMood.label]);
+  const audioProfile = useMemo(
+    () => mapIntentToAudioProfile(intent, latestMood.label),
+    [intent, latestMood.label]
+  );
   const spotifyQuery = `${playlist.query} ${station} ${audioProfile.searchTone}`.trim();
 
   return (
     <section className={styles.screen}>
-      <div className={styles.musicBanner} style={{ "--mood-color": latestMood.color } as CSSProperties}>
+      <div
+        className={styles.musicBanner}
+        style={{ "--mood-color": latestMood.color } as CSSProperties}
+      >
         <span>{latestMood.symbol}</span>
         <div>
           <p className={styles.kicker}>Current mood</p>
@@ -31,7 +39,11 @@ export function MusicScreen({ latestMood, playlist }: MusicScreenProps) {
           placeholder="I feel overwhelmed but hopeful. Make me something steady and warm."
           value={intent}
         />
-        <a href={`https://open.spotify.com/search/${encodeURIComponent(spotifyQuery)}`} target="_blank" rel="noreferrer">
+        <a
+          href={`https://open.spotify.com/search/${encodeURIComponent(spotifyQuery)}`}
+          target="_blank"
+          rel="noreferrer"
+        >
           Play for my mood
         </a>
       </section>
@@ -43,18 +55,27 @@ export function MusicScreen({ latestMood, playlist }: MusicScreenProps) {
       </section>
       <PanelTitle eyebrow="Saved" title="Playlists" />
       <div className={styles.playlistGrid}>
-        {[playlist.title, "Morning Reset", "After Work Exhale", "Deep Focus"].map((title, index) => (
-          <article className={styles.playlistCard} key={title}>
-            <div>{index + 1}</div>
-            <strong>{title}</strong>
-            <span>{index === 0 ? playlist.description : "A saved mood mix ready to open in Spotify."}</span>
-          </article>
-        ))}
+        {[playlist.title, "Morning Reset", "After Work Exhale", "Deep Focus"].map(
+          (title, index) => (
+            <article className={styles.playlistCard} key={title}>
+              <div>{index + 1}</div>
+              <strong>{title}</strong>
+              <span>
+                {index === 0 ? playlist.description : "A saved mood mix ready to open in Spotify."}
+              </span>
+            </article>
+          )
+        )}
       </div>
       <PanelTitle eyebrow="Mood Radio" title="Stations" />
       <div className={styles.stationRow}>
         {moodStations.map((item) => (
-          <button className={station === item ? styles.activeStation : ""} key={item} onClick={() => setStation(item)} type="button">
+          <button
+            className={station === item ? styles.activeStation : ""}
+            key={item}
+            onClick={() => setStation(item)}
+            type="button"
+          >
             {item}
           </button>
         ))}
@@ -62,7 +83,13 @@ export function MusicScreen({ latestMood, playlist }: MusicScreenProps) {
       <div className={styles.miniPlayer}>
         <div />
         <span>Now cued: {playlist.title}</span>
-        <a href={`https://open.spotify.com/search/${encodeURIComponent(spotifyQuery)}`} target="_blank" rel="noreferrer">Open in Spotify</a>
+        <a
+          href={`https://open.spotify.com/search/${encodeURIComponent(spotifyQuery)}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Open in Spotify
+        </a>
       </div>
     </section>
   );
@@ -75,16 +102,40 @@ function mapIntentToAudioProfile(intent: string, mood: string) {
   const isBright = /joy|happy|hopeful|grateful|brave/.test(text);
 
   if (isTense) {
-    return { valence: "0.35", energy: "0.72", tempo: 132, danceability: "0.58", searchTone: "cathartic release" };
+    return {
+      valence: "0.35",
+      energy: "0.72",
+      tempo: 132,
+      danceability: "0.58",
+      searchTone: "cathartic release",
+    };
   }
 
   if (isLow) {
-    return { valence: "0.28", energy: "0.32", tempo: 76, danceability: "0.34", searchTone: "soft recovery acoustic" };
+    return {
+      valence: "0.28",
+      energy: "0.32",
+      tempo: 76,
+      danceability: "0.34",
+      searchTone: "soft recovery acoustic",
+    };
   }
 
   if (isBright) {
-    return { valence: "0.78", energy: "0.68", tempo: 118, danceability: "0.72", searchTone: "bright uplifting" };
+    return {
+      valence: "0.78",
+      energy: "0.68",
+      tempo: 118,
+      danceability: "0.72",
+      searchTone: "bright uplifting",
+    };
   }
 
-  return { valence: "0.58", energy: "0.50", tempo: 96, danceability: "0.55", searchTone: "balanced mellow focus" };
+  return {
+    valence: "0.58",
+    energy: "0.50",
+    tempo: 96,
+    danceability: "0.55",
+    searchTone: "balanced mellow focus",
+  };
 }

@@ -5,13 +5,12 @@
 }
 
 .hero {
-  display: grid;
   align-content: end;
-  gap: 12px;
   background:
-    linear-gradient(160deg, rgba(5, 31, 32, 0.06), rgba(5, 31, 32, 0.58)),
-    var(--gradient-primary);
+    linear-gradient(160deg, rgba(5, 31, 32, 0.06), rgba(5, 31, 32, 0.58)), var(--gradient-primary);
   color: #fff;
+  display: grid;
+  gap: 12px;
   padding: clamp(28px, 6vw, 76px);
 }
 
@@ -34,41 +33,41 @@
 }
 
 .hero span {
-  max-width: 560px;
   color: rgba(255, 255, 255, 0.82);
   font-size: 1.1rem;
   line-height: 1.5;
+  max-width: 560px;
 }
 
 .authPanel {
-  display: grid;
   align-content: center;
-  gap: 14px;
   background: var(--surface);
+  display: grid;
+  gap: 14px;
   padding: clamp(24px, 5vw, 56px);
 }
 
 .authPanel label {
-  display: grid;
-  gap: 8px;
   color: var(--muted);
+  display: grid;
   font-size: 0.88rem;
   font-weight: 800;
+  gap: 8px;
 }
 
 .authPanel input {
-  width: 100%;
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface-strong);
   color: var(--ink);
   outline: none;
   padding: 13px 14px;
+  width: 100%;
 }
 
 .passwordField {
-  position: relative;
   display: block;
+  position: relative;
 }
 
 .passwordField input {
@@ -76,57 +75,59 @@
 }
 
 .passwordField button {
-  position: absolute;
-  top: 50%;
-  right: 7px;
+  background: var(--glass-bg);
   border: 1px solid rgba(255, 255, 255, 0.52);
   border-radius: 6px;
-  background: var(--glass-bg);
   box-shadow: none;
   color: var(--accent-strong);
   cursor: pointer;
   font-size: 0.82rem;
   font-weight: 800;
   padding: 8px 10px;
+  position: absolute;
+  right: 7px;
+  top: 50%;
   transform: translateY(-50%);
 }
 
 .modeSwitch {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 10px;
 }
 
 .modeSwitch button,
 .textButton,
 .googleButton {
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 8px;
-  background: var(--glass-bg);
   color: var(--ink);
   cursor: pointer;
   padding: 11px 12px;
 }
 
 .activeMode {
-  border-color: var(--accent) !important;
   background: color-mix(in srgb, var(--accent), transparent 86%) !important;
+  border-color: var(--accent) !important;
   color: var(--accent-strong) !important;
   font-weight: 800;
 }
 
 .primaryButton {
-  min-height: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.56);
-  border-radius: 8px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
     var(--gradient-primary);
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 8px;
+  box-shadow:
+    0 12px 30px rgba(167, 139, 250, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.52);
   color: #fff;
   cursor: pointer;
   font-weight: 800;
-  box-shadow: 0 12px 30px rgba(167, 139, 250, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.52);
+  min-height: 50px;
 }
 
 .primaryButton:disabled,
@@ -142,11 +143,11 @@
 
 .error,
 .notice {
-  margin: 0;
   border-radius: 8px;
-  padding: 10px 12px;
   font-size: 0.9rem;
   line-height: 1.4;
+  margin: 0;
+  padding: 10px 12px;
 }
 
 .error {

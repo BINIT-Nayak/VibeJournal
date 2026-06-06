@@ -1,277 +1,571 @@
 .screen {
-  position: relative;
-  display: grid;
-  gap: 18px;
-  overflow: hidden;
   border-radius: 8px;
-  padding: 2px;
+  display: grid;
+  gap: 22px;
+  overflow: hidden;
+  padding: 4px;
+  position: relative;
 }
 
 .screen::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  height: 420px;
-  border-radius: 8px;
   background:
-    radial-gradient(circle at 18% 20%, rgba(167, 139, 250, 0.34), transparent 28%),
-    radial-gradient(circle at 80% 8%, rgba(103, 232, 249, 0.3), transparent 24%),
-    radial-gradient(circle at 68% 82%, rgba(249, 168, 212, 0.28), transparent 26%),
-    linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(103, 232, 249, 0.08));
+    radial-gradient(circle at 12% 9%, rgba(167, 139, 250, 0.36), transparent 24%),
+    radial-gradient(circle at 84% 13%, rgba(103, 232, 249, 0.34), transparent 25%),
+    radial-gradient(circle at 78% 60%, rgba(250, 204, 21, 0.18), transparent 24%),
+    radial-gradient(circle at 22% 82%, rgba(249, 168, 212, 0.28), transparent 26%);
+  content: "";
   filter: blur(2px);
+  inset: 0;
   pointer-events: none;
+  position: absolute;
 }
 
 .screen > * {
   position: relative;
 }
 
-.profileHero,
-.glassPanel {
-  border: 1px solid rgba(255, 255, 255, 0.58);
+.topBar,
+.heroSection,
+.quickStats,
+.panel,
+.footer {
+  -webkit-backdrop-filter: blur(28px) saturate(1.35);
+  backdrop-filter: blur(28px) saturate(1.35);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.2)),
+    rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.62);
   border-radius: 8px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.24)),
-    rgba(255, 255, 255, 0.34);
   box-shadow:
-    0 28px 80px rgba(15, 23, 42, 0.16),
+    0 24px 70px rgba(15, 23, 42, 0.13),
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(24px) saturate(1.35);
-  -webkit-backdrop-filter: blur(24px) saturate(1.35);
 }
 
-.profileHero {
-  display: grid;
-  grid-template-columns: 78px 1fr auto;
+.topBar {
   align-items: center;
-  gap: 18px;
-  overflow: hidden;
-  position: relative;
-  padding: 22px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr auto 1fr;
+  padding: 10px;
 }
 
-.profileHero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
+.topBar button,
+.topBar strong,
+.pillButton,
+.settingButton,
+.primaryButton {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.topBar button {
+  color: var(--ink);
+  min-height: 42px;
+  padding: 0 15px;
+}
+
+.topBar button:last-child {
+  justify-self: end;
+}
+
+.topBar strong {
   background:
-    linear-gradient(120deg, rgba(167, 139, 250, 0.24), transparent 48%),
-    linear-gradient(290deg, rgba(249, 168, 212, 0.26), transparent 42%),
-    linear-gradient(135deg, rgba(103, 232, 249, 0.16), transparent 58%);
-  pointer-events: none;
+    linear-gradient(145deg, rgba(167, 139, 250, 0.16), rgba(103, 232, 249, 0.12)),
+    rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  color: var(--ink);
+  min-height: 42px;
+  padding: 0 18px;
 }
 
-.profileHero::after,
-.glassPanel::after {
+.heroSection {
+  align-items: center;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.42fr);
+  min-height: 430px;
+  overflow: hidden;
+  padding: clamp(22px, 5vw, 48px);
+}
+
+.heroSection::before {
+  background:
+    linear-gradient(120deg, rgba(167, 139, 250, 0.22), transparent 44%),
+    linear-gradient(300deg, rgba(103, 232, 249, 0.22), transparent 38%);
   content: "";
-  position: absolute;
-  inset: 1px;
-  border-radius: 7px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), transparent 42%);
+  inset: 0;
   pointer-events: none;
+  position: absolute;
 }
 
-.profileHero > * {
+.heroIdentity {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
   position: relative;
   z-index: 1;
 }
 
-.avatar {
-  display: grid;
-  width: 78px;
-  height: 78px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.44);
-  border-radius: 8px;
+.avatarButton {
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
-    var(--gradient-primary);
-  color: #fff;
-  font-size: 1.35rem;
-  font-weight: 900;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    linear-gradient(var(--surface-strong), var(--surface-strong)) padding-box,
+    conic-gradient(
+        from 130deg,
+        var(--mood-good),
+        var(--brand-teal),
+        var(--brand-lavender),
+        var(--accent-peach),
+        var(--accent-gold),
+        var(--mood-good)
+      )
+      border-box;
+  border: 9px solid transparent;
+  border-radius: 50%;
+  box-shadow:
+    0 28px 80px rgba(167, 139, 250, 0.28),
+    0 12px 38px rgba(103, 232, 249, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  display: grid;
+  height: 148px;
+  place-items: center;
+  width: 148px;
 }
 
-.profileHero p,
-.glassPanel p,
-.profileHero h2,
-.glassPanel h3 {
+.avatarButton span {
+  background:
+    radial-gradient(circle at 35% 26%, rgba(255, 255, 255, 0.34), transparent 28%),
+    var(--gradient-primary);
+  border-radius: 50%;
+  color: #fff;
+  display: grid;
+  font-size: 2.18rem;
+  font-weight: 900;
+  height: 102px;
+  place-items: center;
+  text-shadow: 0 2px 12px rgba(15, 23, 42, 0.22);
+  width: 102px;
+}
+
+.avatarHint {
+  background: rgba(255, 255, 255, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  border-radius: 999px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 7px 11px;
+}
+
+.heroIdentity h1 {
+  color: var(--ink);
+  font-size: clamp(2.75rem, 8vw, 5.8rem);
+  letter-spacing: 0;
+  line-height: 0.9;
+  margin: 8px 0 0;
+  max-width: 760px;
+}
+
+.heroIdentity p {
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 800;
   margin: 0;
 }
 
-.profileHero p,
-.glassPanel p {
-  color: var(--accent-strong);
-  font-size: 0.76rem;
+.moodOrbit {
+  align-self: stretch;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.52), transparent 28%),
+    conic-gradient(
+      from 190deg,
+      rgba(167, 139, 250, 0.92),
+      rgba(103, 232, 249, 0.8),
+      rgba(249, 168, 212, 0.72),
+      rgba(250, 204, 21, 0.76),
+      rgba(167, 139, 250, 0.92)
+    );
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 8px;
+  box-shadow:
+    0 28px 80px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.68);
+  color: #fff;
+  display: grid;
+  min-height: 268px;
+  overflow: hidden;
+  padding: 24px;
+  place-items: center;
+  position: relative;
+  text-align: center;
+}
+
+.moodOrbit::before {
+  background: rgba(15, 23, 42, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  border-radius: 50%;
+  content: "";
+  height: min(74%, 230px);
+  position: absolute;
+  width: min(74%, 230px);
+}
+
+.moodOrbit span,
+.moodOrbit strong,
+.moodOrbit small,
+.moodMeter {
+  position: relative;
+  z-index: 1;
+}
+
+.moodOrbit span {
+  font-size: 0.84rem;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.profileHero h2 {
-  margin-top: 4px;
-  font-size: clamp(1.6rem, 4vw, 2.7rem);
+.moodOrbit strong {
+  font-size: clamp(4rem, 12vw, 7.8rem);
+  letter-spacing: 0;
+  line-height: 0.78;
+}
+
+.moodOrbit small {
+  font-size: 0.92rem;
+  font-weight: 900;
+  opacity: 0.86;
+}
+
+.moodMeter {
+  background: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 999px;
+  height: 10px;
+  max-width: 180px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.moodMeter span {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+}
+
+.heroChips {
+  bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  left: clamp(22px, 5vw, 48px);
+  position: absolute;
+  right: clamp(22px, 5vw, 48px);
+}
+
+.heroChips span {
+  align-items: center;
+  -webkit-backdrop-filter: blur(18px) saturate(1.28);
+  backdrop-filter: blur(18px) saturate(1.28);
+  background: rgba(255, 255, 255, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  color: var(--ink);
+  display: inline-flex;
+  font-size: 0.85rem;
+  font-weight: 900;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 13px;
+}
+
+.quickStats {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 12px;
+}
+
+.quickStats article {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.14)),
+    rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  border-radius: 8px;
+  color: var(--accent-strong);
+  display: grid;
+  gap: 8px;
+  min-height: 122px;
+  overflow: hidden;
+  padding: 18px;
+  position: relative;
+}
+
+.quickStats article::after {
+  background: var(--gradient-primary);
+  bottom: 0;
+  content: "";
+  height: 4px;
+  left: 0;
+  opacity: 0.75;
+  position: absolute;
+  right: 0;
+}
+
+.quickStats span,
+.panel header p {
+  color: var(--accent-strong);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.quickStats strong {
+  color: var(--ink);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
   line-height: 1;
 }
 
-.profileHero span,
-.privacyCard span {
-  color: var(--muted);
-}
-
-.profileHero button,
-.primaryButton,
-.preferenceStack button,
-.actionGrid button {
-  border: 1px solid rgba(255, 255, 255, 0.52);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.52);
-  color: var(--ink);
-  cursor: pointer;
-  font-weight: 800;
-  padding: 10px 13px;
-}
-
-.profileHero button {
-  border-color: rgba(255, 255, 255, 0.42);
-  background: var(--gradient-primary);
-  color: #fff;
-  box-shadow: 0 12px 30px rgba(167, 139, 250, 0.18);
-}
-
-.statsGrid {
+.featureGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
 }
 
-.statsGrid article {
-  border-color: rgba(255, 255, 255, 0.56);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.26)),
-    rgba(255, 255, 255, 0.34);
-  box-shadow:
-    0 20px 54px rgba(15, 23, 42, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.68);
-  backdrop-filter: blur(20px) saturate(1.25);
-  -webkit-backdrop-filter: blur(20px) saturate(1.25);
-}
-
-.profileGrid {
+.panel {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
-  gap: 14px;
-}
-
-.glassPanel {
-  position: relative;
-  display: grid;
-  align-content: start;
   gap: 16px;
-  overflow: hidden;
-  padding: 18px;
+  padding: 20px;
 }
 
-.glassPanel > * {
-  position: relative;
-  z-index: 1;
-}
-
-.glassPanel:first-child {
-  grid-row: span 2;
-}
-
-.glassPanel header {
+.panel header {
   display: grid;
   gap: 5px;
 }
 
-.glassPanel h3 {
-  font-size: 1.2rem;
+.panel h2,
+.settingsGroup h3 {
+  color: var(--ink);
+  margin: 0;
+}
+
+.panel h2 {
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+.panel > span,
+.settingsGroup span {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.progressPanel {
+  grid-row: span 2;
+}
+
+.chartBox {
+  background:
+    linear-gradient(145deg, rgba(167, 139, 250, 0.16), rgba(103, 232, 249, 0.1)),
+    rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  min-height: 220px;
+  overflow: hidden;
+  padding: 18px;
+  position: relative;
+}
+
+.chartBox::before {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.34) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.28) 1px, transparent 1px);
+  background-size:
+    100% 25%,
+    16.66% 100%;
+  content: "";
+  inset: 18px;
+  opacity: 0.54;
+  position: absolute;
+}
+
+.chartBox svg {
+  display: block;
+  height: 100%;
+  min-height: 180px;
+  position: relative;
+  width: 100%;
+}
+
+.detailGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.detailGrid span,
+.insightList li {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.16)),
+    rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  border-radius: 8px;
+  color: var(--muted);
+  font-weight: 800;
+  padding: 13px;
+}
+
+.musicPanel {
+  background:
+    linear-gradient(145deg, rgba(103, 232, 249, 0.26), rgba(167, 139, 250, 0.16)),
+    rgba(255, 255, 255, 0.22);
+}
+
+.vinyl {
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.9) 0 7%,
+      transparent 8% 19%,
+      rgba(15, 23, 42, 0.16) 20% 21%,
+      transparent 22% 100%
+    ),
+    conic-gradient(
+      from 90deg,
+      rgba(15, 23, 42, 0.22),
+      rgba(167, 139, 250, 0.3),
+      rgba(103, 232, 249, 0.28),
+      rgba(15, 23, 42, 0.22)
+    );
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  color: #fff;
+  display: grid;
+  height: 112px;
+  place-items: center;
+  width: 112px;
+}
+
+.insightsPanel {
+  background:
+    linear-gradient(145deg, rgba(249, 168, 212, 0.22), rgba(250, 204, 21, 0.12)),
+    rgba(255, 255, 255, 0.22);
+}
+
+.insightList {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pillButton,
+.primaryButton,
+.settingButton {
+  color: var(--ink);
+  font-weight: 900;
+  min-height: 46px;
+  padding: 0 16px;
+  width: fit-content;
+}
+
+.pillButton {
+  justify-self: start;
+}
+
+.settingButton {
+  justify-content: space-between;
+  max-width: 520px;
+  width: 100%;
+}
+
+.settingsPanel {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.settingsPanel header,
+.statusMessage,
+.primaryButton {
+  grid-column: 1 / -1;
+}
+
+.settingsGroup {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.12)),
+    rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.settingsGroup h3 {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.settingsGroup label {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-weight: 800;
+  gap: 8px;
+}
+
+.settingsGroup input[type="time"] {
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 999px;
+  color: var(--ink);
+  padding: 10px 14px;
+  width: 170px;
 }
 
 .formGrid {
   display: grid;
+  gap: 12px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.passwordGrid {
+  display: grid;
   gap: 12px;
 }
 
-.formGrid label {
-  display: grid;
-  gap: 8px;
+.formGrid label,
+.passwordGrid label {
   color: var(--muted);
+  display: grid;
   font-size: 0.86rem;
   font-weight: 800;
+  gap: 8px;
 }
 
 .formGrid input,
-.settingRow input[type="time"] {
-  width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.56);
-  border-radius: 8px;
+.passwordGrid input {
   background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 999px;
   color: var(--ink);
   outline: none;
-  padding: 11px 12px;
-}
-
-.statusMessage {
-  border-radius: 8px;
-  background: rgba(167, 139, 250, 0.16);
-  color: var(--accent-strong) !important;
-  padding: 10px 12px;
+  padding: 12px 14px;
+  width: 100%;
 }
 
 .primaryButton {
-  width: fit-content;
-  min-height: 46px;
-  border: 0;
-  background: var(--gradient-primary);
-  color: #fff;
-  box-shadow: 0 12px 30px rgba(167, 139, 250, 0.18);
-}
-
-.preferenceStack,
-.actionGrid {
-  display: grid;
-  gap: 10px;
-}
-
-.settingRow {
-  display: grid;
-  grid-template-columns: 1fr auto 126px;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.52);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.42);
-  padding: 10px;
-}
-
-.settingRow > span,
-.privacyCard strong {
-  color: var(--ink);
-  font-weight: 900;
-}
-
-.settingRow label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--muted);
-  font-size: 0.86rem;
-  font-weight: 800;
-}
-
-.privacyCard {
-  display: grid;
-  gap: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.54);
-  border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(167, 139, 250, 0.18), transparent),
-    rgba(255, 255, 255, 0.44);
-  padding: 14px;
+    linear-gradient(145deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.1)),
+    var(--gradient-primary);
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+  justify-self: start;
 }
 
 .dangerButton {
@@ -279,25 +573,79 @@
   color: var(--danger) !important;
 }
 
-@media (max-width: 1000px) {
-  .statsGrid,
-  .profileGrid,
+.statusMessage {
+  background: rgba(167, 139, 250, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  border-radius: 8px;
+  color: var(--accent-strong);
+  font-weight: 800;
+  margin: 0;
+  padding: 12px 14px;
+}
+
+.footer {
+  color: var(--muted);
+  display: flex;
+  font-weight: 800;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+@media (max-width: 980px) {
+  .featureGrid,
+  .heroSection,
+  .settingsPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .heroChips {
+    position: static;
+  }
+
+  .heroIdentity {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .moodOrbit {
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 700px) {
+  .quickStats,
+  .detailGrid,
   .formGrid {
     grid-template-columns: 1fr;
   }
 
-  .glassPanel:first-child {
-    grid-row: auto;
-  }
-}
-
-@media (max-width: 680px) {
-  .profileHero,
-  .settingRow {
+  .topBar {
     grid-template-columns: 1fr;
   }
 
-  .profileHero {
-    align-items: start;
+  .topBar button,
+  .topBar button:last-child,
+  .topBar strong {
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 520px) {
+  .heroSection {
+    padding: 22px;
+  }
+
+  .heroIdentity h1 {
+    font-size: 3rem;
+  }
+
+  .moodOrbit strong {
+    font-size: 4.8rem;
+  }
+
+  .footer {
+    display: grid;
+    text-align: center;
   }
 }

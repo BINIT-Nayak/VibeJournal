@@ -34,7 +34,7 @@ export function serializeEntry(entry: MoodEntry): ClientMoodEntry {
     photoNames: entry.photoNames,
     archivedAt: entry.archivedAt?.toISOString(),
     createdAt: entry.createdAt.toISOString(),
-    updatedAt: entry.updatedAt.toISOString()
+    updatedAt: entry.updatedAt.toISOString(),
   };
 }
 
@@ -43,7 +43,7 @@ export function serializeSettings(settings: UserSettings): ClientSettings {
     darkMode: settings.darkMode,
     reminderEnabled: settings.reminderEnabled,
     reminderTime: settings.reminderTime,
-    spotifyConnected: settings.spotifyConnected
+    spotifyConnected: settings.spotifyConnected,
   };
 }
 
@@ -66,5 +66,12 @@ export function parseStringArray(value: unknown) {
     return [];
   }
 
-  return Array.from(new Set(value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean)));
+  return Array.from(
+    new Set(
+      value
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    )
+  );
 }

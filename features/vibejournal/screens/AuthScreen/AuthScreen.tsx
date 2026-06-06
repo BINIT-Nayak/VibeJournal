@@ -22,7 +22,7 @@ export function AuthScreen({
   onPasswordReset,
   onPasswordResetConfirm,
   onSignup,
-  resetToken
+  resetToken,
 }: AuthScreenProps) {
   const [mode, setMode] = useState<AuthMode>("login");
   const [name, setName] = useState("");
@@ -63,28 +63,53 @@ export function AuthScreen({
 
       <form className={styles.authPanel} onSubmit={handleSubmit}>
         <div className={styles.modeSwitch}>
-          <button className={mode === "login" ? styles.activeMode : ""} onClick={() => setMode("login")} type="button">Login</button>
-          <button className={mode === "signup" ? styles.activeMode : ""} onClick={() => setMode("signup")} type="button">Signup</button>
+          <button
+            className={mode === "login" ? styles.activeMode : ""}
+            onClick={() => setMode("login")}
+            type="button"
+          >
+            Login
+          </button>
+          <button
+            className={mode === "signup" ? styles.activeMode : ""}
+            onClick={() => setMode("signup")}
+            type="button"
+          >
+            Signup
+          </button>
         </div>
 
         {mode === "signup" && (
           <label>
             Name
-            <input onChange={(event) => setName(event.target.value)} placeholder="Your name" value={name} />
+            <input
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Your name"
+              value={name}
+            />
           </label>
         )}
 
         {mode !== "reset-confirm" && (
           <label>
             Email
-            <input onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" type="email" value={email} />
+            <input
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@example.com"
+              type="email"
+              value={email}
+            />
           </label>
         )}
 
         {mode === "reset-confirm" && (
           <label>
             Reset token
-            <input onChange={(event) => setToken(event.target.value)} placeholder="Paste reset token" value={token || resetToken} />
+            <input
+              onChange={(event) => setToken(event.target.value)}
+              placeholder="Paste reset token"
+              value={token || resetToken}
+            />
           </label>
         )}
 
@@ -110,17 +135,25 @@ export function AuthScreen({
         )}
 
         {error && <p className={styles.error}>{error}</p>}
-        {resetToken && mode === "reset-confirm" && <p className={styles.notice}>Dev reset token generated. Paste it or submit as-is.</p>}
+        {resetToken && mode === "reset-confirm" && (
+          <p className={styles.notice}>Dev reset token generated. Paste it or submit as-is.</p>
+        )}
 
         <button className={styles.primaryButton} disabled={isBusy} type="submit">
           {isBusy ? "Working..." : getSubmitLabel(mode)}
         </button>
 
-        <button className={styles.textButton} onClick={() => setMode(mode === "reset-confirm" ? "login" : "reset-request")} type="button">
+        <button
+          className={styles.textButton}
+          onClick={() => setMode(mode === "reset-confirm" ? "login" : "reset-request")}
+          type="button"
+        >
           {mode === "reset-confirm" ? "Back to login" : "Forgot password?"}
         </button>
 
-        <button className={styles.googleButton} disabled type="button">Google login ready when OAuth keys are configured</button>
+        <button className={styles.googleButton} disabled type="button">
+          Google login ready when OAuth keys are configured
+        </button>
       </form>
     </main>
   );

@@ -45,7 +45,7 @@ export const moods: Array<{
   { key: "angry", label: "Angry", symbol: "😤", color: "#E11D48" },
   { key: "tired", label: "Tired", symbol: "😴", color: "#94A3B8" },
   { key: "hopeful", label: "Hopeful", symbol: "🌤️", color: "#4ADE80" },
-  { key: "neutral", label: "Neutral", symbol: "😐", color: "#94A3B8" }
+  { key: "neutral", label: "Neutral", symbol: "😐", color: "#94A3B8" },
 ];
 
 export const prompts = [
@@ -53,7 +53,7 @@ export const prompts = [
   "What is one small thing you are proud of today?",
   "What thought kept repeating, and is there another fair way to read it?",
   "What would you say to a friend who felt this way?",
-  "What is one gentle next step you can take in the next hour?"
+  "What is one gentle next step you can take in the next hour?",
 ];
 
 export function buildInsight(entries: MoodEntry[]) {
@@ -62,8 +62,7 @@ export function buildInsight(entries: MoodEntry[]) {
       headline: "Your pattern will appear as you check in.",
       detail:
         "Start with one honest mood entry. VibeJournal will look for gentle trends without rushing to conclusions.",
-      reframe:
-        "A single entry is enough for today. Consistency can be tiny and still count."
+      reframe: "A single entry is enough for today. Consistency can be tiny and still count.",
     };
   }
 
@@ -81,11 +80,18 @@ export function buildInsight(entries: MoodEntry[]) {
   const topTag = Object.entries(tagCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
   const sleepEntries = recent.filter((entry) => typeof entry.sleepHours === "number");
   const avgSleep = sleepEntries.length
-    ? Math.round((sleepEntries.reduce((total, entry) => total + (entry.sleepHours ?? 0), 0) / sleepEntries.length) * 10) / 10
+    ? Math.round(
+        (sleepEntries.reduce((total, entry) => total + (entry.sleepHours ?? 0), 0) /
+          sleepEntries.length) *
+          10
+      ) / 10
     : null;
   const activeDays = recent.filter((entry) => (entry.exerciseMinutes ?? 0) >= 20).length;
-  const severeDistressPattern = /\b(suicide|kill myself|self harm|hurt myself|end it all|can't go on|cant go on)\b/i;
-  const needsSafetyNet = recent.some((entry) => severeDistressPattern.test(`${entry.note} ${entry.voiceNote ?? ""}`));
+  const severeDistressPattern =
+    /\b(suicide|kill myself|self harm|hurt myself|end it all|can't go on|cant go on)\b/i;
+  const needsSafetyNet = recent.some((entry) =>
+    severeDistressPattern.test(`${entry.note} ${entry.voiceNote ?? ""}`)
+  );
 
   return {
     headline:
@@ -102,7 +108,7 @@ export function buildInsight(entries: MoodEntry[]) {
       : "Add sleep, movement, or social context to make the pattern view sharper.",
     safety: needsSafetyNet
       ? "This entry sounds heavy. If you might hurt yourself or feel unsafe, contact local emergency services or a crisis hotline now, and reach out to someone you trust."
-      : null
+      : null,
   };
 }
 
@@ -111,7 +117,7 @@ export function getPlaylistSuggestion(entry: MoodEntry | null): PlaylistSuggesti
     return {
       title: "Soft Start Radio",
       description: "A neutral, low-pressure mix for getting started.",
-      query: "calm focus gentle indie playlist"
+      query: "calm focus gentle indie playlist",
     };
   }
 
@@ -119,7 +125,7 @@ export function getPlaylistSuggestion(entry: MoodEntry | null): PlaylistSuggesti
     return {
       title: "Low Light Recovery",
       description: "Warm, steady songs for low energy without forcing cheer.",
-      query: "gentle sad healing acoustic playlist"
+      query: "gentle sad healing acoustic playlist",
     };
   }
 
@@ -127,7 +133,7 @@ export function getPlaylistSuggestion(entry: MoodEntry | null): PlaylistSuggesti
     return {
       title: "Pressure Release",
       description: "Cathartic tracks for tension, anger, or anxious momentum.",
-      query: "angry cathartic alternative rock playlist"
+      query: "angry cathartic alternative rock playlist",
     };
   }
 
@@ -135,7 +141,7 @@ export function getPlaylistSuggestion(entry: MoodEntry | null): PlaylistSuggesti
     return {
       title: "Bright Momentum",
       description: "Upbeat tracks to ride the good energy.",
-      query: "happy upbeat pop dance playlist"
+      query: "happy upbeat pop dance playlist",
     };
   }
 
@@ -143,13 +149,13 @@ export function getPlaylistSuggestion(entry: MoodEntry | null): PlaylistSuggesti
     return {
       title: "Quiet Anchor",
       description: "Soft textures for calm, focus, or winding down.",
-      query: "calm ambient piano focus playlist"
+      query: "calm ambient piano focus playlist",
     };
   }
 
   return {
     title: "Balanced Flow",
     description: "Mid-tempo songs for a stable, hopeful mood.",
-    query: "hopeful indie pop mellow playlist"
+    query: "hopeful indie pop mellow playlist",
   };
 }

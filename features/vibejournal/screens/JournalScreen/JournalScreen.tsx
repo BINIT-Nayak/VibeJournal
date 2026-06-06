@@ -28,35 +28,60 @@ export function JournalScreen({
   onMoodFilter,
   onQuery,
   onSelectEntry,
-  onTagFilter
+  onTagFilter,
 }: JournalScreenProps & JournalActions) {
   return (
     <section className={styles.screen}>
       <PageTitle eyebrow="Journal" title="History" />
       <Heatmap entries={entries} />
       <div className={styles.filters}>
-        <input value={query} onChange={(event) => onQuery(event.target.value)} placeholder="Search entries" />
-        <select value={moodFilter} onChange={(event) => onMoodFilter(event.target.value as "all" | MoodKey)}>
+        <input
+          value={query}
+          onChange={(event) => onQuery(event.target.value)}
+          placeholder="Search entries"
+        />
+        <select
+          value={moodFilter}
+          onChange={(event) => onMoodFilter(event.target.value as "all" | MoodKey)}
+        >
           <option value="all">All moods</option>
-          {moods.map((item) => <option key={item.key} value={item.key}>{item.label}</option>)}
+          {moods.map((item) => (
+            <option key={item.key} value={item.key}>
+              {item.label}
+            </option>
+          ))}
         </select>
         <select value={tagFilter} onChange={(event) => onTagFilter(event.target.value)}>
           <option value="all">All tags</option>
-          {journalTags.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
+          {journalTags.map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
+            </option>
+          ))}
         </select>
       </div>
       {selectedEntry && (
         <article className={styles.entryDetail}>
           <div>
             <span>Selected entry</span>
-            <h2>{new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(selectedEntry.createdAt))}</h2>
+            <h2>
+              {new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(
+                new Date(selectedEntry.createdAt)
+              )}
+            </h2>
           </div>
           <p>{selectedEntry.note}</p>
           {selectedEntry.voiceNote && <p>{selectedEntry.voiceNote}</p>}
           <div>
-            <button onClick={() => onEditEntry(selectedEntry)} type="button">Edit</button>
-            <button onClick={() => onArchiveEntry(selectedEntry)} type="button">{selectedEntry.archivedAt ? "Restore" : "Archive"}</button>
-            <button onClick={() => onDeleteEntry(selectedEntry.id)} type="button">Delete</button>
+            <button onClick={() => onEditEntry(selectedEntry)} type="button">
+              Edit
+            </button>
+            <button onClick={() => onArchiveEntry(selectedEntry)} type="button">
+              {selectedEntry.archivedAt ? "Restore" : "Archive"}
+            </button>
+            <button onClick={() => onDeleteEntry(selectedEntry.id)} type="button">
+              Delete
+            </button>
           </div>
         </article>
       )}

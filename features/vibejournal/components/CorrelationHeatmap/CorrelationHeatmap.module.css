@@ -1,16 +1,16 @@
 .correlationGrid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .correlationGrid span {
-  display: grid;
-  min-height: 42px;
-  place-items: center;
-  border-radius: 6px;
   background: var(--mood-color);
+  border-radius: 6px;
   color: color-mix(in srgb, var(--ink), transparent 20%);
+  display: grid;
   font-size: 0.78rem;
   font-weight: 800;
+  min-height: 42px;
+  place-items: center;
 }

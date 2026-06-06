@@ -49,8 +49,8 @@ export async function createSession(userId: string) {
     data: {
       tokenHash: hashToken(token),
       userId,
-      expiresAt
-    }
+      expiresAt,
+    },
   });
 
   return { token, expiresAt };
@@ -63,7 +63,7 @@ export async function setSessionCookie(token: string, expiresAt: Date) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    expires: expiresAt
+    expires: expiresAt,
   });
 }
 
@@ -82,7 +82,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 
   const session = await prisma.session.findUnique({
     where: { tokenHash: hashToken(token) },
-    include: { user: { select: { id: true, email: true, name: true } } }
+    include: { user: { select: { id: true, email: true, name: true } } },
   });
 
   if (!session || session.expiresAt <= new Date()) {
@@ -124,8 +124,8 @@ export async function createPasswordResetToken(userId: string) {
     data: {
       tokenHash: hashToken(token),
       userId,
-      expiresAt
-    }
+      expiresAt,
+    },
   });
 
   return token;

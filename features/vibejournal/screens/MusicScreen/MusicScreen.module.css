@@ -4,24 +4,28 @@
 }
 
 .kicker {
-  margin: 0;
   color: #fff;
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.08em;
+  margin: 0;
   text-transform: uppercase;
 }
 
 .musicBanner {
-  display: flex;
   align-items: center;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--mood-color), transparent 10%),
+      rgba(20, 27, 25, 0.82)
+    ),
+    var(--mood-color);
+  border-radius: 8px;
+  color: #fff;
+  display: flex;
   gap: 18px;
   min-height: 170px;
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--mood-color), transparent 10%), rgba(20, 27, 25, 0.82)),
-    var(--mood-color);
-  color: #fff;
   padding: 24px;
 }
 
@@ -30,88 +34,89 @@
 }
 
 .musicBanner h1 {
-  margin: 4px 0 0;
   font-size: clamp(2rem, 5vw, 4rem);
+  margin: 4px 0 0;
 }
 
 .generatePanel {
-  display: grid;
-  grid-template-columns: 1fr 190px;
-  gap: 12px;
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface-strong);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 190px;
   padding: 18px;
 }
 
 .generatePanel textarea {
-  width: 100%;
-  min-height: 92px;
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface-strong);
   color: var(--ink);
+  min-height: 92px;
   outline: none;
   padding: 13px 14px;
   resize: vertical;
+  width: 100%;
 }
 
 .generatePanel a {
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.56);
-  border-radius: 8px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
     var(--gradient-music);
-  box-shadow: 0 12px 30px rgba(103, 232, 249, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 8px;
+  box-shadow:
+    0 12px 30px rgba(103, 232, 249, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.52);
   color: #fff;
+  display: grid;
   font-weight: 800;
+  place-items: center;
   text-decoration: none;
 }
 
 .audioProfile {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .audioProfile span {
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface-strong);
   color: var(--muted);
-  padding: 12px;
   font-weight: 800;
+  padding: 12px;
 }
 
 .playlistGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .playlistCard {
-  display: grid;
-  min-height: 190px;
   align-content: end;
-  gap: 8px;
-  border-radius: 8px;
   background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.42)),
-    var(--gradient-music);
+    linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.42)), var(--gradient-music);
+  border-radius: 8px;
   color: #fff;
+  display: grid;
+  gap: 8px;
+  min-height: 190px;
   padding: 16px;
 }
 
 .playlistCard div {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
   display: grid;
-  width: 38px;
+  font-weight: 800;
   height: 38px;
   place-items: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.22);
-  font-weight: 800;
+  width: 38px;
 }
 
 .playlistCard span {
@@ -127,45 +132,47 @@
 }
 
 .stationRow button {
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: var(--glass-bg);
   color: var(--ink);
   cursor: pointer;
   padding: 9px 12px;
 }
 
 .activeStation {
-  border-color: var(--accent) !important;
   background: color-mix(in srgb, var(--accent), transparent 86%) !important;
+  border-color: var(--accent) !important;
   color: var(--accent-strong) !important;
 }
 
 .miniPlayer {
-  display: grid;
-  grid-template-columns: 46px 1fr auto;
   align-items: center;
-  gap: 12px;
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface-strong);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 46px 1fr auto;
   padding: 12px;
 }
 
 .miniPlayer div {
-  width: 46px;
-  height: 46px;
-  border-radius: 6px;
   background: var(--gradient-music);
+  border-radius: 6px;
+  height: 46px;
+  width: 46px;
 }
 
 .miniPlayer a {
-  border: 1px solid rgba(255, 255, 255, 0.56);
-  border-radius: 999px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
     var(--gradient-music);
-  box-shadow: 0 10px 26px rgba(103, 232, 249, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 999px;
+  box-shadow:
+    0 10px 26px rgba(103, 232, 249, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.52);
   color: #fff;
   cursor: pointer;
   padding: 9px 12px;
@@ -177,8 +184,8 @@
   .musicBanner,
   .miniPlayer {
     align-items: stretch;
-    grid-template-columns: 1fr;
     flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .generatePanel,

@@ -37,18 +37,46 @@ export async function PATCH(request: Request, context: RouteContext) {
       where: { id },
       data: {
         mood: body.mood ? parseMood(body.mood) : existingEntry.mood,
-        energy: typeof body.energy === "number" ? parseNumber(body.energy, existingEntry.energy, 1, 10) : existingEntry.energy,
-        stress: typeof body.stress === "number" ? parseNumber(body.stress, existingEntry.stress, 1, 10) : existingEntry.stress,
-        valence: typeof body.valence === "number" ? parseNumber(body.valence, existingEntry.valence, 1, 10) : existingEntry.valence,
+        energy:
+          typeof body.energy === "number"
+            ? parseNumber(body.energy, existingEntry.energy, 1, 10)
+            : existingEntry.energy,
+        stress:
+          typeof body.stress === "number"
+            ? parseNumber(body.stress, existingEntry.stress, 1, 10)
+            : existingEntry.stress,
+        valence:
+          typeof body.valence === "number"
+            ? parseNumber(body.valence, existingEntry.valence, 1, 10)
+            : existingEntry.valence,
         note: typeof body.note === "string" ? body.note.trim() : existingEntry.note,
         tags: Array.isArray(body.tags) ? parseStringArray(body.tags) : existingEntry.tags,
-        sleepHours: typeof body.sleepHours === "number" ? parseNumber(body.sleepHours, 7, 0, 14) : existingEntry.sleepHours,
-        exerciseMinutes: typeof body.exerciseMinutes === "number" ? parseNumber(body.exerciseMinutes, 0, 0, 240) : existingEntry.exerciseMinutes,
-        socialLevel: typeof body.socialLevel === "number" ? parseNumber(body.socialLevel, 5, 1, 10) : existingEntry.socialLevel,
-        voiceNote: typeof body.voiceNote === "string" && body.voiceNote.trim() ? body.voiceNote.trim() : existingEntry.voiceNote,
-        photoNames: Array.isArray(body.photoNames) ? parseStringArray(body.photoNames) : existingEntry.photoNames,
-        archivedAt: typeof body.archived === "boolean" ? (body.archived ? new Date() : null) : existingEntry.archivedAt
-      }
+        sleepHours:
+          typeof body.sleepHours === "number"
+            ? parseNumber(body.sleepHours, 7, 0, 14)
+            : existingEntry.sleepHours,
+        exerciseMinutes:
+          typeof body.exerciseMinutes === "number"
+            ? parseNumber(body.exerciseMinutes, 0, 0, 240)
+            : existingEntry.exerciseMinutes,
+        socialLevel:
+          typeof body.socialLevel === "number"
+            ? parseNumber(body.socialLevel, 5, 1, 10)
+            : existingEntry.socialLevel,
+        voiceNote:
+          typeof body.voiceNote === "string" && body.voiceNote.trim()
+            ? body.voiceNote.trim()
+            : existingEntry.voiceNote,
+        photoNames: Array.isArray(body.photoNames)
+          ? parseStringArray(body.photoNames)
+          : existingEntry.photoNames,
+        archivedAt:
+          typeof body.archived === "boolean"
+            ? body.archived
+              ? new Date()
+              : null
+            : existingEntry.archivedAt,
+      },
     });
 
     return Response.json({ entry: serializeEntry(entry) });

@@ -20,9 +20,16 @@ export async function PATCH(request: Request) {
       userUpdates.email = email;
     }
 
-    if (typeof body.currentPassword === "string" && typeof body.newPassword === "string" && body.newPassword) {
+    if (
+      typeof body.currentPassword === "string" &&
+      typeof body.newPassword === "string" &&
+      body.newPassword
+    ) {
       const existingUser = await prisma.user.findUnique({ where: { id: user.id } });
-      if (!existingUser || !(await verifyPassword(body.currentPassword, existingUser.passwordHash))) {
+      if (
+        !existingUser ||
+        !(await verifyPassword(body.currentPassword, existingUser.passwordHash))
+      ) {
         return jsonError("Current password is incorrect.", 401);
       }
       if (body.newPassword.length < 8) {
@@ -35,28 +42,29 @@ export async function PATCH(request: Request) {
       where: { userId: user.id },
       update: {
         darkMode: typeof body.darkMode === "boolean" ? body.darkMode : undefined,
-        reminderEnabled: typeof body.reminderEnabled === "boolean" ? body.reminderEnabled : undefined,
-        reminderTime: typeof body.reminderTime === "string" ? body.reminderTime : undefined
+        reminderEnabled:
+          typeof body.reminderEnabled === "boolean" ? body.reminderEnabled : undefined,
+        reminderTime: typeof body.reminderTime === "string" ? body.reminderTime : undefined,
       },
       create: {
         userId: user.id,
         darkMode: typeof body.darkMode === "boolean" ? body.darkMode : false,
         reminderEnabled: typeof body.reminderEnabled === "boolean" ? body.reminderEnabled : true,
-        reminderTime: typeof body.reminderTime === "string" ? body.reminderTime : "20:30"
-      }
+        reminderTime: typeof body.reminderTime === "string" ? body.reminderTime : "20:30",
+      },
     });
 
     const updatedUser = Object.keys(userUpdates).length
       ? await prisma.user.update({
           where: { id: user.id },
           data: userUpdates,
-          select: { id: true, email: true, name: true }
+          select: { id: true, email: true, name: true },
         })
       : user;
 
     return Response.json({
       user: updatedUser,
-      settings: serializeSettings(settings)
+      settings: serializeSettings(settings),
     });
   } catch (error) {
     if (error instanceof Error && error.message !== "UNAUTHORIZED") {

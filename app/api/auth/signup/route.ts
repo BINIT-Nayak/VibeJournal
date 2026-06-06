@@ -26,9 +26,9 @@ export async function POST(request: Request) {
       email,
       name,
       passwordHash: await hashPassword(password),
-      settings: { create: {} }
+      settings: { create: {} },
     },
-    include: { settings: true }
+    include: { settings: true },
   });
   const session = await createSession(user.id);
   await setSessionCookie(session.token, session.expiresAt);
@@ -36,6 +36,6 @@ export async function POST(request: Request) {
   return Response.json({
     user: { id: user.id, email: user.email, name: user.name },
     entries: [],
-    settings: serializeSettings(user.settings!)
+    settings: serializeSettings(user.settings!),
   });
 }

@@ -9,17 +9,18 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { settings: true }
+    include: { settings: true },
   });
 
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
     return jsonError("Email or password is incorrect.", 401);
   }
 
-  const settings = user.settings ?? await prisma.userSettings.create({ data: { userId: user.id } });
+  const settings =
+    user.settings ?? (await prisma.userSettings.create({ data: { userId: user.id } }));
   const entries = await prisma.moodEntry.findMany({
     where: { userId: user.id },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
   });
   const session = await createSession(user.id);
   await setSessionCookie(session.token, session.expiresAt);
@@ -27,6 +28,6 @@ export async function POST(request: Request) {
   return Response.json({
     user: { id: user.id, email: user.email, name: user.name },
     entries: entries.map(serializeEntry),
-    settings: serializeSettings(settings)
+    settings: serializeSettings(settings),
   });
 }

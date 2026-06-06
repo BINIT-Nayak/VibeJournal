@@ -1,10 +1,10 @@
 .kicker,
 .eyebrow {
-  margin: 0;
   color: var(--accent-strong);
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.08em;
+  margin: 0;
   text-transform: uppercase;
 }
 
@@ -13,21 +13,21 @@
 }
 
 .pageTitle h1 {
-  margin: 4px 0 0;
   font-size: clamp(2rem, 5vw, 3.8rem);
-  line-height: 1;
   letter-spacing: 0;
+  line-height: 1;
+  margin: 4px 0 0;
 }
 
 .panelHeader {
-  display: flex;
   align-items: flex-start;
+  display: flex;
   justify-content: space-between;
   margin-bottom: 14px;
 }
 
 .panelHeader h2 {
-  margin: 4px 0 0;
   font-size: 1.22rem;
   letter-spacing: 0;
+  margin: 4px 0 0;
 }

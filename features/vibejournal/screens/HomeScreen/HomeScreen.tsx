@@ -20,7 +20,7 @@ export function HomeScreen({
   onMusic,
   onNew,
   playlist,
-  streak
+  streak,
 }: HomeScreenProps) {
   return (
     <section className={styles.screen}>

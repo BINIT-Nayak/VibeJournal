@@ -1,4 +1,5 @@
 import type { MoodEntry, MoodKey } from "@/lib/mood";
+import { Home, Plus, BookOpen, Sparkles, Music, User, Circle } from "lucide-react";
 
 export function deriveValence(mood: MoodKey, stress: number) {
   const base: Record<MoodKey, number> = {
@@ -9,7 +10,7 @@ export function deriveValence(mood: MoodKey, stress: number) {
     angry: 3,
     tired: 5,
     hopeful: 8,
-    neutral: 6
+    neutral: 6,
   };
 
   return Math.max(1, Math.min(10, base[mood] - Math.floor(stress / 4)));
@@ -44,7 +45,9 @@ export function filterEntries(
 ) {
   return entries.filter((entry) => {
     const matchesSearch = query.trim()
-      ? `${entry.note} ${entry.tags.join(" ")} ${entry.mood}`.toLowerCase().includes(query.toLowerCase())
+      ? `${entry.note} ${entry.tags.join(" ")} ${entry.mood}`
+          .toLowerCase()
+          .includes(query.toLowerCase())
       : true;
     const matchesMood = moodFilter === "all" || entry.mood === moodFilter;
     const matchesTag = tagFilter === "all" || entry.tags.includes(tagFilter);
@@ -54,14 +57,14 @@ export function filterEntries(
 }
 
 export function navSymbol(screen: string) {
-  const symbols: Record<string, string> = {
-    home: "⌂",
-    new: "+",
-    journal: "□",
-    insights: "◇",
-    music: "♪",
-    profile: "○"
+  const icons: Record<string, React.ElementType> = {
+    home: Home,
+    new: Plus,
+    journal: BookOpen,
+    insights: Sparkles,
+    music: Music,
+    profile: User,
   };
 
-  return symbols[screen] ?? "○";
+  return icons[screen] ?? Circle;
 }

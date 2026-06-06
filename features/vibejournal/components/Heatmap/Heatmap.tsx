@@ -6,7 +6,9 @@ export function Heatmap({ entries }: { entries: MoodEntry[] }) {
   const cells = Array.from({ length: 35 }, (_, index) => {
     const date = new Date();
     date.setDate(date.getDate() - (34 - index));
-    const entry = entries.find((item) => new Date(item.createdAt).toDateString() === date.toDateString());
+    const entry = entries.find(
+      (item) => new Date(item.createdAt).toDateString() === date.toDateString()
+    );
     return { date, entry };
   });
 

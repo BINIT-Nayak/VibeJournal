@@ -1,15 +1,15 @@
 .heatmap {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface-strong);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   padding: 14px;
 }
 
 .heatmap span {
   aspect-ratio: 1;
-  border-radius: 5px;
   background: var(--mood-color);
+  border-radius: 5px;
 }

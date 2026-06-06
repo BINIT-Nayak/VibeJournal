@@ -12,18 +12,18 @@ export async function GET() {
   const [entries, settings] = await Promise.all([
     prisma.moodEntry.findMany({
       where: { userId: user.id },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     }),
     prisma.userSettings.upsert({
       where: { userId: user.id },
       update: {},
-      create: { userId: user.id }
-    })
+      create: { userId: user.id },
+    }),
   ]);
 
   return Response.json({
     user,
     entries: entries.map(serializeEntry),
-    settings: serializeSettings(settings)
+    settings: serializeSettings(settings),
   });
 }

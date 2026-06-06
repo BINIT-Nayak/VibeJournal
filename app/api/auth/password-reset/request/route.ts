@@ -14,6 +14,6 @@ export async function POST(request: Request) {
 
   return Response.json({
     ok: true,
-    resetToken: process.env.NODE_ENV === "production" ? undefined : token
+    resetToken: process.env.NODE_ENV === "production" ? undefined : token,
   });
 }

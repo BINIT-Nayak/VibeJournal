@@ -19,7 +19,12 @@ export function InsightsScreen({ entries, insight, onTab, tab }: InsightsScreenP
       <PageTitle eyebrow="Insights" title="Patterns over time" />
       <div className={styles.tabs}>
         {insightTabs.map((item) => (
-          <button className={tab === item ? styles.activeTab : ""} key={item} onClick={() => onTab(item)} type="button">
+          <button
+            className={tab === item ? styles.activeTab : ""}
+            key={item}
+            onClick={() => onTab(item)}
+            type="button"
+          >
             {item}
           </button>
         ))}
@@ -55,7 +60,9 @@ export function InsightsScreen({ entries, insight, onTab, tab }: InsightsScreenP
         <section className={styles.safetyCard}>
           <strong>Safety net</strong>
           <p>{insight.safety}</p>
-          <a href="https://findahelpline.com" target="_blank" rel="noreferrer">Find a local helpline</a>
+          <a href="https://findahelpline.com" target="_blank" rel="noreferrer">
+            Find a local helpline
+          </a>
         </section>
       )}
     </section>

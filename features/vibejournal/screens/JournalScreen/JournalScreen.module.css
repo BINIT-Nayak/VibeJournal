@@ -6,27 +6,27 @@
 
 .filters {
   display: grid;
-  grid-template-columns: 1fr 160px 160px;
   gap: 10px;
+  grid-template-columns: 1fr 160px 160px;
 }
 
 .filters input,
 .filters select {
-  width: 100%;
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface-strong);
   color: var(--ink);
   outline: none;
   padding: 13px 14px;
+  width: 100%;
 }
 
 .entryDetail {
-  display: grid;
-  gap: 12px;
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface-strong);
+  display: grid;
+  gap: 12px;
   padding: 18px;
 }
 
@@ -54,9 +54,9 @@
 }
 
 .entryDetail button {
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: var(--glass-bg);
   color: var(--ink);
   cursor: pointer;
   padding: 8px 12px;

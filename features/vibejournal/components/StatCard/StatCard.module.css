@@ -1,7 +1,7 @@
 .statCard {
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface-strong);
   padding: 18px;
 }
 
@@ -11,6 +11,6 @@
 
 .statCard strong {
   display: block;
-  margin-top: 8px;
   font-size: 2rem;
+  margin-top: 8px;
 }

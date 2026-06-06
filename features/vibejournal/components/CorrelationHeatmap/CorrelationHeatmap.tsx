@@ -10,7 +10,10 @@ export function CorrelationHeatmap({ entries }: { entries: MoodEntry[] }) {
         const moodMeta = moods.find((item) => item.key === match?.mood);
 
         return (
-          <span key={hour} style={{ "--mood-color": moodMeta?.color ?? "rgba(30,37,40,0.08)" } as CSSProperties}>
+          <span
+            key={hour}
+            style={{ "--mood-color": moodMeta?.color ?? "rgba(30,37,40,0.08)" } as CSSProperties}
+          >
             {hour}
           </span>
         );

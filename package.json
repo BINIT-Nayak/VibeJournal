@@ -7,11 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:eslint": "next lint",
+    "lint:style": "stylelint \"**/*.{css,scss}\" --cache",
+    "lint:style:fix": "stylelint \"**/*.{css,scss}\" --fix --cache",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "check": "npm run lint:eslint && npm run lint:style && npm run format:check",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
+    "lucide-react": "^1.17.0",
     "next": "^15.3.2",
     "prisma": "^6.8.2",
     "react": "^19.0.0",
@@ -24,6 +31,11 @@
     "@types/react-dom": "^19.0.4",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.3",
+    "stylelint": "^17.13.0",
+    "stylelint-config-standard": "^40.0.0",
+    "stylelint-order": "^8.1.1",
     "typescript": "^5.8.3"
   }
 }

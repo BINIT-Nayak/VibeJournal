@@ -52,9 +52,9 @@ This version uses dynamic API routes and Prisma, so deploy it as a Next.js web s
 - Start command: `npm run start`
 - Environment variable: `DATABASE_URL`
 
-
 TODO:
 Key Features Can Build Next
+
 1. Mood Tracking & Journaling
 
 Quick mood picker: Emoji sliders, colors, or scales (1-10) for energy/valance.

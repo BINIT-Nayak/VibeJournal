@@ -1,7 +1,14 @@
 "use client";
 
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import { buildInsight, getPlaylistSuggestion, moods, prompts, type MoodEntry, type MoodKey } from "@/lib/mood";
+import {
+  buildInsight,
+  getPlaylistSuggestion,
+  moods,
+  prompts,
+  type MoodEntry,
+  type MoodKey,
+} from "@/lib/mood";
 import type { ClientSettings, ClientUser } from "@/lib/api";
 import type { InsightTab, Screen, UserSession } from "./types";
 import { calculateStreak, deriveValence, filterEntries, getAverageMood } from "./utils";
@@ -18,7 +25,7 @@ const defaultSettings: ClientSettings = {
   darkMode: false,
   reminderEnabled: true,
   reminderTime: "20:30",
-  spotifyConnected: false
+  spotifyConnected: false,
 };
 
 export function VibeJournalApp() {
@@ -113,7 +120,7 @@ export function VibeJournalApp() {
       exerciseMinutes,
       socialLevel,
       voiceNote: voiceNote.trim() || undefined,
-      photoNames
+      photoNames,
     };
 
     setIsBusy(true);
@@ -123,16 +130,16 @@ export function VibeJournalApp() {
       const response = editingEntryId
         ? await apiFetch<{ entry: MoodEntry }>(`/api/entries/${editingEntryId}`, {
             method: "PATCH",
-            body: JSON.stringify(entryPayload)
+            body: JSON.stringify(entryPayload),
           })
         : await apiFetch<{ entry: MoodEntry }>("/api/entries", {
             method: "POST",
-            body: JSON.stringify(entryPayload)
+            body: JSON.stringify(entryPayload),
           });
 
       setEntries((current) =>
         editingEntryId
-          ? current.map((entry) => entry.id === response.entry.id ? response.entry : entry)
+          ? current.map((entry) => (entry.id === response.entry.id ? response.entry : entry))
           : [response.entry, ...current]
       );
       setEditingEntryId(null);
@@ -177,9 +184,11 @@ export function VibeJournalApp() {
   async function archiveEntry(entry: MoodEntry) {
     const response = await apiFetch<{ entry: MoodEntry }>(`/api/entries/${entry.id}`, {
       method: "PATCH",
-      body: JSON.stringify({ archived: !entry.archivedAt })
+      body: JSON.stringify({ archived: !entry.archivedAt }),
     });
-    setEntries((current) => current.map((item) => item.id === response.entry.id ? response.entry : item));
+    setEntries((current) =>
+      current.map((item) => (item.id === response.entry.id ? response.entry : item))
+    );
   }
 
   async function deleteEntry(entryId: string) {
@@ -189,16 +198,18 @@ export function VibeJournalApp() {
 
     await apiFetch(`/api/entries/${entryId}`, { method: "DELETE" });
     setEntries((current) => current.filter((entry) => entry.id !== entryId));
-    setSelectedEntryId((current) => current === entryId ? null : current);
+    setSelectedEntryId((current) => (current === entryId ? null : current));
   }
 
   function exportEntries() {
     const payload = {
       exportedAt: new Date().toISOString(),
       version: 1,
-      entries
+      entries,
     };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -214,15 +225,20 @@ export function VibeJournalApp() {
     }
   }
 
-  async function updateSettings(nextSettings: Partial<ClientSettings> & {
-    currentPassword?: string;
-    email?: string;
-    name?: string;
-    newPassword?: string;
-  }) {
-    const response = await apiFetch<{ user: ClientUser; settings: ClientSettings }>("/api/settings", {
+  async function updateSettings(
+    nextSettings: Partial<ClientSettings> & {
+      currentPassword?: string;
+      email?: string;
+      name?: string;
+      newPassword?: string;
+    }
+  ) {
+    const response = await apiFetch<{
+      user: ClientUser;
+      settings: ClientSettings;
+    }>("/api/settings", {
       method: "PATCH",
-      body: JSON.stringify(nextSettings)
+      body: JSON.stringify(nextSettings),
     });
     setUser(response.user);
     setSettings(response.settings);
@@ -258,7 +274,7 @@ export function VibeJournalApp() {
     try {
       const response = await apiFetch<UserSession>(path, {
         method: "POST",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
       setUser(response.user);
       setSettings(response.settings);
@@ -275,10 +291,13 @@ export function VibeJournalApp() {
     setAuthError("");
 
     try {
-      const response = await apiFetch<{ ok: true; resetToken?: string }>("/api/auth/password-reset/request", {
-        method: "POST",
-        body: JSON.stringify({ email })
-      });
+      const response = await apiFetch<{ ok: true; resetToken?: string }>(
+        "/api/auth/password-reset/request",
+        {
+          method: "POST",
+          body: JSON.stringify({ email }),
+        }
+      );
       setResetToken(response.resetToken ?? "");
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : "Could not start password reset.");
@@ -294,7 +313,7 @@ export function VibeJournalApp() {
     try {
       await apiFetch("/api/auth/password-reset/confirm", {
         method: "POST",
-        body: JSON.stringify({ token, password })
+        body: JSON.stringify({ token, password }),
       });
       setResetToken("");
       setAuthError("Password reset. You can log in now.");
@@ -318,7 +337,9 @@ export function VibeJournalApp() {
         onLogin={(email, password) => authenticate("/api/auth/login", { email, password })}
         onPasswordReset={requestPasswordReset}
         onPasswordResetConfirm={confirmPasswordReset}
-        onSignup={(name, email, password) => authenticate("/api/auth/signup", { name, email, password })}
+        onSignup={(name, email, password) =>
+          authenticate("/api/auth/signup", { name, email, password })
+        }
       />
     );
   }
@@ -397,9 +418,7 @@ export function VibeJournalApp() {
         />
       )}
 
-      {activeScreen === "music" && (
-        <MusicScreen latestMood={latestMood} playlist={playlist} />
-      )}
+      {activeScreen === "music" && <MusicScreen latestMood={latestMood} playlist={playlist} />}
 
       {activeScreen === "profile" && (
         <ProfileScreen
@@ -408,6 +427,7 @@ export function VibeJournalApp() {
           entries={entries}
           isReminderEnabled={settings.reminderEnabled}
           reminderTime={settings.reminderTime}
+          spotifyConnected={settings.spotifyConnected}
           statusMessage={statusMessage}
           streak={streak}
           user={user}
@@ -436,8 +456,8 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      ...init?.headers
-    }
+      ...init?.headers,
+    },
   });
   const data = await response.json().catch(() => ({}));
 
