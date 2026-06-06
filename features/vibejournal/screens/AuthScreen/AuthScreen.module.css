@@ -1,0 +1,170 @@
+.authShell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+  min-height: 100vh;
+}
+
+.hero {
+  display: grid;
+  align-content: end;
+  gap: 12px;
+  background:
+    linear-gradient(160deg, rgba(5, 31, 32, 0.06), rgba(5, 31, 32, 0.58)),
+    var(--gradient-primary);
+  color: #fff;
+  padding: clamp(28px, 6vw, 76px);
+}
+
+.hero p,
+.hero h1,
+.hero span {
+  margin: 0;
+}
+
+.hero p {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: 0.92;
+}
+
+.hero span {
+  max-width: 560px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.authPanel {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  background: var(--surface);
+  padding: clamp(24px, 5vw, 56px);
+}
+
+.authPanel label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.authPanel input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  color: var(--ink);
+  outline: none;
+  padding: 13px 14px;
+}
+
+.passwordField {
+  position: relative;
+  display: block;
+}
+
+.passwordField input {
+  padding-right: 78px;
+}
+
+.passwordField button {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-radius: 6px;
+  background: var(--glass-bg);
+  box-shadow: none;
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 8px 10px;
+  transform: translateY(-50%);
+}
+
+.modeSwitch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.modeSwitch button,
+.textButton,
+.googleButton {
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: var(--glass-bg);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 11px 12px;
+}
+
+.activeMode {
+  border-color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent), transparent 86%) !important;
+  color: var(--accent-strong) !important;
+  font-weight: 800;
+}
+
+.primaryButton {
+  min-height: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
+    var(--gradient-primary);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+  box-shadow: 0 12px 30px rgba(167, 139, 250, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.52);
+}
+
+.primaryButton:disabled,
+.googleButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.textButton {
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.error,
+.notice {
+  margin: 0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.error {
+  background: color-mix(in srgb, var(--danger), transparent 88%);
+  color: var(--danger);
+}
+
+.notice {
+  background: color-mix(in srgb, var(--accent), transparent 88%);
+  color: var(--accent-strong);
+}
+
+@media (max-width: 900px) {
+  .authShell {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: 42vh;
+  }
+}

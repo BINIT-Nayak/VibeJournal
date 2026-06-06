@@ -12,7 +12,13 @@ type AppChromeProps = {
   onScreenChange: (screen: Screen) => void;
 };
 
-const navItems: Screen[] = ["home", "journal", "insights", "music", "profile"];
+const navItems: Array<{ label: string; screen: Screen }> = [
+  { label: "Home", screen: "home" },
+  { label: "Journal", screen: "journal" },
+  { label: "Insights", screen: "insights" },
+  { label: "Music", screen: "music" },
+  { label: "Profile", screen: "profile" }
+];
 
 export function AppChrome({
   activeScreen,
@@ -33,16 +39,17 @@ export function AppChrome({
         )}
 
         <nav className={styles.bottomNav} aria-label="Primary navigation">
-          {navItems.map((screen) => (
+          {navItems.map((item) => (
             <button
-              aria-current={activeScreen === screen ? "page" : undefined}
-              className={activeScreen === screen ? styles.activeNavItem : ""}
-              key={screen}
-              onClick={() => onScreenChange(screen)}
+              aria-current={activeScreen === item.screen ? "page" : undefined}
+              aria-label={item.label}
+              className={activeScreen === item.screen ? styles.activeNavItem : ""}
+              key={item.screen}
+              onClick={() => onScreenChange(item.screen)}
               type="button"
             >
-              <span>{navSymbol(screen)}</span>
-              {screen[0].toUpperCase() + screen.slice(1)}
+              <span aria-hidden="true">{navSymbol(item.screen)}</span>
+              <strong>{item.label}</strong>
             </button>
           ))}
         </nav>

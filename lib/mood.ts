@@ -16,7 +16,14 @@ export type MoodEntry = {
   valence: number;
   note: string;
   tags: string[];
+  sleepHours?: number;
+  exerciseMinutes?: number;
+  socialLevel?: number;
+  voiceNote?: string;
+  photoNames?: string[];
+  archivedAt?: string;
   createdAt: string;
+  updatedAt?: string;
 };
 
 export type PlaylistSuggestion = {
@@ -31,14 +38,14 @@ export const moods: Array<{
   symbol: string;
   color: string;
 }> = [
-  { key: "joyful", label: "Joyful", symbol: "😊", color: "#C69A72" },
-  { key: "calm", label: "Calm", symbol: "😌", color: "#8EB69B" },
-  { key: "anxious", label: "Anxious", symbol: "😟", color: "#155446" },
-  { key: "sad", label: "Sad", symbol: "😢", color: "#13312A" },
-  { key: "angry", label: "Angry", symbol: "😤", color: "#0B2B26" },
-  { key: "tired", label: "Tired", symbol: "😴", color: "#6f8e77" },
-  { key: "hopeful", label: "Hopeful", symbol: "🌤️", color: "#8EB69B" },
-  { key: "neutral", label: "Neutral", symbol: "😐", color: "#5f7669" }
+  { key: "joyful", label: "Joyful", symbol: "😊", color: "#22C55E" },
+  { key: "calm", label: "Calm", symbol: "😌", color: "#67E8F9" },
+  { key: "anxious", label: "Anxious", symbol: "😟", color: "#F472B6" },
+  { key: "sad", label: "Sad", symbol: "😢", color: "#E11D48" },
+  { key: "angry", label: "Angry", symbol: "😤", color: "#E11D48" },
+  { key: "tired", label: "Tired", symbol: "😴", color: "#94A3B8" },
+  { key: "hopeful", label: "Hopeful", symbol: "🌤️", color: "#4ADE80" },
+  { key: "neutral", label: "Neutral", symbol: "😐", color: "#94A3B8" }
 ];
 
 export const prompts = [
@@ -72,6 +79,13 @@ export function buildInsight(entries: MoodEntry[]) {
       return counts;
     }, {});
   const topTag = Object.entries(tagCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+  const sleepEntries = recent.filter((entry) => typeof entry.sleepHours === "number");
+  const avgSleep = sleepEntries.length
+    ? Math.round((sleepEntries.reduce((total, entry) => total + (entry.sleepHours ?? 0), 0) / sleepEntries.length) * 10) / 10
+    : null;
+  const activeDays = recent.filter((entry) => (entry.exerciseMinutes ?? 0) >= 20).length;
+  const severeDistressPattern = /\b(suicide|kill myself|self harm|hurt myself|end it all|can't go on|cant go on)\b/i;
+  const needsSafetyNet = recent.some((entry) => severeDistressPattern.test(`${entry.note} ${entry.voiceNote ?? ""}`));
 
   return {
     headline:
@@ -82,7 +96,13 @@ export function buildInsight(entries: MoodEntry[]) {
       ? `"${topTag}" is showing up most often in your recent entries. It may be worth noticing what surrounds it.`
       : "No repeated trigger has stood out yet. A few more entries will make the pattern clearer.",
     reframe:
-      "Try asking: what evidence supports this feeling, what evidence softens it, and what would be a kind next step?"
+      "Try asking: what evidence supports this feeling, what evidence softens it, and what would be a kind next step?",
+    context: avgSleep
+      ? `Average sleep in recent check-ins is ${avgSleep}h. You also logged ${activeDays} movement-focused day${activeDays === 1 ? "" : "s"}.`
+      : "Add sleep, movement, or social context to make the pattern view sharper.",
+    safety: needsSafetyNet
+      ? "This entry sounds heavy. If you might hurt yourself or feel unsafe, contact local emergency services or a crisis hotline now, and reach out to someone you trust."
+      : null
   };
 }
 

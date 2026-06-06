@@ -21,6 +21,47 @@
   padding: 13px 14px;
 }
 
+.entryDetail {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 18px;
+}
+
+.entryDetail span {
+  color: var(--accent-strong);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.entryDetail h2,
+.entryDetail p {
+  margin: 0;
+}
+
+.entryDetail p {
+  line-height: 1.55;
+}
+
+.entryDetail div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.entryDetail button {
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-bg);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
 @media (max-width: 900px) {
   .filters {
     grid-template-columns: 1fr;

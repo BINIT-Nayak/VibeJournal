@@ -10,23 +10,34 @@ type NewEntryScreenProps = EntryFormState & EntryFormActions;
 export function NewEntryScreen({
   customTag,
   energy,
+  exerciseMinutes,
+  isEditing,
   mood,
   note,
+  photoNames,
   selectedTags,
+  sleepHours,
+  socialLevel,
   stress,
+  voiceNote,
   onCustomTag,
   onEnergy,
+  onExerciseMinutes,
   onMood,
   onNote,
+  onPhotoNames,
   onSave,
+  onSleepHours,
+  onSocialLevel,
   onStress,
-  onToggleTag
+  onToggleTag,
+  onVoiceNote
 }: NewEntryScreenProps) {
   return (
     <section className={styles.screen}>
       <header className={styles.topBar}>
         <div>
-          <p className={styles.kicker}>New entry</p>
+          <p className={styles.kicker}>{isEditing ? "Edit entry" : "New entry"}</p>
           <h1>{new Intl.DateTimeFormat("en", { month: "long", day: "numeric" }).format(new Date())}</h1>
         </div>
         <time>{new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit" }).format(new Date())}</time>
@@ -53,6 +64,44 @@ export function NewEntryScreen({
           <Slider label="Stress" value={stress} onChange={onStress} />
         </div>
 
+        <section className={styles.contextGrid}>
+          <label>
+            Sleep
+            <input
+              max="14"
+              min="0"
+              onChange={(event) => onSleepHours(Number(event.target.value))}
+              step="0.5"
+              type="number"
+              value={sleepHours}
+            />
+            <span>hours</span>
+          </label>
+          <label>
+            Movement
+            <input
+              max="240"
+              min="0"
+              onChange={(event) => onExerciseMinutes(Number(event.target.value))}
+              step="5"
+              type="number"
+              value={exerciseMinutes}
+            />
+            <span>minutes</span>
+          </label>
+          <label>
+            Social
+            <input
+              max="10"
+              min="1"
+              onChange={(event) => onSocialLevel(Number(event.target.value))}
+              type="range"
+              value={socialLevel}
+            />
+            <span>{socialLevel}/10</span>
+          </label>
+        </section>
+
         <section className={styles.editorBlock}>
           <div className={styles.promptChips}>
             {reflectionPrompts.map((prompt) => (
@@ -67,6 +116,17 @@ export function NewEntryScreen({
             placeholder="Write your thoughts here..."
             rows={8}
             value={note}
+          />
+        </section>
+
+        <section className={styles.voiceBlock}>
+          <label htmlFor="voice-note">Voice note transcript</label>
+          <textarea
+            id="voice-note"
+            onChange={(event) => onVoiceNote(event.target.value)}
+            placeholder="Paste a voice-note transcript or dictate with your keyboard microphone."
+            rows={3}
+            value={voiceNote}
           />
         </section>
 
@@ -87,11 +147,29 @@ export function NewEntryScreen({
         </section>
 
         <div className={styles.mediaActions}>
-          <button type="button">Record voice</button>
-          <button type="button">Upload photo</button>
+          <button onClick={() => onVoiceNote(voiceNote ? "" : "Voice note: ")} type="button">
+            {voiceNote ? "Clear voice note" : "Add voice note"}
+          </button>
+          <label>
+            Upload photo
+            <input
+              accept="image/*"
+              multiple
+              onChange={(event) => {
+                const files = Array.from(event.target.files ?? []).map((file) => file.name);
+                onPhotoNames(files);
+              }}
+              type="file"
+            />
+          </label>
         </div>
+        {photoNames.length > 0 && (
+          <div className={styles.attachmentList}>
+            {photoNames.map((name) => <span key={name}>{name}</span>)}
+          </div>
+        )}
 
-        <button className={styles.primaryButton} type="submit">Save & Get Insight</button>
+        <button className={styles.primaryButton} type="submit">{isEditing ? "Update Entry" : "Save & Get Insight"}</button>
       </form>
     </section>
   );

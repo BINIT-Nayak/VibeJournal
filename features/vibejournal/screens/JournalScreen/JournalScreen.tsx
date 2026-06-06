@@ -8,16 +8,28 @@ import type { MoodKey } from "@/lib/mood";
 import styles from "./JournalScreen.module.css";
 
 type JournalScreenProps = EntriesProps & JournalFilters & JournalFilterActions;
+type JournalActions = {
+  onArchiveEntry: (entry: EntriesProps["entries"][number]) => void;
+  onDeleteEntry: (entryId: string) => void;
+  onEditEntry: (entry: EntriesProps["entries"][number]) => void;
+  onSelectEntry: (entryId: string) => void;
+  selectedEntry: EntriesProps["entries"][number] | null;
+};
 
 export function JournalScreen({
   entries,
   moodFilter,
   query,
+  selectedEntry,
   tagFilter,
+  onArchiveEntry,
+  onDeleteEntry,
+  onEditEntry,
   onMoodFilter,
   onQuery,
+  onSelectEntry,
   onTagFilter
-}: JournalScreenProps) {
+}: JournalScreenProps & JournalActions) {
   return (
     <section className={styles.screen}>
       <PageTitle eyebrow="Journal" title="History" />
@@ -33,8 +45,32 @@ export function JournalScreen({
           {journalTags.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
         </select>
       </div>
+      {selectedEntry && (
+        <article className={styles.entryDetail}>
+          <div>
+            <span>Selected entry</span>
+            <h2>{new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(selectedEntry.createdAt))}</h2>
+          </div>
+          <p>{selectedEntry.note}</p>
+          {selectedEntry.voiceNote && <p>{selectedEntry.voiceNote}</p>}
+          <div>
+            <button onClick={() => onEditEntry(selectedEntry)} type="button">Edit</button>
+            <button onClick={() => onArchiveEntry(selectedEntry)} type="button">{selectedEntry.archivedAt ? "Restore" : "Archive"}</button>
+            <button onClick={() => onDeleteEntry(selectedEntry.id)} type="button">Delete</button>
+          </div>
+        </article>
+      )}
       <div className={styles.timeline}>
-        {entries.map((entry) => <EntryCard entry={entry} key={entry.id} />)}
+        {entries.map((entry) => (
+          <EntryCard
+            entry={entry}
+            key={entry.id}
+            onArchive={onArchiveEntry}
+            onDelete={onDeleteEntry}
+            onEdit={onEditEntry}
+            onView={onSelectEntry}
+          />
+        ))}
       </div>
     </section>
   );

@@ -1,7 +1,8 @@
 .screen,
 .entryForm,
 .editorBlock,
-.tagSelector {
+.tagSelector,
+.voiceBlock {
   display: grid;
   gap: 16px;
 }
@@ -52,9 +53,9 @@
   display: grid;
   gap: 8px;
   min-height: 104px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-border);
   border-radius: 8px;
-  background: var(--surface-strong);
+  background: var(--glass-bg);
   color: var(--ink);
   cursor: pointer;
 }
@@ -79,7 +80,8 @@
 }
 
 .promptChips,
-.tagSelector div {
+.tagSelector div,
+.attachmentList {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -87,17 +89,23 @@
 
 .promptChips button,
 .tagSelector button,
-.mediaActions button {
-  border: 1px solid var(--line);
+.mediaActions button,
+.mediaActions label {
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: var(--surface-strong);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
   color: var(--ink);
   cursor: pointer;
   padding: 9px 12px;
 }
 
 .editorBlock textarea,
-.tagSelector input {
+.tagSelector input,
+.voiceBlock textarea,
+.contextGrid input {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -110,6 +118,36 @@
 .editorBlock textarea {
   resize: vertical;
   min-height: 180px;
+}
+
+.voiceBlock textarea {
+  resize: vertical;
+}
+
+.voiceBlock label,
+.contextGrid label {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.contextGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.contextGrid label {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 14px;
+}
+
+.contextGrid span {
+  color: var(--accent-strong);
 }
 
 .selectedTag {
@@ -129,14 +167,42 @@
   border-radius: 8px;
 }
 
+.mediaActions label {
+  display: grid;
+  min-height: 54px;
+  place-items: center;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.mediaActions input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.attachmentList span {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent), transparent 86%);
+  color: var(--accent-strong);
+  padding: 7px 10px;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
 .primaryButton {
   min-height: 54px;
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.56);
   border-radius: 8px;
-  background: var(--accent);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
+    var(--gradient-primary);
   color: #fff;
   cursor: pointer;
   font-weight: 800;
+  box-shadow: 0 12px 30px rgba(167, 139, 250, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.52);
 }
 
 @media (max-width: 900px) {
@@ -145,7 +211,8 @@
     flex-direction: column;
   }
 
-  .sliderCard {
+  .sliderCard,
+  .contextGrid {
     grid-template-columns: 1fr;
   }
 }

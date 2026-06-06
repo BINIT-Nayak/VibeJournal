@@ -41,7 +41,7 @@ export function InsightsScreen({ entries, insight, onTab, tab }: InsightsScreenP
         </section>
       </div>
       <div className={styles.aiCards}>
-        {[insight.headline, insight.detail, insight.reframe].map((text) => (
+        {[insight.headline, insight.detail, insight.reframe, insight.context].map((text) => (
           <article className={styles.aiCard} key={text}>
             <p>{text}</p>
             <div>
@@ -51,6 +51,13 @@ export function InsightsScreen({ entries, insight, onTab, tab }: InsightsScreenP
           </article>
         ))}
       </div>
+      {insight.safety && (
+        <section className={styles.safetyCard}>
+          <strong>Safety net</strong>
+          <p>{insight.safety}</p>
+          <a href="https://findahelpline.com" target="_blank" rel="noreferrer">Find a local helpline</a>
+        </section>
+      )}
     </section>
   );
 }

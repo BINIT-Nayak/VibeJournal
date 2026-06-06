@@ -11,9 +11,9 @@
 
 .tabs button,
 .aiCard button {
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: var(--surface-strong);
+  background: var(--glass-bg);
   color: var(--muted);
   cursor: pointer;
   padding: 10px 14px;
@@ -26,7 +26,8 @@
 }
 
 .panel,
-.aiCard {
+.aiCard,
+.safetyCard {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface-strong);
@@ -51,7 +52,7 @@
 }
 
 .aiCards {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .aiCard p {
@@ -63,6 +64,21 @@
 .aiCard div {
   display: flex;
   gap: 8px;
+}
+
+.safetyCard {
+  border-color: color-mix(in srgb, var(--accent-peach), var(--line) 35%);
+  background: color-mix(in srgb, var(--accent-peach), var(--surface-strong) 88%);
+}
+
+.safetyCard p {
+  margin: 8px 0 12px;
+  line-height: 1.5;
+}
+
+.safetyCard a {
+  color: var(--accent-strong);
+  font-weight: 800;
 }
 
 @media (max-width: 900px) {

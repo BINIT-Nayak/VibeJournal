@@ -31,7 +31,7 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
     const width = rect.width - padding * 2;
     const height = rect.height - padding * 2;
 
-    ctx.strokeStyle = "rgba(31, 41, 55, 0.14)";
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.24)";
     ctx.lineWidth = 1;
 
     for (let i = 0; i <= 4; i += 1) {
@@ -43,7 +43,7 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
     }
 
     if (entries.length === 0) {
-      ctx.fillStyle = "#13312A";
+      ctx.fillStyle = "#64748B";
       ctx.font = `${compact ? 12 : 14}px system-ui, sans-serif`;
       ctx.fillText("Your mood trend will draw itself here.", padding, rect.height / 2);
       return;
@@ -60,9 +60,9 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
       });
 
     const gradient = ctx.createLinearGradient(padding, 0, rect.width - padding, 0);
-    gradient.addColorStop(0, "#8EB69B");
-    gradient.addColorStop(0.5, "#C69A72");
-    gradient.addColorStop(1, "#155446");
+    gradient.addColorStop(0, "#A78BFA");
+    gradient.addColorStop(0.5, "#67E8F9");
+    gradient.addColorStop(1, "#F9A8D4");
 
     ctx.strokeStyle = gradient;
     ctx.lineWidth = 3;
@@ -79,7 +79,7 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
     ctx.stroke();
 
     if (showEnergy) {
-      ctx.strokeStyle = "rgba(21, 84, 70, 0.82)";
+      ctx.strokeStyle = "rgba(103, 232, 249, 0.9)";
       ctx.lineWidth = 2;
       ctx.setLineDash([5, 5]);
       ctx.beginPath();
@@ -102,15 +102,15 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
 
     points.forEach((point) => {
       ctx.beginPath();
-      ctx.fillStyle = "#F6E9CA";
+      ctx.fillStyle = "#FFFFFF";
       ctx.arc(point.x, point.y, 4 + point.energy * 0.35, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "#051F20";
+      ctx.strokeStyle = "#A78BFA";
       ctx.lineWidth = 1.5;
       ctx.stroke();
     });
 
-    ctx.fillStyle = "#13312A";
+    ctx.fillStyle = "#64748B";
     ctx.font = "12px system-ui, sans-serif";
     if (!compact) {
       ctx.fillText("low", 4, rect.height - padding + 4);

@@ -59,11 +59,30 @@
 .generatePanel a {
   display: grid;
   place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.56);
   border-radius: 8px;
-  background: var(--accent);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
+    var(--gradient-music);
+  box-shadow: 0 12px 30px rgba(103, 232, 249, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.52);
   color: #fff;
   font-weight: 800;
   text-decoration: none;
+}
+
+.audioProfile {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.audioProfile span {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  color: var(--muted);
+  padding: 12px;
+  font-weight: 800;
 }
 
 .playlistGrid {
@@ -80,7 +99,7 @@
   border-radius: 8px;
   background:
     linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.42)),
-    linear-gradient(135deg, #155446, #C69A72);
+    var(--gradient-music);
   color: #fff;
   padding: 16px;
 }
@@ -108,12 +127,18 @@
 }
 
 .stationRow button {
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: var(--surface-strong);
+  background: var(--glass-bg);
   color: var(--ink);
   cursor: pointer;
   padding: 9px 12px;
+}
+
+.activeStation {
+  border-color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent), transparent 86%) !important;
+  color: var(--accent-strong) !important;
 }
 
 .miniPlayer {
@@ -131,16 +156,21 @@
   width: 46px;
   height: 46px;
   border-radius: 6px;
-  background: linear-gradient(135deg, #155446, #C69A72);
+  background: var(--gradient-music);
 }
 
-.miniPlayer button {
-  border: 0;
+.miniPlayer a {
+  border: 1px solid rgba(255, 255, 255, 0.56);
   border-radius: 999px;
-  background: var(--accent);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08)),
+    var(--gradient-music);
+  box-shadow: 0 10px 26px rgba(103, 232, 249, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.52);
   color: #fff;
   cursor: pointer;
   padding: 9px 12px;
+  text-align: center;
+  text-decoration: none;
 }
 
 @media (max-width: 900px) {
@@ -152,7 +182,8 @@
   }
 
   .generatePanel,
-  .playlistGrid {
+  .playlistGrid,
+  .audioProfile {
     grid-template-columns: 1fr;
   }
 }

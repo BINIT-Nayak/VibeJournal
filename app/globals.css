@@ -1,23 +1,67 @@
 :root {
-  --color-forest: #13312A;
-  --color-clay: #C69A72;
-  --color-cream: #F6E9CA;
-  --color-teal: #155446;
-  --color-sage: #8EB69B;
-  --color-deep: #051F20;
-  --color-moss: #0B2B26;
+  --brand-lavender: #a78bfa;
+  --brand-teal: #67e8f9;
+  --accent-peach: #f9a8d4;
+  --accent-gold: #facc15;
 
-  --background: var(--color-cream);
-  --surface: #fff7df;
-  --surface-strong: #fffbef;
-  --ink: var(--color-deep);
-  --muted: color-mix(in srgb, var(--color-forest), var(--color-sage) 36%);
-  --line: rgba(19, 49, 42, 0.18);
-  --accent: var(--color-teal);
-  --accent-strong: var(--color-forest);
-  --warm: var(--color-clay);
-  --danger: #9f4f43;
-  --shadow: 0 20px 58px rgba(5, 31, 32, 0.13);
+  --mood-very-low: #e11d48;
+  --mood-low: #f472b6;
+  --mood-neutral: #94a3b8;
+  --mood-good: #4ade80;
+  --mood-high: #22c55e;
+
+  --background-light: #f8fafc;
+  --background-dark: #0f172a;
+  --surface-card-light: #ffffff;
+  --surface-card-dark: #1e2937;
+  --surface-subtle-light: #f1f5f9;
+  --surface-subtle-dark: #334155;
+  --text-primary-light: #0f172a;
+  --text-primary-dark: #f1f5f9;
+  --text-secondary-light: #64748b;
+  --text-secondary-dark: #94a3b8;
+  --text-muted: #cbd5e1;
+  --border-light: #e2e8f0;
+  --border-dark: #475569;
+
+  --gradient-primary: linear-gradient(135deg, #a78bfa, #67e8f9);
+  --gradient-mood-boost: linear-gradient(135deg, #f9a8d4, #facc15);
+  --gradient-music: linear-gradient(90deg, #67e8f9, #a78bfa);
+  --gradient-calm: linear-gradient(135deg, #a5b4fc, #67e8f9);
+
+  --background: var(--background-light);
+  --surface: var(--surface-subtle-light);
+  --surface-strong: var(--surface-card-light);
+  --ink: var(--text-primary-light);
+  --muted: var(--text-secondary-light);
+  --line: var(--border-light);
+  --accent: var(--brand-lavender);
+  --accent-strong: #6d5bd0;
+  --warm: var(--accent-peach);
+  --danger: var(--mood-very-low);
+  --shadow: 0 20px 58px rgba(15, 23, 42, 0.1);
+  --glass-bg: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.64),
+    rgba(255, 255, 255, 0.26)
+  );
+  --glass-bg-hover:
+    linear-gradient(
+      145deg,
+      rgba(167, 139, 250, 0.13),
+      rgba(103, 232, 249, 0.09)
+    ),
+    var(--glass-bg);
+  --glass-bg-active:
+    linear-gradient(145deg, rgba(167, 139, 250, 0.18), rgba(15, 23, 42, 0.04)),
+    var(--glass-bg);
+  --glass-border: rgba(255, 255, 255, 0.58);
+  --glass-shadow:
+    0 10px 28px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.66);
+  --glass-shadow-hover:
+    0 10px 28px rgba(15, 23, 42, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  --glass-shadow-active:
+    0 8px 22px rgba(15, 23, 42, 0.08), inset 0 2px 10px rgba(15, 23, 42, 0.1);
 }
 
 * {
@@ -32,9 +76,13 @@ body {
   min-height: 100%;
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(142, 182, 155, 0.42), transparent 34%),
-    linear-gradient(135deg, rgba(21, 84, 70, 0.14), transparent 30%),
-    linear-gradient(315deg, rgba(198, 154, 114, 0.24), transparent 36%),
+    radial-gradient(
+      circle at top left,
+      rgba(167, 139, 250, 0.18),
+      transparent 34%
+    ),
+    linear-gradient(135deg, rgba(103, 232, 249, 0.14), transparent 30%),
+    linear-gradient(315deg, rgba(249, 168, 212, 0.18), transparent 36%),
     var(--background);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
@@ -51,6 +99,42 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+button {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  transition:
+    background-color 140ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    background 160ms ease;
+}
+
+button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent), transparent 36%);
+  box-shadow: var(--glass-shadow-hover);
+  opacity: 0.7;
+}
+
+button:active:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent), transparent 22%);
+  opacity: 0.7;
+  box-shadow: var(--glass-shadow-active);
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand-teal), transparent 38%);
+  outline-offset: 3px;
+}
+
+button:disabled {
+  opacity: 0.62;
+}
+
 ::selection {
-  background: rgba(142, 182, 155, 0.45);
+  background: rgba(167, 139, 250, 0.32);
 }

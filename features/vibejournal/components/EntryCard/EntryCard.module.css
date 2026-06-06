@@ -22,7 +22,9 @@
 
 .entryTop time,
 .entryMetrics,
-.tagRow span {
+.tagRow span,
+.attachmentRow span,
+.archiveBadge {
   color: var(--muted);
   font-size: 0.82rem;
 }
@@ -33,17 +35,47 @@
 }
 
 .entryMetrics,
-.tagRow {
+.tagRow,
+.attachmentRow,
+.entryActions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
 }
 
-.tagRow span {
+.archiveBadge {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--danger), transparent 88%);
+  color: var(--danger);
+  font-weight: 800;
+  margin-bottom: 10px;
+  padding: 5px 8px;
+}
+
+.voiceNote {
+  border-left: 3px solid color-mix(in srgb, var(--mood-color), transparent 40%);
+  color: var(--muted);
+  margin-top: 12px !important;
+  padding-left: 10px;
+}
+
+.tagRow span,
+.attachmentRow span {
   border-radius: 999px;
   background: color-mix(in srgb, var(--accent), transparent 88%);
   color: var(--accent-strong);
   padding: 5px 8px;
   font-weight: 700;
+}
+
+.entryActions button {
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-bg);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 7px 10px;
 }
