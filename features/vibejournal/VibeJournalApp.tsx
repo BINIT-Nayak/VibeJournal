@@ -358,6 +358,9 @@ export function VibeJournalApp() {
           latestMood={latestMood}
           playlist={playlist}
           streak={streak}
+          userName={user.name}
+          onInsights={() => navigateToScreen("insights")}
+          onJournal={() => navigateToScreen("journal")}
           onNew={() => navigateToScreen("new")}
           onMusic={() => navigateToScreen("music")}
         />

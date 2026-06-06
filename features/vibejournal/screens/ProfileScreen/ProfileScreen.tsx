@@ -202,7 +202,7 @@ export function ProfileScreen({
           <div className={styles.detailGrid}>
             <span>Best Month: {bestMonth}</span>
             <span>
-              Favorite Tag: "{favoriteTag.tag}" ({favoriteTag.count} times)
+              Favorite Tag: &quot;{favoriteTag.tag}&quot; ({favoriteTag.count} times)
             </span>
           </div>
           <button className={styles.pillButton} type="button">
@@ -219,7 +219,7 @@ export function ProfileScreen({
           <div className={styles.vinyl}>
             <Music2 size={36} />
           </div>
-          <span>Last playlist: "Evening Wind Down"</span>
+          <span>Last playlist: &quot;Evening Wind Down&quot;</span>
           <button className={styles.pillButton} type="button">
             <span>Manage Music</span>
             <ArrowRight size={17} />

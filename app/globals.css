@@ -101,14 +101,14 @@ button:hover:not(:disabled) {
   background: var(--glass-bg-hover);
   border-color: color-mix(in srgb, var(--accent), transparent 36%);
   box-shadow: var(--glass-shadow-hover);
-  transform: translateY(-1px);
+  transform: scale(1.1);
 }
 
 button:active:not(:disabled) {
   background: var(--glass-bg-active);
   border-color: color-mix(in srgb, var(--accent), transparent 22%);
   box-shadow: var(--glass-shadow-active);
-  transform: translateY(0);
+  transform: scale(1.1);
 }
 
 button:focus-visible,
