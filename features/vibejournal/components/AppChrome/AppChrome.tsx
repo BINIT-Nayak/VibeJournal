@@ -32,7 +32,7 @@ export function AppChrome({
       <section className={styles.appFrame}>
         {children}
 
-        {activeScreen !== "new" && (
+        {activeScreen !== "new" ? (
           <button
             className={styles.floatingButton}
             onClick={onNewEntry}
@@ -41,7 +41,7 @@ export function AppChrome({
           >
             +
           </button>
-        )}
+        ) : null}
 
         <nav className={styles.bottomNav} aria-label="Primary navigation">
           {navItems.map((item) => {

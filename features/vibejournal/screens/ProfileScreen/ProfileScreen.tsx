@@ -320,7 +320,7 @@ export function ProfileScreen({
             <span>Edit Profile</span>
             <PenLine size={17} />
           </button>
-          {isEditingProfile && (
+          {isEditingProfile ? (
             <div className={styles.formGrid}>
               <label>
                 Display name
@@ -340,7 +340,7 @@ export function ProfileScreen({
                 />
               </label>
             </div>
-          )}
+          ) : null}
           <button
             className={styles.settingButton}
             onClick={() => setIsChangingPassword((current) => !current)}
@@ -349,7 +349,7 @@ export function ProfileScreen({
             <span>Change Password</span>
             <Lock size={17} />
           </button>
-          {isChangingPassword && (
+          {isChangingPassword ? (
             <div className={styles.passwordGrid}>
               <label>
                 Current password
@@ -372,20 +372,20 @@ export function ProfileScreen({
                 />
               </label>
             </div>
-          )}
+          ) : null}
           <button className={styles.settingButton} onClick={onLogout} type="button">
             <span>Log out</span>
             <LogOut size={17} />
           </button>
         </div>
 
-        {statusMessage && <p className={styles.statusMessage}>{statusMessage}</p>}
-        {(isEditingProfile || isChangingPassword) && (
+        {statusMessage ? <p className={styles.statusMessage}>{statusMessage}</p> : null}
+        {isEditingProfile || isChangingPassword ? (
           <button className={styles.primaryButton} type="submit">
             <Mail size={17} />
             <span>Save changes</span>
           </button>
-        )}
+        ) : null}
       </form>
 
       <footer className={styles.footer}>

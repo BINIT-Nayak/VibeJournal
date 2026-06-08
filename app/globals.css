@@ -98,17 +98,15 @@ button {
 }
 
 button:hover:not(:disabled) {
-  background: var(--glass-bg-hover);
   border-color: color-mix(in srgb, var(--accent), transparent 36%);
   box-shadow: var(--glass-shadow-hover);
-  transform: scale(1.1);
+  opacity: 0.8;
 }
 
 button:active:not(:disabled) {
-  background: var(--glass-bg-active);
   border-color: color-mix(in srgb, var(--accent), transparent 22%);
   box-shadow: var(--glass-shadow-active);
-  transform: scale(1.1);
+  opacity: 0.9;
 }
 
 button:focus-visible,

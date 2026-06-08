@@ -206,7 +206,7 @@ export function HomeScreen({
         </article>
       </section>
 
-      {latestEntry && (
+      {latestEntry ? (
         <section className={styles.nowStrip}>
           <span>Right now</span>
           <strong>{latestMood.label}</strong>
@@ -215,7 +215,7 @@ export function HomeScreen({
             Add another check-in
           </button>
         </section>
-      )}
+      ) : null}
     </section>
   );
 }

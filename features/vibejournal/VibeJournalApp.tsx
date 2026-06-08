@@ -351,7 +351,7 @@ export function VibeJournalApp() {
       onNewEntry={() => navigateToScreen("new")}
       onScreenChange={navigateToScreen}
     >
-      {activeScreen === "home" && (
+      {activeScreen === "home" ? (
         <HomeScreen
           entries={activeEntries}
           insight={insight}
@@ -364,9 +364,9 @@ export function VibeJournalApp() {
           onNew={() => navigateToScreen("new")}
           onMusic={() => navigateToScreen("music")}
         />
-      )}
+      ) : null}
 
-      {activeScreen === "new" && (
+      {activeScreen === "new" ? (
         <NewEntryScreen
           customTag={customTag}
           energy={energy}
@@ -393,9 +393,9 @@ export function VibeJournalApp() {
           onToggleTag={toggleTag}
           onVoiceNote={setVoiceNote}
         />
-      )}
+      ) : null}
 
-      {activeScreen === "journal" && (
+      {activeScreen === "journal" ? (
         <JournalScreen
           entries={filteredEntries}
           moodFilter={moodFilter}
@@ -410,20 +410,22 @@ export function VibeJournalApp() {
           onSelectEntry={setSelectedEntryId}
           onTagFilter={setTagFilter}
         />
-      )}
+      ) : null}
 
-      {activeScreen === "insights" && (
+      {activeScreen === "insights" ? (
         <InsightsScreen
           entries={activeEntries}
           insight={insight}
           tab={insightTab}
           onTab={setInsightTab}
         />
-      )}
+      ) : null}
 
-      {activeScreen === "music" && <MusicScreen latestMood={latestMood} playlist={playlist} />}
+      {activeScreen === "music" ? (
+        <MusicScreen latestMood={latestMood} playlist={playlist} />
+      ) : null}
 
-      {activeScreen === "profile" && (
+      {activeScreen === "profile" ? (
         <ProfileScreen
           averageMood={averageMood}
           darkMode={settings.darkMode}
@@ -442,7 +444,7 @@ export function VibeJournalApp() {
           onReminderTime={(value) => updateSettings({ reminderTime: value })}
           onToggleTheme={() => updateSettings({ darkMode: !settings.darkMode })}
         />
-      )}
+      ) : null}
     </AppChrome>
   );
 }

@@ -34,15 +34,17 @@ export async function POST(request: Request) {
     const session = await createSession(user.id);
     await setSessionCookie(session.token, session.expiresAt);
 
+    if (!user.settings) {
+      return jsonError("Account settings could not be created.", 500);
+    }
+
     return Response.json({
       user: { id: user.id, email: user.email, name: user.name },
       entries: [],
-      settings: serializeSettings(user.settings!),
+      settings: serializeSettings(user.settings),
     });
   } catch (error) {
-    console.error("[signup]", error);
-
-    const code = typeof error === "object" && error && "code" in error ? error.code : null;
+    const code = getPrismaErrorCode(error);
 
     if (code === "P2021") {
       return jsonError(
@@ -63,4 +65,13 @@ export async function POST(request: Request) {
       500
     );
   }
+}
+
+function getPrismaErrorCode(error: unknown) {
+  if (!error || typeof error !== "object" || !("code" in error)) {
+    return null;
+  }
+
+  const code = error.code;
+  return typeof code === "string" ? code : null;
 }

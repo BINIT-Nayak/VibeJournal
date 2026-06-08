@@ -175,13 +175,13 @@ export function NewEntryScreen({
             />
           </label>
         </div>
-        {photoNames.length > 0 && (
+        {photoNames.length > 0 ? (
           <div className={styles.attachmentList}>
             {photoNames.map((name) => (
               <span key={name}>{name}</span>
             ))}
           </div>
-        )}
+        ) : null}
 
         <button className={styles.primaryButton} type="submit">
           {isEditing ? "Update Entry" : "Save & Get Insight"}

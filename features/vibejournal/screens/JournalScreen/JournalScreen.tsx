@@ -60,7 +60,7 @@ export function JournalScreen({
           ))}
         </select>
       </div>
-      {selectedEntry && (
+      {selectedEntry ? (
         <article className={styles.entryDetail}>
           <div>
             <span>Selected entry</span>
@@ -71,7 +71,7 @@ export function JournalScreen({
             </h2>
           </div>
           <p>{selectedEntry.note}</p>
-          {selectedEntry.voiceNote && <p>{selectedEntry.voiceNote}</p>}
+          {selectedEntry.voiceNote ? <p>{selectedEntry.voiceNote}</p> : null}
           <div>
             <button onClick={() => onEditEntry(selectedEntry)} type="button">
               Edit
@@ -84,7 +84,7 @@ export function JournalScreen({
             </button>
           </div>
         </article>
-      )}
+      ) : null}
       <div className={styles.timeline}>
         {entries.map((entry) => (
           <EntryCard

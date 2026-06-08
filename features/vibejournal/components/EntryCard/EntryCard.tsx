@@ -12,6 +12,7 @@ type EntryCardProps = {
 
 export function EntryCard({ entry, onArchive, onDelete, onEdit, onView }: EntryCardProps) {
   const moodMeta = moods.find((item) => item.key === entry.mood) ?? moods[7];
+  const photoNames = entry.photoNames ?? [];
 
   return (
     <article
@@ -31,54 +32,54 @@ export function EntryCard({ entry, onArchive, onDelete, onEdit, onView }: EntryC
           }).format(new Date(entry.createdAt))}
         </time>
       </div>
-      {entry.archivedAt && <span className={styles.archiveBadge}>Archived</span>}
+      {entry.archivedAt ? <span className={styles.archiveBadge}>Archived</span> : null}
       <p>{entry.note}</p>
       <div className={styles.entryMetrics}>
         <span>Energy {entry.energy}</span>
         <span>Stress {entry.stress}</span>
-        {typeof entry.sleepHours === "number" && <span>Sleep {entry.sleepHours}h</span>}
-        {typeof entry.exerciseMinutes === "number" && (
+        {typeof entry.sleepHours === "number" ? <span>Sleep {entry.sleepHours}h</span> : null}
+        {typeof entry.exerciseMinutes === "number" ? (
           <span>Movement {entry.exerciseMinutes}m</span>
-        )}
-        {typeof entry.socialLevel === "number" && <span>Social {entry.socialLevel}/10</span>}
+        ) : null}
+        {typeof entry.socialLevel === "number" ? <span>Social {entry.socialLevel}/10</span> : null}
       </div>
-      {entry.voiceNote && <p className={styles.voiceNote}>{entry.voiceNote}</p>}
-      {entry.photoNames && entry.photoNames.length > 0 && (
+      {entry.voiceNote ? <p className={styles.voiceNote}>{entry.voiceNote}</p> : null}
+      {photoNames.length > 0 ? (
         <div className={styles.attachmentRow}>
-          {entry.photoNames.map((name) => (
+          {photoNames.map((name) => (
             <span key={name}>{name}</span>
           ))}
         </div>
-      )}
+      ) : null}
       <div className={styles.tagRow}>
         {entry.tags.map((tag) => (
           <span key={tag}>{tag}</span>
         ))}
       </div>
-      {(onView || onEdit || onArchive || onDelete) && (
+      {onView || onEdit || onArchive || onDelete ? (
         <div className={styles.entryActions}>
-          {onView && (
+          {onView ? (
             <button onClick={() => onView(entry.id)} type="button">
               View
             </button>
-          )}
-          {onEdit && (
+          ) : null}
+          {onEdit ? (
             <button onClick={() => onEdit(entry)} type="button">
               Edit
             </button>
-          )}
-          {onArchive && (
+          ) : null}
+          {onArchive ? (
             <button onClick={() => onArchive(entry)} type="button">
               {entry.archivedAt ? "Restore" : "Archive"}
             </button>
-          )}
-          {onDelete && (
+          ) : null}
+          {onDelete ? (
             <button onClick={() => onDelete(entry.id)} type="button">
               Delete
             </button>
-          )}
+          ) : null}
         </div>
-      )}
+      ) : null}
     </article>
   );
 }

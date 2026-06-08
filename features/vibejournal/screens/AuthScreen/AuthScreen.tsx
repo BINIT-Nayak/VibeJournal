@@ -30,6 +30,7 @@ export function AuthScreen({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [token, setToken] = useState("");
+  const shouldShowResetNotice = resetToken ? mode === "reset-confirm" : false;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -79,7 +80,7 @@ export function AuthScreen({
           </button>
         </div>
 
-        {mode === "signup" && (
+        {mode === "signup" ? (
           <label>
             Name
             <input
@@ -88,9 +89,9 @@ export function AuthScreen({
               value={name}
             />
           </label>
-        )}
+        ) : null}
 
-        {mode !== "reset-confirm" && (
+        {mode !== "reset-confirm" ? (
           <label>
             Email
             <input
@@ -100,9 +101,9 @@ export function AuthScreen({
               value={email}
             />
           </label>
-        )}
+        ) : null}
 
-        {mode === "reset-confirm" && (
+        {mode === "reset-confirm" ? (
           <label>
             Reset token
             <input
@@ -111,9 +112,9 @@ export function AuthScreen({
               value={token || resetToken}
             />
           </label>
-        )}
+        ) : null}
 
-        {mode !== "reset-request" && (
+        {mode !== "reset-request" ? (
           <label>
             Password
             <span className={styles.passwordField}>
@@ -132,12 +133,12 @@ export function AuthScreen({
               </button>
             </span>
           </label>
-        )}
+        ) : null}
 
-        {error && <p className={styles.error}>{error}</p>}
-        {resetToken && mode === "reset-confirm" && (
+        {error ? <p className={styles.error}>{error}</p> : null}
+        {shouldShowResetNotice ? (
           <p className={styles.notice}>Dev reset token generated. Paste it or submit as-is.</p>
-        )}
+        ) : null}
 
         <button className={styles.primaryButton} disabled={isBusy} type="submit">
           {isBusy ? "Working..." : getSubmitLabel(mode)}

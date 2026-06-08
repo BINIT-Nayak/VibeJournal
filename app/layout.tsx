@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "VibeJournal",
   description: "A private mood journal with gentle insights and music suggestions.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

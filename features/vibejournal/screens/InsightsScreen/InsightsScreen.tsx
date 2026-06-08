@@ -56,7 +56,7 @@ export function InsightsScreen({ entries, insight, onTab, tab }: InsightsScreenP
           </article>
         ))}
       </div>
-      {insight.safety && (
+      {insight.safety ? (
         <section className={styles.safetyCard}>
           <strong>Safety net</strong>
           <p>{insight.safety}</p>
@@ -64,7 +64,7 @@ export function InsightsScreen({ entries, insight, onTab, tab }: InsightsScreenP
             Find a local helpline
           </a>
         </section>
-      )}
+      ) : null}
     </section>
   );
 }
