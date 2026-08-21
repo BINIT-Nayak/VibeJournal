@@ -519,6 +519,54 @@
   gap: 8px;
 }
 
+.inlineLink {
+  align-items: center;
+  background:
+    linear-gradient(145deg, rgba(167, 139, 250, 0.14), rgba(103, 232, 249, 0.1)),
+    rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  border-radius: 999px;
+  color: var(--accent-strong);
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 14px;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.privacyNotice {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.44), rgba(255, 255, 255, 0.14)),
+    rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.privacyNotice p,
+.privacyNotice strong {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.privacyNotice strong {
+  color: var(--ink);
+}
+
+.toggleRow {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.12)),
+    rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 12px;
+}
+
 .settingsGroup input[type="time"] {
   background: rgba(255, 255, 255, 0.42);
   border: 1px solid rgba(255, 255, 255, 0.56);

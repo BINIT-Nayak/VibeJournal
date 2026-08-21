@@ -1,8 +1,10 @@
 import { type FormEvent, useState } from "react";
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
   Bell,
+  Brain,
   Download,
   Flame,
   HeartPulse,
@@ -12,6 +14,7 @@ import {
   Music2,
   Paintbrush,
   PenLine,
+  PlugZap,
   Settings,
   ShieldCheck,
   Sparkles,
@@ -24,6 +27,7 @@ import styles from "./ProfileScreen.module.css";
 
 type ProfileScreenProps = EntriesProps & {
   averageMood: number;
+  aiConsent: boolean;
   darkMode: boolean;
   isReminderEnabled: boolean;
   onAccountUpdate: (payload: {
@@ -32,12 +36,17 @@ type ProfileScreenProps = EntriesProps & {
     name?: string;
     newPassword?: string;
   }) => void;
+  onAiConsent: (value: boolean) => void;
+  onDeleteAccount: () => void;
   onDeleteEntries: () => void;
   onExportEntries: () => void;
   onLogout: () => void;
+  onPrivacyAcknowledged: () => void;
   onReminderEnabled: (value: boolean) => void;
   onReminderTime: (value: string) => void;
+  onSpotifyConnection: () => void;
   onToggleTheme: () => void;
+  privacyAcknowledged: boolean;
   reminderTime: string;
   spotifyConnected: boolean;
   statusMessage: string;
@@ -47,16 +56,22 @@ type ProfileScreenProps = EntriesProps & {
 
 export function ProfileScreen({
   averageMood,
+  aiConsent,
   darkMode,
   entries,
   isReminderEnabled,
   onAccountUpdate,
+  onAiConsent,
+  onDeleteAccount,
   onDeleteEntries,
   onExportEntries,
   onLogout,
+  onPrivacyAcknowledged,
   onReminderEnabled,
   onReminderTime,
+  onSpotifyConnection,
   onToggleTheme,
+  privacyAcknowledged,
   reminderTime,
   spotifyConnected,
   statusMessage,
@@ -214,15 +229,20 @@ export function ProfileScreen({
         <article className={`${styles.panel} ${styles.musicPanel}`}>
           <header>
             <p>Music Integration</p>
-            <h2>{spotifyConnected ? "Connected to Spotify ✓" : "Spotify not connected"}</h2>
+            <h2>{spotifyConnected ? "Spotify preference active" : "Mood playlists active"}</h2>
           </header>
           <div className={styles.vinyl}>
             <Music2 size={36} />
           </div>
-          <span>Last playlist: &quot;Evening Wind Down&quot;</span>
-          <button className={styles.pillButton} type="button">
-            <span>Manage Music</span>
-            <ArrowRight size={17} />
+          <span>
+            Spotify OAuth is not connected yet. Until OAuth keys are configured, VibeJournal uses
+            mood-based playlist suggestions without accessing your Spotify account.
+          </span>
+          <button className={styles.pillButton} onClick={onSpotifyConnection} type="button">
+            <span>
+              {spotifyConnected ? "Disable Spotify preference" : "Enable Spotify preference"}
+            </span>
+            <PlugZap size={17} />
           </button>
         </article>
 
@@ -234,7 +254,11 @@ export function ProfileScreen({
           <ul className={styles.insightList}>
             <li>You&apos;ve written {monthlyEntries} entries this month</li>
             <li>Most reflective day: {reflectiveDay}</li>
-            <li>AI helped you {Math.max(0, entries.length * 2 + 1)} times</li>
+            <li>
+              {aiConsent
+                ? `AI helped you ${Math.max(0, entries.length * 2 + 1)} times`
+                : "AI insights are off until you consent"}
+            </li>
           </ul>
           <button className={styles.pillButton} type="button">
             <span>View All Insights</span>
@@ -292,6 +316,39 @@ export function ProfileScreen({
             <ShieldCheck size={18} />
             Privacy & Data
           </h3>
+          <div className={styles.privacyNotice}>
+            <strong>
+              {privacyAcknowledged ? "Privacy notes acknowledged" : "Review privacy notes"}
+            </strong>
+            <p>
+              Your journal is private to your account. Production hosting should use encrypted
+              database storage at rest, but VibeJournal does not currently provide end-to-end
+              encryption where only you hold the key.
+            </p>
+            <p>
+              AI insights are optional reflection prompts. They are not medical advice, diagnosis,
+              therapy, or emergency support.
+            </p>
+          </div>
+          <label className={styles.toggleRow}>
+            <input
+              checked={aiConsent}
+              onChange={(event) => onAiConsent(event.target.checked)}
+              type="checkbox"
+            />
+            Allow AI reflection insights for my entries
+          </label>
+          <button
+            className={styles.settingButton}
+            disabled={privacyAcknowledged}
+            onClick={onPrivacyAcknowledged}
+            type="button"
+          >
+            <span>
+              {privacyAcknowledged ? "Privacy acknowledged" : "Acknowledge privacy & safety"}
+            </span>
+            <ShieldCheck size={17} />
+          </button>
           <button className={styles.settingButton} onClick={onExportEntries} type="button">
             <span>Export all my data (JSON + PDF)</span>
             <Download size={17} />
@@ -304,7 +361,52 @@ export function ProfileScreen({
             <span>Delete all entries</span>
             <Trash2 size={17} />
           </button>
-          <span>End-to-end encryption: ON</span>
+          <span>
+            Data export includes profile, settings, and entries. Delete all entries keeps your
+            account; account deletion is below.
+          </span>
+        </div>
+
+        <div className={styles.settingsGroup}>
+          <h3>
+            <AlertTriangle size={18} />
+            Safety Boundaries
+          </h3>
+          <span>
+            VibeJournal is a self-reflection tool, not a medical product. It cannot diagnose, treat,
+            predict, or manage mental-health conditions.
+          </span>
+          <span>
+            If you might hurt yourself or feel unsafe, contact local emergency services or a crisis
+            hotline now, and reach out to someone you trust.
+          </span>
+          <a
+            className={styles.inlineLink}
+            href="https://findahelpline.com"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Find a local helpline
+          </a>
+        </div>
+
+        <div className={styles.settingsGroup}>
+          <h3>
+            <Brain size={18} />
+            AI Consent
+          </h3>
+          <span>
+            AI summaries and reframes should stay supportive and non-diagnostic. Turn consent off
+            any time to keep entries available without AI-assisted interpretation.
+          </span>
+          <label className={styles.toggleRow}>
+            <input
+              checked={aiConsent}
+              onChange={(event) => onAiConsent(event.target.checked)}
+              type="checkbox"
+            />
+            AI insights enabled
+          </label>
         </div>
 
         <div className={styles.settingsGroup}>
@@ -376,6 +478,14 @@ export function ProfileScreen({
           <button className={styles.settingButton} onClick={onLogout} type="button">
             <span>Log out</span>
             <LogOut size={17} />
+          </button>
+          <button
+            className={`${styles.settingButton} ${styles.dangerButton}`}
+            onClick={onDeleteAccount}
+            type="button"
+          >
+            <span>Delete account permanently</span>
+            <Trash2 size={17} />
           </button>
         </div>
 

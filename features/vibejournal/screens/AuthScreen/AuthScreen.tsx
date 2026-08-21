@@ -8,6 +8,7 @@ type AuthMode = "login" | "signup" | "reset-request" | "reset-confirm";
 type AuthScreenProps = {
   error: string;
   isBusy: boolean;
+  onGoogleLogin: () => void;
   onLogin: (email: string, password: string) => void;
   onPasswordReset: (email: string) => void;
   onPasswordResetConfirm: (token: string, password: string) => void;
@@ -18,6 +19,7 @@ type AuthScreenProps = {
 export function AuthScreen({
   error,
   isBusy,
+  onGoogleLogin,
   onLogin,
   onPasswordReset,
   onPasswordResetConfirm,
@@ -60,6 +62,10 @@ export function AuthScreen({
         <p>Private mood journal</p>
         <h1>VibeJournal</h1>
         <span>Keep your check-ins tied to your account, not a single browser tab.</span>
+        <small>
+          VibeJournal supports self-reflection only. It does not diagnose, treat, or replace
+          professional care. If you feel unsafe, contact emergency services or a crisis hotline.
+        </small>
       </section>
 
       <form className={styles.authPanel} onSubmit={handleSubmit}>
@@ -152,8 +158,8 @@ export function AuthScreen({
           {mode === "reset-confirm" ? "Back to login" : "Forgot password?"}
         </button>
 
-        <button className={styles.googleButton} disabled type="button">
-          Google login ready when OAuth keys are configured
+        <button className={styles.googleButton} onClick={onGoogleLogin} type="button">
+          Continue with Google
         </button>
       </form>
     </main>

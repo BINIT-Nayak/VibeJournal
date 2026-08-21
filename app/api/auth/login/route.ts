@@ -12,7 +12,11 @@ export async function POST(request: Request) {
     include: { settings: true },
   });
 
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+  if (!user?.passwordHash) {
+    return jsonError("Use Google login for this account, or reset your password.", 401);
+  }
+
+  if (!(await verifyPassword(password, user.passwordHash))) {
     return jsonError("Email or password is incorrect.", 401);
   }
 

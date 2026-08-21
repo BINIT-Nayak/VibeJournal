@@ -8,7 +8,9 @@ export type ClientUser = {
 };
 
 export type ClientSettings = {
+  aiConsent: boolean;
   darkMode: boolean;
+  privacyAcknowledged: boolean;
   reminderEnabled: boolean;
   reminderTime: string;
   spotifyConnected: boolean;
@@ -40,7 +42,9 @@ export function serializeEntry(entry: MoodEntry): ClientMoodEntry {
 
 export function serializeSettings(settings: UserSettings): ClientSettings {
   return {
+    aiConsent: settings.aiConsent,
     darkMode: settings.darkMode,
+    privacyAcknowledged: settings.privacyAcknowledged,
     reminderEnabled: settings.reminderEnabled,
     reminderTime: settings.reminderTime,
     spotifyConnected: settings.spotifyConnected,

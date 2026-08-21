@@ -26,10 +26,11 @@ export async function PATCH(request: Request) {
       body.newPassword
     ) {
       const existingUser = await prisma.user.findUnique({ where: { id: user.id } });
-      if (
-        !existingUser ||
-        !(await verifyPassword(body.currentPassword, existingUser.passwordHash))
-      ) {
+      if (!existingUser?.passwordHash) {
+        return jsonError("Password changes are only available for password-based accounts.", 400);
+      }
+
+      if (!(await verifyPassword(body.currentPassword, existingUser.passwordHash))) {
         return jsonError("Current password is incorrect.", 401);
       }
       if (body.newPassword.length < 8) {
@@ -41,16 +42,26 @@ export async function PATCH(request: Request) {
     const settings = await prisma.userSettings.upsert({
       where: { userId: user.id },
       update: {
+        aiConsent: typeof body.aiConsent === "boolean" ? body.aiConsent : undefined,
         darkMode: typeof body.darkMode === "boolean" ? body.darkMode : undefined,
+        privacyAcknowledged:
+          typeof body.privacyAcknowledged === "boolean" ? body.privacyAcknowledged : undefined,
         reminderEnabled:
           typeof body.reminderEnabled === "boolean" ? body.reminderEnabled : undefined,
         reminderTime: typeof body.reminderTime === "string" ? body.reminderTime : undefined,
+        spotifyConnected:
+          typeof body.spotifyConnected === "boolean" ? body.spotifyConnected : undefined,
       },
       create: {
         userId: user.id,
+        aiConsent: typeof body.aiConsent === "boolean" ? body.aiConsent : false,
         darkMode: typeof body.darkMode === "boolean" ? body.darkMode : false,
+        privacyAcknowledged:
+          typeof body.privacyAcknowledged === "boolean" ? body.privacyAcknowledged : false,
         reminderEnabled: typeof body.reminderEnabled === "boolean" ? body.reminderEnabled : true,
         reminderTime: typeof body.reminderTime === "string" ? body.reminderTime : "20:30",
+        spotifyConnected:
+          typeof body.spotifyConnected === "boolean" ? body.spotifyConnected : false,
       },
     });
 

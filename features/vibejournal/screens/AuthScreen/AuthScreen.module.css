@@ -16,7 +16,8 @@
 
 .hero p,
 .hero h1,
-.hero span {
+.hero span,
+.hero small {
   margin: 0;
 }
 
@@ -37,6 +38,18 @@
   font-size: 1.1rem;
   line-height: 1.5;
   max-width: 560px;
+}
+
+.hero small {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.5;
+  max-width: 620px;
+  padding: 12px 14px;
 }
 
 .authPanel {
