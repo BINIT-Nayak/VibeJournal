@@ -4,11 +4,16 @@ VibeJournal is a private mood journal MVP for quick mood check-ins, deeper refle
 
 ## Stack
 
+See [the foundation architecture](docs/architecture.md) for folder boundaries,
+new dependency setup, and the staged Auth.js migration.
+
 - Next.js + TypeScript
-- CSS Modules and global CSS variables
+- Tailwind CSS, CSS Modules, and global CSS variables
 - PostgreSQL with Prisma
 - Cookie sessions with password hashing
 - Native Canvas charts
+- Zod, React Hook Form, TanStack Query, and Recharts foundations
+- Auth.js scaffold (existing cookie authentication remains active)
 - Spotify and OpenAI integration points planned behind app services
 
 ## Run Locally

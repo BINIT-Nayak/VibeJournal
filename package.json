@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "lint:eslint": "next lint",
+    "lint": "eslint .",
+    "lint:eslint": "eslint .",
     "lint:style": "stylelint \"**/*.{css,scss}\" --cache",
     "lint:style:fix": "stylelint \"**/*.{css,scss}\" --fix --cache",
     "format": "prettier . --write",
@@ -15,28 +15,39 @@
     "check": "npm run lint:eslint && npm run lint:style && npm run format:check",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@hookform/resolvers": "^7.0.3",
     "@prisma/client": "^6.8.2",
+    "@tanstack/react-query": "^5.107.1",
     "lucide-react": "^1.17.0",
     "next": "^15.3.2",
+    "next-auth": "5.0.0-beta.32",
     "prisma": "^6.8.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.91.0",
+    "recharts": "^3.10.1",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@tailwindcss/postcss": "^4.3.5",
     "@types/node": "^22.15.21",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
     "eslint-config-prettier": "^10.1.8",
+    "postcss": "^8.5.32",
     "prettier": "^3.8.3",
     "stylelint": "^17.13.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-order": "^8.1.1",
+    "tailwindcss": "^4.3.5",
     "typescript": "^5.8.3"
   }
 }

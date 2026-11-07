@@ -1,0 +1,70 @@
+import { MoodCanvas } from "@/features/journal/components/MoodCanvas/MoodCanvas";
+import { CorrelationHeatmap } from "@/features/journal/components/CorrelationHeatmap/CorrelationHeatmap";
+import { PageTitle, PanelTitle } from "@/components/ui/SectionTitle/SectionTitle";
+import { WordCloud } from "@/features/journal/components/WordCloud/WordCloud";
+import type { EntriesProps, Insight, InsightTab } from "@/features/journal/types";
+import styles from "@/features/journal/screens/InsightsScreen/InsightsScreen.module.css";
+
+type InsightsScreenProps = EntriesProps & {
+  insight: Insight;
+  onTab: (value: InsightTab) => void;
+  tab: InsightTab;
+};
+
+const insightTabs: InsightTab[] = ["daily", "weekly", "monthly", "patterns"];
+
+export function InsightsScreen({ entries, insight, onTab, tab }: InsightsScreenProps) {
+  return (
+    <section className={styles.screen}>
+      <PageTitle eyebrow="Insights" title="Patterns over time" />
+      <div className={styles.tabs}>
+        {insightTabs.map((item) => (
+          <button
+            className={tab === item ? styles.activeTab : ""}
+            key={item}
+            onClick={() => onTab(item)}
+            type="button"
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+      <section className={styles.panel}>
+        <PanelTitle eyebrow={tab} title="Mood + energy trend" />
+        <div className={styles.largeChart}>
+          <MoodCanvas entries={entries} showEnergy />
+        </div>
+      </section>
+      <div className={styles.insightGrid}>
+        <section className={styles.panel}>
+          <PanelTitle eyebrow="Tags" title="Word cloud" />
+          <WordCloud entries={entries} />
+        </section>
+        <section className={styles.panel}>
+          <PanelTitle eyebrow="Correlation" title="Time vs mood" />
+          <CorrelationHeatmap entries={entries} />
+        </section>
+      </div>
+      <div className={styles.aiCards}>
+        {[insight.headline, insight.detail, insight.reframe, insight.context].map((text) => (
+          <article className={styles.aiCard} key={text}>
+            <p>{text}</p>
+            <div>
+              <button type="button">Copy</button>
+              <button type="button">Regenerate</button>
+            </div>
+          </article>
+        ))}
+      </div>
+      {insight.safety ? (
+        <section className={styles.safetyCard}>
+          <strong>Safety net</strong>
+          <p>{insight.safety}</p>
+          <a href="https://findahelpline.com" target="_blank" rel="noreferrer">
+            Find a local helpline
+          </a>
+        </section>
+      ) : null}
+    </section>
+  );
+}
