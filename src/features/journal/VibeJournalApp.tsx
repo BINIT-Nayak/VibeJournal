@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   buildInsight,
   getPlaylistSuggestion,
@@ -10,20 +10,16 @@ import {
 } from "@/features/journal/mood";
 import type { ClientSettings, ClientUser } from "@/features/auth/types";
 import type { InsightTab, Screen, UserSession } from "@/features/journal/types";
-import {
-  calculateStreak,
-  deriveValence,
-  filterEntries,
-  getAverageMood,
-} from "@/features/journal/utils";
-import { journalCreateSchema, normalizeJournalInput } from "@/features/journal/schemas";
+import { calculateStreak, filterEntries, getAverageMood } from "@/features/journal/utils";
+import type { JournalCreateInput } from "@/features/journal/schemas";
+import type { JournalEntryDto } from "@/features/journal/api-types";
 import { AppChrome } from "@/features/journal/components/AppChrome/AppChrome";
 
 import { HomeScreen } from "@/features/journal/screens/HomeScreen/HomeScreen";
 import { InsightsScreen } from "@/features/journal/screens/InsightsScreen/InsightsScreen";
 import { JournalScreen } from "@/features/journal/screens/JournalScreen/JournalScreen";
 import { MusicScreen } from "@/features/journal/screens/MusicScreen/MusicScreen";
-import { NewEntryScreen } from "@/features/journal/screens/NewEntryScreen/NewEntryScreen";
+import { JournalEditor } from "@/features/journal/components/JournalEditor/JournalEditor";
 import { ProfileScreen } from "@/features/journal/screens/ProfileScreen/ProfileScreen";
 
 const defaultSettings: ClientSettings = {
@@ -50,31 +46,18 @@ export function VibeJournalApp() {
   const [entries, setEntries] = useState<MoodEntry[]>([]);
   const [user, setUser] = useState<ClientUser | null>(null);
   const [settings, setSettings] = useState<ClientSettings>(defaultSettings);
-  const [mood, setMood] = useState<MoodKey>("calm");
-  const [energy, setEnergy] = useState(5);
-  const [stress, setStress] = useState(4);
-  const [sleepHours, setSleepHours] = useState(7);
-  const [exerciseMinutes, setExerciseMinutes] = useState(20);
-  const [socialLevel, setSocialLevel] = useState(5);
-  const [title, setTitle] = useState("");
-  const [note, setNote] = useState("");
-  const [voiceNote, setVoiceNote] = useState("");
-  const [photoNames, setPhotoNames] = useState<string[]>([]);
-  const [selectedTags, setSelectedTags] = useState<string[]>(["gratitude"]);
-  const [customTag, setCustomTag] = useState("");
+  const [editingEntry, setEditingEntry] = useState<JournalEntryDto | null>(null);
   const [query, setQuery] = useState("");
   const [moodFilter, setMoodFilter] = useState<"all" | MoodKey>("all");
   const [tagFilter, setTagFilter] = useState("all");
   const [insightTab, setInsightTab] = useState<InsightTab>("daily");
-  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
-  const [isBusy, setIsBusy] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
   const activeEntries = useMemo(() => entries.filter((entry) => !entry.archivedAt), [entries]);
   const latestEntry = activeEntries[0] ?? null;
-  const latestMood = moods.find((item) => item.key === (latestEntry?.mood ?? mood)) ?? moods[1];
+  const latestMood = moods.find((item) => item.key === (latestEntry?.mood ?? "calm")) ?? moods[1];
   const insight = useMemo(
     () => (settings.aiConsent ? buildInsight(activeEntries) : aiConsentRequiredInsight),
     [activeEntries, settings.aiConsent]
@@ -131,91 +114,38 @@ export function VibeJournalApp() {
     }
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const allTags = [...selectedTags, customTag.trim().toLowerCase()].filter(Boolean);
-
-    const entryPayload = {
-      mood,
-      energy,
-      stress,
-      valence: deriveValence(mood, stress),
-      title,
-      note,
-      tags: Array.from(new Set(allTags)),
-      sleepHours,
-      exerciseMinutes,
-      socialLevel,
-      voiceNote: voiceNote.trim() || undefined,
-      photoNames,
-    };
-
-    const parsed = journalCreateSchema.safeParse(normalizeJournalInput(entryPayload));
-    if (!parsed.success) {
-      setStatusMessage(
-        parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join(" ")
-      );
-      return;
-    }
-    if (isBusy) return;
-    setIsBusy(true);
-    setStatusMessage("");
-
-    try {
-      const response = editingEntryId
-        ? await apiFetch<{ entry: MoodEntry }>(`/api/entries/${editingEntryId}`, {
-            method: "PATCH",
-            body: JSON.stringify(parsed.data),
-          })
-        : await apiFetch<{ entry: MoodEntry }>("/api/entries", {
-            method: "POST",
-            body: JSON.stringify(parsed.data),
-          });
-
-      setEntries((current) =>
-        editingEntryId
-          ? current.map((entry) => (entry.id === response.entry.id ? response.entry : entry))
-          : [response.entry, ...current]
-      );
-      setEditingEntryId(null);
-      setSelectedEntryId(response.entry.id);
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "Could not save entry.");
-      return;
-    } finally {
-      setIsBusy(false);
-    }
-
-    setTitle("");
-    setNote("");
-    setVoiceNote("");
-    setPhotoNames([]);
-    setCustomTag("");
-    setSelectedTags([]);
-    navigateToScreen("home");
-  }
-
-  function toggleTag(tag: string) {
-    setSelectedTags((current) =>
-      current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]
-    );
-  }
-
-  function editEntry(entry: MoodEntry) {
-    setEditingEntryId(entry.id);
-    setMood(entry.mood);
-    setEnergy(entry.energy);
-    setStress(entry.stress);
-    setSleepHours(entry.sleepHours ?? 7);
-    setExerciseMinutes(entry.exerciseMinutes ?? 20);
-    setSocialLevel(entry.socialLevel ?? 5);
-    setTitle(entry.title ?? "");
-    setNote(entry.note);
-    setVoiceNote(entry.voiceNote ?? "");
-    setPhotoNames(entry.photoNames ?? []);
-    setSelectedTags(entry.tags);
-    setCustomTag("");
+  function startEntry() {
+    setEditingEntry(null);
     navigateToScreen("new");
+  }
+
+  async function saveEntry(values: JournalCreateInput) {
+    const response = await apiFetch<{ entry: JournalEntryDto }>(
+      editingEntry ? `/api/journal/${editingEntry.id}` : "/api/journal",
+      { method: editingEntry ? "PATCH" : "POST", body: JSON.stringify(values) }
+    );
+    const entry: MoodEntry = {
+      ...response.entry,
+      sleepHours: response.entry.sleepHours ?? undefined,
+    };
+    setEntries((current) =>
+      editingEntry
+        ? current.map((item) => (item.id === entry.id ? entry : item))
+        : [entry, ...current]
+    );
+    setSelectedEntryId(entry.id);
+    setEditingEntry(null);
+    navigateToScreen("journal");
+  }
+
+  async function editEntry(entry: MoodEntry) {
+    try {
+      const response = await apiFetch<{ entry: JournalEntryDto }>(`/api/journal/${entry.id}`);
+      setEditingEntry(response.entry);
+      navigateToScreen("new");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "Could not load entry.");
+    }
   }
 
   async function archiveEntry(entry: MoodEntry) {
@@ -379,7 +309,7 @@ export function VibeJournalApp() {
     <AppChrome
       activeScreen={activeScreen}
       darkMode={settings.darkMode}
-      onNewEntry={() => navigateToScreen("new")}
+      onNewEntry={startEntry}
       onScreenChange={navigateToScreen}
     >
       {activeScreen === "home" ? (
@@ -392,41 +322,35 @@ export function VibeJournalApp() {
           userName={user.name}
           onInsights={() => navigateToScreen("insights")}
           onJournal={() => navigateToScreen("journal")}
-          onNew={() => navigateToScreen("new")}
+          onNew={startEntry}
           onMusic={() => navigateToScreen("music")}
         />
       ) : null}
 
       {activeScreen === "new" ? (
-        <NewEntryScreen
-          title={title}
-          onTitle={setTitle}
-          errorMessage={statusMessage}
-          isSaving={isBusy}
-          customTag={customTag}
-          energy={energy}
-          exerciseMinutes={exerciseMinutes}
-          isEditing={Boolean(editingEntryId)}
-          mood={mood}
-          note={note}
-          photoNames={photoNames}
-          selectedTags={selectedTags}
-          sleepHours={sleepHours}
-          socialLevel={socialLevel}
-          stress={stress}
-          voiceNote={voiceNote}
-          onCustomTag={setCustomTag}
-          onEnergy={setEnergy}
-          onExerciseMinutes={setExerciseMinutes}
-          onMood={setMood}
-          onNote={setNote}
-          onPhotoNames={setPhotoNames}
-          onSave={handleSubmit}
-          onSleepHours={setSleepHours}
-          onSocialLevel={setSocialLevel}
-          onStress={setStress}
-          onToggleTag={toggleTag}
-          onVoiceNote={setVoiceNote}
+        <JournalEditor
+          key={editingEntry?.id ?? "create"}
+          mode={editingEntry ? "edit" : "create"}
+          initialValues={
+            editingEntry
+              ? {
+                  title: editingEntry.title,
+                  content: editingEntry.content,
+                  mood: editingEntry.mood,
+                  moodScore: editingEntry.moodScore,
+                  energyScore: editingEntry.energyScore,
+                  sleepHours: editingEntry.sleepHours,
+                  exercised: editingEntry.exercised,
+                  socialScore: editingEntry.socialScore,
+                  tags: editingEntry.tags,
+                }
+              : undefined
+          }
+          onSave={saveEntry}
+          onCancel={() => {
+            setEditingEntry(null);
+            navigateToScreen("journal");
+          }}
         />
       ) : null}
 
@@ -525,7 +449,9 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(typeof data.error === "string" ? data.error : "Request failed.");
+    throw new Error(
+      typeof data.error === "string" ? data.error : (data.error?.message ?? "Request failed.")
+    );
   }
 
   return data as T;
