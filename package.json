@@ -19,7 +19,8 @@
     "typecheck": "tsc --noEmit",
     "test:db": "node scripts/test-journal-schema.mjs",
     "test:api": "node scripts/test-journal-api.mjs",
-    "test:auth": "node scripts/test-auth-api.mjs"
+    "test:auth": "node scripts/test-auth-api.mjs",
+    "test:journal": "node scripts/test-journal-rest.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",

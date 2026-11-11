@@ -7,6 +7,8 @@ import {
   normalizeJournalInput,
 } from "@/features/journal/schemas";
 import { serializeEntry } from "@/server/api";
+import type { JournalEntryDto, JournalHistoryResponse } from "@/features/journal/api-types";
+import { historyQuerySchema, decodeCursor, encodeCursor } from "./pagination";
 import * as repository from "./repository";
 
 export class JournalNotFoundError extends Error {
@@ -22,24 +24,25 @@ function ownerId(actor: Actor) {
   return actor.id;
 }
 
-export async function createEntry(actor: Actor, input: unknown) {
+export async function createEntry(actor: Actor, input: unknown, canonical = false) {
   const userId = ownerId(actor);
   const { tags = [], ...fields } = journalCreateSchema.parse(normalizeJournalInput(input));
-  return serializeEntry(await repository.create(userId, { ...fields, legacyTags: tags }, tags));
+  const entry = await repository.create(userId, { ...fields, legacyTags: tags }, tags);
+  return canonical ? toJournalDto(entry) : serializeEntry(entry);
 }
 
-export async function getEntry(actor: Actor, id: string) {
+export async function getEntry(actor: Actor, id: string, canonical = false) {
   const entry = await repository.findByOwner(ownerId(actor), id);
   // Missing and foreign-owned entries intentionally have the same outcome.
   if (!entry) throw new JournalNotFoundError();
-  return serializeEntry(entry);
+  return canonical ? toJournalDto(entry) : serializeEntry(entry);
 }
 
 export async function listEntries(actor: Actor) {
   return (await repository.listByOwner(ownerId(actor))).map(serializeEntry);
 }
 
-export async function updateEntry(actor: Actor, id: string, input: unknown) {
+export async function updateEntry(actor: Actor, id: string, input: unknown, canonical = false) {
   const userId = ownerId(actor);
   const { tags, archived, ...fields } = journalUpdateSchema.parse(normalizeJournalInput(input));
   const entry = await repository.updateByOwner(
@@ -53,7 +56,7 @@ export async function updateEntry(actor: Actor, id: string, input: unknown) {
     tags
   );
   if (!entry) throw new JournalNotFoundError();
-  return serializeEntry(entry);
+  return canonical ? toJournalDto(entry) : serializeEntry(entry);
 }
 
 export async function deleteEntry(actor: Actor, id: string) {
@@ -63,4 +66,33 @@ export async function deleteEntry(actor: Actor, id: string) {
 
 export async function deleteAllEntries(actor: Actor) {
   await repository.deleteAllByOwner(ownerId(actor));
+}
+
+export async function listEntryPage(actor: Actor, query: unknown) {
+  const userId = ownerId(actor);
+  const { limit, cursor } = historyQuerySchema.parse(query);
+  const rows = await repository.pageByOwner(
+    userId,
+    limit + 1,
+    cursor ? decodeCursor(cursor, userId) : undefined
+  );
+  const hasMore = rows.length > limit;
+  const page = rows.slice(0, limit);
+  return {
+    entries: page.map(toJournalDto),
+    pageInfo: { hasMore, nextCursor: hasMore ? encodeCursor(userId, page[page.length - 1]) : null },
+  } satisfies JournalHistoryResponse;
+}
+
+function toJournalDto(entry: repository.JournalEntryWithTags): JournalEntryDto {
+  return {
+    ...serializeEntry(entry),
+    title: entry.title,
+    content: entry.content,
+    moodScore: entry.moodScore,
+    energyScore: entry.energyScore,
+    sleepHours: entry.sleepHours,
+    exercised: entry.exercised,
+    socialScore: entry.socialScore,
+  };
 }

@@ -72,3 +72,26 @@ export function deleteByOwner(userId: string, id: string) {
 export function deleteAllByOwner(userId: string) {
   return prisma.journalEntry.deleteMany({ where: { userId } });
 }
+
+export function pageByOwner(
+  userId: string,
+  take: number,
+  cursor?: { id: string; createdAt: Date }
+) {
+  return prisma.journalEntry.findMany({
+    where: {
+      userId,
+      ...(cursor
+        ? {
+            OR: [
+              { createdAt: { lt: cursor.createdAt } },
+              { createdAt: cursor.createdAt, id: { lt: cursor.id } },
+            ],
+          }
+        : {}),
+    },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take,
+    include: entryInclude,
+  });
+}
