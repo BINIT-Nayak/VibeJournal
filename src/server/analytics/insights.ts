@@ -3,6 +3,7 @@ import type {
   AnalyticsStatistics,
   AnalyticsCorrelation,
   AnalyticsInsight,
+  SleepMoodComparison,
 } from "@/features/analytics/types";
 
 export function generateInsights(
@@ -67,4 +68,13 @@ export function generateInsights(
     });
   }
   return result;
+}
+
+export function describeSleepComparison(comparison: Omit<SleepMoodComparison, "summary">): string {
+  const high = comparison.atLeast7Hours,
+    low = comparison.lessThan7Hours;
+  if (comparison.status === "insufficient_data") {
+    return `Not enough data to compare yet: ${high.sampleSize} days with at least 7 hours of sleep and ${low.sampleSize} days with less than 7 hours. At least ${comparison.minimumDaysPerGroup} recorded days in each group are needed. No conclusion is drawn from these averages.`;
+  }
+  return `Average mood was ${high.averageMood}/10 across ${high.sampleSize} days with at least 7 hours of sleep, compared with ${low.averageMood}/10 across ${low.sampleSize} days with less than 7 hours. These are descriptive averages, not evidence that sleep caused a mood change or that the difference is statistically meaningful.`;
 }

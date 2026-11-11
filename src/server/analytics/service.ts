@@ -5,7 +5,8 @@ import type { AnalyticsResponse } from "@/features/analytics/types";
 import { readAnalytics } from "./repository";
 import { calculateStatistics } from "./statistics";
 import { calculateCorrelations } from "./correlations";
-import { generateInsights } from "./insights";
+import { calculateSleepComparison } from "./sleep-comparison";
+import { generateInsights, describeSleepComparison } from "./insights";
 
 const querySchema = z.object({
   days: z
@@ -31,6 +32,7 @@ export async function getAnalytics(
   const aggregates = await readAnalytics(user.id, start, asOf);
   const statistics = calculateStatistics(aggregates.daily, aggregates.tags, dates);
   const correlations = calculateCorrelations(aggregates.pairs);
+  const sleepComparison = calculateSleepComparison(aggregates.daily);
   return {
     period: {
       startDate: dates[0],
@@ -41,6 +43,7 @@ export async function getAnalytics(
     },
     statistics,
     correlations,
+    sleepComparison: { ...sleepComparison, summary: describeSleepComparison(sleepComparison) },
     insights: generateInsights(statistics, correlations),
   };
 }

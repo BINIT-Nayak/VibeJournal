@@ -40,5 +40,19 @@ export type AnalyticsResponse = {
   period: { startDate: string; endDate: string; days: number; timeZone: "UTC"; asOf: string };
   statistics: AnalyticsStatistics;
   correlations: AnalyticsCorrelation[];
+  sleepComparison: SleepMoodComparison;
   insights: AnalyticsInsight[];
+};
+
+export type SleepMoodComparison = {
+  thresholdHours: 7;
+  minimumDaysPerGroup: 5;
+  sampleUnit: "day";
+  status: "insufficient_data" | "available";
+  atLeast7Hours: { sampleSize: number; averageMood: number | null };
+  lessThan7Hours: { sampleSize: number; averageMood: number | null };
+  excludedDaysWithoutSleep: number;
+  /** At-least-7-hours mean minus less-than-7-hours mean; null for insufficient data. */
+  moodDifference: number | null;
+  summary: string;
 };

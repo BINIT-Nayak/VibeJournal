@@ -121,6 +121,47 @@ export function AnalyticsScreen({ userId }: { userId: string }) {
                 recorded
               </p>
             </section>
+            <section className={styles.panel} aria-labelledby="sleep-comparison-heading">
+              <h2 id="sleep-comparison-heading">Mood and sleep</h2>
+              <p>{data.sleepComparison.summary}</p>
+              <div className={styles.chartDetails}>
+                <table>
+                  <caption>Daily mood by recorded sleep</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Sleep</th>
+                      <th scope="col">Days</th>
+                      <th scope="col">Average mood</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">At least 7 hours</th>
+                      <td>{data.sleepComparison.atLeast7Hours.sampleSize}</td>
+                      <td>
+                        {data.sleepComparison.atLeast7Hours.averageMood == null
+                          ? "Not recorded"
+                          : `${data.sleepComparison.atLeast7Hours.averageMood}/10`}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Less than 7 hours</th>
+                      <td>{data.sleepComparison.lessThan7Hours.sampleSize}</td>
+                      <td>
+                        {data.sleepComparison.lessThan7Hours.averageMood == null
+                          ? "Not recorded"
+                          : `${data.sleepComparison.lessThan7Hours.averageMood}/10`}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                Each UTC day counts once. Multiple sleep records on a day are averaged before
+                grouping. {data.sleepComparison.excludedDaysWithoutSleep} journal days without sleep
+                data were excluded.
+              </p>
+            </section>
             <section className={styles.panel}>
               <h2>Tag frequency</h2>
               {data.statistics.tagFrequency.length ? (
