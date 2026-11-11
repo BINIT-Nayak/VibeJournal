@@ -1,9 +1,11 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useId, useRef, type FormEvent } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { journalCreateSchema, type JournalCreateInput } from "../../schemas";
+import { JournalSaveError } from "../../api-client";
+import { MoodSelector } from "../MoodSelector/MoodSelector";
 import { moods } from "../../mood";
 import styles from "./JournalEditor.module.css";
 
@@ -12,6 +14,7 @@ export type JournalEditorProps = {
   initialValues?: Partial<JournalCreateInput>;
   onSave: (values: JournalCreateInput) => Promise<void>;
   onCancel?: () => void;
+  pending?: boolean;
 };
 
 // Mount with a new key when switching entries; form state stays local to this editor.
@@ -20,6 +23,7 @@ export function JournalEditor({
   initialValues,
   onSave,
   onCancel,
+  pending = false,
 }: JournalEditorProps) {
   const id = useId();
   const lock = useRef(false);
@@ -47,13 +51,28 @@ export function JournalEditor({
       ...initialValues,
     },
   });
-  const submit = handleSubmit(async (values) => {
-    if (lock.current) return;
+  const busy = isSubmitting || pending;
+  const validatedSubmit = handleSubmit(async (values) => {
+    if (lock.current || pending) return;
     lock.current = true;
     clearErrors("root");
     try {
       await onSave(values);
     } catch (error) {
+      if (error instanceof JournalSaveError) {
+        let focused = false;
+        for (const issue of error.issues) {
+          const field = issue.path.split(".")[0];
+          if (Object.prototype.hasOwnProperty.call(journalCreateSchema.shape, field)) {
+            setError(
+              field as keyof JournalCreateInput,
+              { type: "server", message: issue.message },
+              { shouldFocus: !focused }
+            );
+            focused = true;
+          }
+        }
+      }
       setError("root.server", {
         message:
           error instanceof Error ? error.message : "Could not save your entry. Please try again.",
@@ -62,6 +81,13 @@ export function JournalEditor({
       lock.current = false;
     }
   });
+  function submit(event?: FormEvent<HTMLFormElement>) {
+    if (lock.current || pending) {
+      event?.preventDefault();
+      return;
+    }
+    return validatedSubmit(event);
+  }
   function error(name: keyof JournalCreateInput) {
     const message =
       errors[name]?.message ??
@@ -90,7 +116,7 @@ export function JournalEditor({
       <form
         noValidate
         onSubmit={submit}
-        aria-busy={isSubmitting}
+        aria-busy={busy}
         onKeyDown={(event) => {
           if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
             event.preventDefault();
@@ -98,7 +124,7 @@ export function JournalEditor({
           }
         }}
       >
-        <fieldset disabled={isSubmitting} className={styles.fields}>
+        <fieldset disabled={busy} className={styles.fields}>
           <legend className={styles.srOnly}>Journal entry</legend>
           <label htmlFor={`${id}-title`}>
             Title <span>(optional)</span>
@@ -131,23 +157,14 @@ export function JournalEditor({
               </select>
               {error("mood")}
             </div>
-            <div>
-              <label htmlFor={`${id}-moodScore`}>
-                Mood score <span>(1–10)</span>
-              </label>
-              <input
-                id={`${id}-moodScore`}
-                type="number"
-                min={1}
-                max={10}
-                step={1}
-                {...register("moodScore", { valueAsNumber: true })}
-                {...accessibility("moodScore")}
-              />
-              {error("moodScore")}
-            </div>
           </div>
-          <p className={styles.hint}>1 = very low · 10 = very good</p>
+          <Controller
+            name="moodScore"
+            control={control}
+            render={({ field, fieldState }) => (
+              <MoodSelector {...field} error={fieldState.error?.message} />
+            )}
+          />
           <div className={styles.optional}>
             <h2>
               A little context <span>(optional)</span>
@@ -210,7 +227,7 @@ export function JournalEditor({
                     step={step}
                     placeholder="Not recorded"
                     {...register(name, {
-                      setValueAs: (value) => (value === "" ? null : Number(value)),
+                      setValueAs: (value) => (value === "" || value == null ? null : Number(value)),
                     })}
                     {...accessibility(name)}
                   />
@@ -284,12 +301,12 @@ export function JournalEditor({
         )}
         <div className={styles.actions}>
           <p className={styles.hint} role="status">
-            {isSubmitting ? "Saving your reflection…" : "Ctrl / ⌘ + Enter to save"}
+            {busy ? "Saving your reflection…" : "Ctrl / ⌘ + Enter to save"}
           </p>
           {onCancel && (
             <button
               type="button"
-              disabled={isSubmitting}
+              disabled={busy}
               onClick={() => {
                 if (!isDirty || window.confirm("Discard your unsaved changes?")) onCancel();
               }}
@@ -297,8 +314,8 @@ export function JournalEditor({
               Cancel
             </button>
           )}
-          <button className={styles.save} type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving…" : mode === "edit" ? "Save changes" : "Save entry"}
+          <button className={styles.save} type="submit" disabled={busy}>
+            {busy ? "Saving…" : mode === "edit" ? "Save changes" : "Save entry"}
           </button>
         </div>
       </form>

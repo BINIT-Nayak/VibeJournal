@@ -1,0 +1,47 @@
+.detail {
+  margin: 0 auto;
+  max-width: 780px;
+  overflow-wrap: anywhere;
+}
+
+.detail h1 {
+  font-family: Georgia, serif;
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 400;
+}
+
+.detail time {
+  color: var(--muted);
+}
+
+.success {
+  background: var(--surface);
+  border: 1px solid var(--accent-strong);
+  border-radius: 12px;
+  margin-bottom: 32px;
+  padding: 20px;
+}
+
+.success p {
+  margin-bottom: 0;
+}
+
+.content {
+  font-size: 17px;
+  line-height: 1.9;
+  margin: 32px 0;
+  white-space: pre-wrap;
+}
+
+.detail nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.detail a {
+  color: var(--accent-strong);
+  min-height: 44px;
+  padding: 12px 0;
+}

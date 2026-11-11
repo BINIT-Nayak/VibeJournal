@@ -115,8 +115,7 @@ export function VibeJournalApp() {
   }
 
   function startEntry() {
-    setEditingEntry(null);
-    navigateToScreen("new");
+    window.location.assign("/journal/new");
   }
 
   async function saveEntry(values: JournalCreateInput) {

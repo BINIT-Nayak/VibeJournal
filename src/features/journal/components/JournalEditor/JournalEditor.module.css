@@ -46,7 +46,7 @@
   font-weight: 600;
 }
 
-.editor input:not([type="checkbox"], [type="range"]),
+.editor input:not([type="checkbox"], [type="range"], [type="radio"]),
 .editor textarea,
 .editor select {
   background: var(--surface-strong);

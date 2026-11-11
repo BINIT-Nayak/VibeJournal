@@ -1,0 +1,94 @@
+.selector {
+  border: 0;
+  margin: 8px 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.selector legend {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.help,
+.selection,
+.selector legend span {
+  color: var(--muted, #5b6c60);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.options {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.options .option {
+  align-items: center;
+  background: var(--surface-strong, #fffffc);
+  border: 1px solid var(--line, #dce3d8);
+  border-radius: 10px;
+  color: var(--ink, #263e33);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  min-height: 94px;
+  padding: 10px 4px;
+  position: relative;
+  text-align: center;
+}
+
+.option input {
+  height: 100%;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.option:has(input:checked) {
+  background: var(--surface, #eff2eb);
+  border: 2px solid var(--accent-strong, #3e624c);
+  padding: 9px 3px;
+}
+
+.option:has(input:focus-visible) {
+  outline: 3px solid var(--accent-strong, #3e624c);
+  outline-offset: 3px;
+}
+
+.option:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.option .emoji {
+  font-size: 25px;
+  line-height: 1;
+}
+
+.option .caption {
+  color: var(--ink, #263e33);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.selection {
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.error {
+  color: #b42335;
+  font-size: 14px;
+}
+
+@media (min-width: 1200px) {
+  .options {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+  }
+}
