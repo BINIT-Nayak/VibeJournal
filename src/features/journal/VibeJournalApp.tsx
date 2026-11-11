@@ -15,7 +15,8 @@ import type { JournalCreateInput } from "@/features/journal/schemas";
 import type { JournalEntryDto } from "@/features/journal/api-types";
 import { AppChrome } from "@/features/journal/components/AppChrome/AppChrome";
 
-import { HomeScreen } from "@/features/journal/screens/HomeScreen/HomeScreen";
+import { DashboardScreen } from "@/features/dashboard/DashboardScreen";
+import type { DashboardResponse } from "@/features/dashboard/types";
 import { InsightsScreen } from "@/features/journal/screens/InsightsScreen/InsightsScreen";
 import { JournalScreen } from "@/features/journal/screens/JournalScreen/JournalScreen";
 import { MusicScreen } from "@/features/journal/screens/MusicScreen/MusicScreen";
@@ -42,6 +43,8 @@ const aiConsentRequiredInsight = {
 };
 
 export function VibeJournalApp() {
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
+  const [fullHistoryLoaded, setFullHistoryLoaded] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>("home");
   const [entries, setEntries] = useState<MoodEntry[]>([]);
   const [user, setUser] = useState<ClientUser | null>(null);
@@ -91,11 +94,14 @@ export function VibeJournalApp() {
   }, []);
 
   useEffect(() => {
-    apiFetch<UserSession | { user: null }>("/api/auth/me")
+    apiFetch<DashboardResponse>(
+      `/api/dashboard?timeZone=${encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone)}`
+    )
       .then((session) => {
         if (session.user) {
           setUser(session.user);
-          setEntries(session.entries);
+          setDashboard(session);
+          setEntries(session.recentEntries);
           setSettings(session.settings);
         } else {
           window.location.replace("/login");
@@ -104,6 +110,24 @@ export function VibeJournalApp() {
       .catch(() => setStatusMessage("Could not load your session. Please reload."))
       .finally(() => setIsLoadingSession(false));
   }, []);
+
+  useEffect(() => {
+    if (!user || fullHistoryLoaded || !["insights", "profile"].includes(activeScreen)) return;
+    let cancelled = false;
+    apiFetch<UserSession>("/api/auth/me")
+      .then((session) => {
+        if (!cancelled) {
+          setEntries(session.entries);
+          setFullHistoryLoaded(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setStatusMessage("Could not load journal history. Please reload.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeScreen, user, fullHistoryLoaded]);
 
   function navigateToScreen(screen: Screen) {
     if (screen === "journal") {
@@ -308,7 +332,12 @@ export function VibeJournalApp() {
   if (!user) {
     return (
       <main>
-        <p>{statusMessage || "Please sign in to continue."}</p>
+        <p role="alert">{statusMessage || "Please sign in to continue."}</p>
+        {statusMessage && (
+          <button type="button" onClick={() => window.location.reload()}>
+            Try again
+          </button>
+        )}
         <a href="/login">Sign in</a>
       </main>
     );
@@ -321,20 +350,7 @@ export function VibeJournalApp() {
       onNewEntry={startEntry}
       onScreenChange={navigateToScreen}
     >
-      {activeScreen === "home" ? (
-        <HomeScreen
-          entries={activeEntries}
-          insight={insight}
-          latestMood={latestMood}
-          playlist={playlist}
-          streak={streak}
-          userName={user.name}
-          onInsights={() => navigateToScreen("insights")}
-          onJournal={() => navigateToScreen("journal")}
-          onNew={startEntry}
-          onMusic={() => navigateToScreen("music")}
-        />
-      ) : null}
+      {activeScreen === "home" && dashboard ? <DashboardScreen data={dashboard} /> : null}
 
       {activeScreen === "new" ? (
         <JournalEditor
@@ -380,7 +396,11 @@ export function VibeJournalApp() {
         />
       ) : null}
 
-      {activeScreen === "insights" ? (
+      {["insights", "profile"].includes(activeScreen) && !fullHistoryLoaded && (
+        <p role="status">{statusMessage || "Loading your journal history…"}</p>
+      )}
+
+      {activeScreen === "insights" && fullHistoryLoaded ? (
         <InsightsScreen
           entries={activeEntries}
           insight={insight}
@@ -393,7 +413,7 @@ export function VibeJournalApp() {
         <MusicScreen latestMood={latestMood} playlist={playlist} />
       ) : null}
 
-      {activeScreen === "profile" ? (
+      {activeScreen === "profile" && fullHistoryLoaded ? (
         <ProfileScreen
           averageMood={averageMood}
           aiConsent={settings.aiConsent}

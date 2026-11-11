@@ -20,7 +20,8 @@
     "test:db": "node scripts/test-journal-schema.mjs",
     "test:api": "node scripts/test-journal-api.mjs",
     "test:auth": "node scripts/test-auth-api.mjs",
-    "test:journal": "node scripts/test-journal-rest.mjs"
+    "test:journal": "node scripts/test-journal-rest.mjs",
+    "test:dashboard": "node scripts/test-dashboard-api.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",
