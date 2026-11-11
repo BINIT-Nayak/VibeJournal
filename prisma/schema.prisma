@@ -19,6 +19,7 @@ model User {
   sessions            Session[]
   moodEntries         MoodEntry[]
   journalEntries      JournalEntry[]
+  tags                Tag[]
   playlistRuns        PlaylistRun[]
   settings            UserSettings?
   passwordResetTokens PasswordResetToken[]
@@ -78,15 +79,58 @@ model MoodEntry {
 }
 
 model JournalEntry {
-  id        String   @id @default(cuid())
-  userId    String
-  title     String?
-  content   String
-  prompt    String?
-  tags      String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String       @id @default(cuid())
+  userId          String
+  title           String?
+  content         String       @db.Text
+  /// Required integer score; PostgreSQL CHECK enforces 1–10.
+  moodScore       Int
+  /// Optional integer scores; PostgreSQL CHECK enforces 1–10 when present.
+  energyScore     Int?
+  sleepHours      Float?
+  exercised       Boolean?
+  socialScore     Int?
+  // Existing journal UI fields, preserved during the MoodEntry cutover.
+  mood            Mood?
+  stress          Int?
+  exerciseMinutes Int?
+  voiceNote       String?
+  photoNames      String[]     @default([])
+  archivedAt      DateTime?
+  // Retained for compatibility with the original schema.
+  prompt          String?
+  legacyTags      String[]     @map("tags")
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags            JournalTag[]
+
+  @@unique([id, userId])
+  @@index([userId, createdAt])
+}
+
+model Tag {
+  id             String       @id @default(cuid())
+  userId         String
+  name           String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  journalEntries JournalTag[]
+
+  @@unique([userId, name])
+  @@unique([id, userId])
+}
+
+model JournalTag {
+  journalEntryId String
+  tagId          String
+  position       Int          @default(0)
+  // Both foreign keys include userId, preventing cross-account tag links.
+  userId         String
+  journalEntry   JournalEntry @relation(fields: [journalEntryId, userId], references: [id, userId], onDelete: Cascade)
+  tag            Tag          @relation(fields: [tagId, userId], references: [id, userId], onDelete: Cascade)
+
+  @@id([journalEntryId, tagId])
+  @@index([tagId, userId])
 }
 
 model PlaylistRun {
@@ -110,4 +154,13 @@ enum Mood {
   tired
   hopeful
   neutral
+}
+
+// Persistent throttling shared by all application processes; keys contain no raw email.
+model AuthRateLimit {
+  key      String   @id
+  attempts Int
+  resetAt  DateTime
+
+  @@index([resetAt])
 }

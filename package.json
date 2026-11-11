@@ -16,7 +16,10 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:db": "node scripts/test-journal-schema.mjs",
+    "test:api": "node scripts/test-journal-api.mjs",
+    "test:auth": "node scripts/test-auth-api.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",

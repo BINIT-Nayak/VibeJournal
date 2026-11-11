@@ -1,9 +1,11 @@
 import "server-only";
 
+import { entryInclude, setEntryTags } from "@/server/journal/entries";
+
 import { requireUser } from "@/server/auth/session";
 import { jsonError } from "@/lib/http";
-import { parseMood, serializeEntry } from "@/server/api";
-import { parseNumber, parseStringArray } from "@/lib/parse";
+import { serializeEntry } from "@/server/api";
+import { journalUpdateSchema, normalizeJournalInput } from "@/features/journal/schemas";
 import { prisma } from "@/server/db";
 
 type RouteContext = {
@@ -14,7 +16,10 @@ export async function GET(_request: Request, context: RouteContext) {
   try {
     const user = await requireUser();
     const { id } = await context.params;
-    const entry = await prisma.moodEntry.findFirst({ where: { id, userId: user.id } });
+    const entry = await prisma.journalEntry.findFirst({
+      where: { id, userId: user.id },
+      include: entryInclude,
+    });
 
     if (!entry) {
       return jsonError("Entry not found.", 404);
@@ -28,59 +33,36 @@ export async function GET(_request: Request, context: RouteContext) {
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
-    const user = await requireUser();
+    const user = await requireUser(request);
     const { id } = await context.params;
-    const body = await request.json();
-    const existingEntry = await prisma.moodEntry.findFirst({ where: { id, userId: user.id } });
+    const parsed = journalUpdateSchema.safeParse(normalizeJournalInput(await request.json()));
+    if (!parsed.success)
+      return Response.json(
+        { error: "Check the journal fields.", issues: parsed.error.issues },
+        { status: 400 }
+      );
+    const { tags, archived, ...fields } = parsed.data;
+
+    const existingEntry = await prisma.journalEntry.findFirst({
+      where: { id, userId: user.id },
+      include: entryInclude,
+    });
 
     if (!existingEntry) {
       return jsonError("Entry not found.", 404);
     }
 
-    const entry = await prisma.moodEntry.update({
-      where: { id },
-      data: {
-        mood: body.mood ? parseMood(body.mood) : existingEntry.mood,
-        energy:
-          typeof body.energy === "number"
-            ? parseNumber(body.energy, existingEntry.energy, 1, 10)
-            : existingEntry.energy,
-        stress:
-          typeof body.stress === "number"
-            ? parseNumber(body.stress, existingEntry.stress, 1, 10)
-            : existingEntry.stress,
-        valence:
-          typeof body.valence === "number"
-            ? parseNumber(body.valence, existingEntry.valence, 1, 10)
-            : existingEntry.valence,
-        note: typeof body.note === "string" ? body.note.trim() : existingEntry.note,
-        tags: Array.isArray(body.tags) ? parseStringArray(body.tags) : existingEntry.tags,
-        sleepHours:
-          typeof body.sleepHours === "number"
-            ? parseNumber(body.sleepHours, 7, 0, 14)
-            : existingEntry.sleepHours,
-        exerciseMinutes:
-          typeof body.exerciseMinutes === "number"
-            ? parseNumber(body.exerciseMinutes, 0, 0, 240)
-            : existingEntry.exerciseMinutes,
-        socialLevel:
-          typeof body.socialLevel === "number"
-            ? parseNumber(body.socialLevel, 5, 1, 10)
-            : existingEntry.socialLevel,
-        voiceNote:
-          typeof body.voiceNote === "string" && body.voiceNote.trim()
-            ? body.voiceNote.trim()
-            : existingEntry.voiceNote,
-        photoNames: Array.isArray(body.photoNames)
-          ? parseStringArray(body.photoNames)
-          : existingEntry.photoNames,
-        archivedAt:
-          typeof body.archived === "boolean"
-            ? body.archived
-              ? new Date()
-              : null
-            : existingEntry.archivedAt,
-      },
+    const entry = await prisma.$transaction(async (tx) => {
+      await tx.journalEntry.update({
+        where: { id },
+        data: {
+          ...fields,
+          archivedAt: archived === undefined ? undefined : archived ? new Date() : null,
+          legacyTags: tags,
+        },
+      });
+      if (tags !== undefined) await setEntryTags(tx, id, user.id, tags ?? []);
+      return tx.journalEntry.findUniqueOrThrow({ where: { id }, include: entryInclude });
     });
 
     return Response.json({ entry: serializeEntry(entry) });
@@ -93,17 +75,20 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: Request, context: RouteContext) {
   try {
-    const user = await requireUser();
+    const user = await requireUser(request);
     const { id } = await context.params;
-    const entry = await prisma.moodEntry.findFirst({ where: { id, userId: user.id } });
+    const entry = await prisma.journalEntry.findFirst({
+      where: { id, userId: user.id },
+      include: entryInclude,
+    });
 
     if (!entry) {
       return jsonError("Entry not found.", 404);
     }
 
-    await prisma.moodEntry.delete({ where: { id } });
+    await prisma.journalEntry.delete({ where: { id } });
 
     return Response.json({ ok: true });
   } catch {

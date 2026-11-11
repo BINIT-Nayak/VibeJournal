@@ -1,5 +1,6 @@
-import { VibeJournalApp } from "@/features/journal/VibeJournalApp";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/server/auth/session";
 
-export default function Home() {
-  return <VibeJournalApp />;
+export default async function Home() {
+  redirect((await getCurrentUser()) ? "/dashboard" : "/login");
 }

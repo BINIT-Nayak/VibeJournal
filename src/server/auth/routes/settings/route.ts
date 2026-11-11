@@ -1,13 +1,15 @@
 import "server-only";
 
-import { hashPassword, normalizeEmail, requireUser, verifyPassword } from "@/server/auth/session";
+import { requireUser } from "@/server/auth/session";
+import { hashPassword, verifyPassword } from "@/server/auth/password";
+import { credentialsSchema, normalizeEmail } from "@/features/auth/schemas";
 import { jsonError } from "@/lib/http";
 import { serializeSettings } from "@/server/api";
 import { prisma } from "@/server/db";
 
 export async function PATCH(request: Request) {
   try {
-    const user = await requireUser();
+    const user = await requireUser(request);
     const body = await request.json();
     const userUpdates: { name?: string | null; email?: string; passwordHash?: string } = {};
 
@@ -36,8 +38,8 @@ export async function PATCH(request: Request) {
       if (!(await verifyPassword(body.currentPassword, existingUser.passwordHash))) {
         return jsonError("Current password is incorrect.", 401);
       }
-      if (body.newPassword.length < 8) {
-        return jsonError("New password must be at least 8 characters.");
+      if (!credentialsSchema.shape.password.safeParse(body.newPassword).success) {
+        return jsonError("New password must be between 8 and 128 characters.");
       }
       userUpdates.passwordHash = await hashPassword(body.newPassword);
     }
@@ -75,6 +77,10 @@ export async function PATCH(request: Request) {
           select: { id: true, email: true, name: true },
         })
       : user;
+
+    if (userUpdates.passwordHash) {
+      await prisma.session.deleteMany({ where: { userId: user.id } });
+    }
 
     return Response.json({
       user: updatedUser,

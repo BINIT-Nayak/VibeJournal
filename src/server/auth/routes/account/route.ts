@@ -1,15 +1,15 @@
 import "server-only";
 
-import { clearSessionCookie, requireUser } from "@/server/auth/session";
+import { destroyCurrentSession, requireUser } from "@/server/auth/session";
 import { jsonError } from "@/lib/http";
 import { prisma } from "@/server/db";
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   try {
-    const user = await requireUser();
+    const user = await requireUser(request);
 
     await prisma.user.delete({ where: { id: user.id } });
-    await clearSessionCookie();
+    await destroyCurrentSession();
 
     return Response.json({ ok: true });
   } catch {

@@ -9,6 +9,7 @@ export type MoodKey =
   | "neutral";
 
 export type MoodEntry = {
+  title?: string | null;
   id: string;
   mood: MoodKey;
   energy: number;

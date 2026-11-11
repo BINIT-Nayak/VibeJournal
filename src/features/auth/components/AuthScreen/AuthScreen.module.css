@@ -182,3 +182,18 @@
     min-height: 42vh;
   }
 }
+
+.registerLink {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--accent-strong);
+  display: flex;
+  justify-content: center;
+  padding: 11px 12px;
+  text-decoration: none;
+}
+
+.registerLink:hover {
+  background: var(--surface-strong);
+}

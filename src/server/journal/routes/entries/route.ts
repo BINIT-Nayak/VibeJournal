@@ -1,17 +1,20 @@
 import "server-only";
 
+import { entryInclude, setEntryTags } from "@/server/journal/entries";
+
 import { requireUser } from "@/server/auth/session";
 import { jsonError } from "@/lib/http";
-import { parseMood, serializeEntry } from "@/server/api";
-import { parseNumber, parseStringArray } from "@/lib/parse";
+import { serializeEntry } from "@/server/api";
+import { journalCreateSchema, normalizeJournalInput } from "@/features/journal/schemas";
 import { prisma } from "@/server/db";
 
 export async function GET() {
   try {
     const user = await requireUser();
-    const entries = await prisma.moodEntry.findMany({
+    const entries = await prisma.journalEntry.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
+      include: entryInclude,
     });
 
     return Response.json({ entries: entries.map(serializeEntry) });
@@ -22,41 +25,20 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const user = await requireUser();
-    const body = await request.json();
-    const mood = parseMood(body.mood);
-    const energy = parseNumber(body.energy, 5, 1, 10);
-    const stress = parseNumber(body.stress, 5, 1, 10);
-    const valence = parseNumber(body.valence, 5, 1, 10);
-    const note = String(body.note ?? "").trim();
-
-    if (!note) {
-      return jsonError("Write a note before saving.");
-    }
-
-    const entry = await prisma.moodEntry.create({
-      data: {
-        userId: user.id,
-        mood,
-        energy,
-        stress,
-        valence,
-        note,
-        tags: parseStringArray(body.tags),
-        sleepHours:
-          typeof body.sleepHours === "number" ? parseNumber(body.sleepHours, 7, 0, 14) : null,
-        exerciseMinutes:
-          typeof body.exerciseMinutes === "number"
-            ? parseNumber(body.exerciseMinutes, 0, 0, 240)
-            : null,
-        socialLevel:
-          typeof body.socialLevel === "number" ? parseNumber(body.socialLevel, 5, 1, 10) : null,
-        voiceNote:
-          typeof body.voiceNote === "string" && body.voiceNote.trim()
-            ? body.voiceNote.trim()
-            : null,
-        photoNames: parseStringArray(body.photoNames),
-      },
+    const user = await requireUser(request);
+    const parsed = journalCreateSchema.safeParse(normalizeJournalInput(await request.json()));
+    if (!parsed.success)
+      return Response.json(
+        { error: "Check the journal fields.", issues: parsed.error.issues },
+        { status: 400 }
+      );
+    const { tags, ...fields } = parsed.data;
+    const entry = await prisma.$transaction(async (tx) => {
+      const saved = await tx.journalEntry.create({
+        data: { ...fields, userId: user.id, legacyTags: tags ?? [] },
+      });
+      await setEntryTags(tx, saved.id, user.id, tags ?? []);
+      return tx.journalEntry.findUniqueOrThrow({ where: { id: saved.id }, include: entryInclude });
     });
 
     return Response.json({ entry: serializeEntry(entry) }, { status: 201 });
@@ -69,10 +51,10 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   try {
-    const user = await requireUser();
-    await prisma.moodEntry.deleteMany({ where: { userId: user.id } });
+    const user = await requireUser(request);
+    await prisma.journalEntry.deleteMany({ where: { userId: user.id } });
 
     return Response.json({ ok: true });
   } catch {

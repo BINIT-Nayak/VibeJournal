@@ -8,6 +8,8 @@ import { credentialsSchema, type CredentialsInput } from "@/features/auth/schema
 export function useCredentialsForm() {
   return useForm<CredentialsInput>({
     resolver: zodResolver(credentialsSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: { email: "", password: "" },
   });
 }

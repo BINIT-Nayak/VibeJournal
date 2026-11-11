@@ -43,26 +43,21 @@ React Hook Form is installed with the Zod resolver. `useCredentialsForm` is a
 starter hook, not a replacement for the current auth form. Recharts is installed
 for future client-side charts; existing Canvas charts are retained.
 
-## Authentication transition
+## Authentication
 
-The existing cookie/session authentication remains authoritative. Auth.js (`src/server/auth/config.ts`) is
-scaffolded with **no enabled providers**. Its endpoints do not sign users into the
-existing app, and its session is not used by existing protected API routes.
+Auth.js credentials authentication is active in `src/server/auth/config.ts`.
+`src/features/auth` owns the login/registration UI and shared validation schemas.
+`src/server/auth` owns credentials verification, password hashing, sessions, rate
+limits, and server-side user lookup. See [authentication setup and guarantees](authentication.md).
 
-Auth.js v5 currently uses a beta release in its official App Router installation
-guide. The installed version is pinned. Before enabling it, migrate the login UI,
-route guards, logout, password-reset session revocation, and Google account linking
-together. Do not enable a second independent login flow in production.
-
-Set `AUTH_SECRET` to a unique random secret and `AUTH_URL` to the deployed origin
-when activating Auth.js. The current custom auth does not require those values.
-Google's existing custom OAuth uses `APP_URL`, `GOOGLE_CLIENT_ID`, and
-`GOOGLE_CLIENT_SECRET` instead.
+The `/` page redirects anonymous users to `/login`. API handlers call `requireUser`
+and scope every query to the authenticated database user; client user IDs are never
+used for authentication or ownership. Old `vibejournal_session` cookies are ignored.
 
 ## Local setup and verification
 
 1. Install dependencies with `npm ci`.
-2. Copy `.env.example` to `.env` and set a PostgreSQL `DATABASE_URL`.
+2. Copy `.env.example` to `.env` and set `DATABASE_URL`, a random `AUTH_SECRET`, and your `AUTH_URL`.
 3. Run `npm run prisma:generate` and `npm run prisma:deploy`.
 4. Run `npm run dev`.
 5. Run `npm run check`, `npm run typecheck`, and `npm run build` before release.

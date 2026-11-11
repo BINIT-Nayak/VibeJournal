@@ -5,15 +5,15 @@ VibeJournal is a private mood journal MVP for quick mood check-ins, deeper refle
 ## Stack
 
 See [the foundation architecture](docs/architecture.md) for folder boundaries,
-new dependency setup, and the staged Auth.js migration.
+new dependency setup, and [authentication setup](docs/authentication.md).
 
 - Next.js + TypeScript
 - Tailwind CSS, CSS Modules, and global CSS variables
 - PostgreSQL with Prisma
-- Cookie sessions with password hashing
+- Auth.js credentials with encrypted cookies, revocable server sessions, and scrypt password hashing
 - Native Canvas charts
 - Zod, React Hook Form, TanStack Query, and Recharts foundations
-- Auth.js scaffold (existing cookie authentication remains active)
+- Server-protected pages/APIs, Zod input validation, and persistent auth throttling
 - Spotify and OpenAI integration points planned behind app services
 
 ## Run Locally
@@ -26,6 +26,9 @@ npm run dev
 Open `http://localhost:3000`.
 
 ## Database
+
+See [the journal schema and migration notes](docs/database.md) for models,
+constraints, indexes, compatibility, and database tests.
 
 Create a free Postgres database, for example with Neon, then copy `.env.example` to `.env` and set `DATABASE_URL`.
 
@@ -55,7 +58,7 @@ This version uses dynamic API routes and Prisma, so deploy it as a Next.js web s
 
 - Build command: `npm install && npm run prisma:generate && npm run build`
 - Start command: `npm run start`
-- Environment variable: `DATABASE_URL`
+- Environment variables: `DATABASE_URL`, `AUTH_SECRET`, and `AUTH_URL` (the public HTTPS origin)
 
 TODO:
 Key Features Can Build Next

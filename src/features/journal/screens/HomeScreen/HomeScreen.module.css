@@ -10,7 +10,7 @@
     radial-gradient(circle at 88% 12%, rgba(103, 232, 249, 0.24), transparent 22%),
     radial-gradient(circle at 82% 80%, rgba(249, 168, 212, 0.2), transparent 24%);
   content: "";
-  inset: -18px;
+  inset: -12px;
   pointer-events: none;
   position: absolute;
 }

@@ -1,22 +1,25 @@
 import "server-only";
 
-import type { Mood, MoodEntry, UserSettings } from "@prisma/client";
+import type { Mood, UserSettings } from "@prisma/client";
 import type { MoodEntry as ClientMoodEntry, MoodKey } from "@/features/journal/mood";
+
+import type { JournalEntryWithTags } from "@/server/journal/entries";
 
 import type { ClientSettings } from "@/features/auth/types";
 
-export function serializeEntry(entry: MoodEntry): ClientMoodEntry {
+export function serializeEntry(entry: JournalEntryWithTags): ClientMoodEntry {
   return {
     id: entry.id,
-    mood: entry.mood as MoodKey,
-    energy: entry.energy,
-    stress: entry.stress,
-    valence: entry.valence,
-    note: entry.note ?? "",
-    tags: entry.tags,
+    title: entry.title,
+    mood: (entry.mood ?? "neutral") as MoodKey,
+    energy: entry.energyScore ?? 5,
+    stress: entry.stress ?? 5,
+    valence: entry.moodScore,
+    note: entry.content,
+    tags: entry.tags.map((link) => link.tag.name),
     sleepHours: entry.sleepHours ?? undefined,
     exerciseMinutes: entry.exerciseMinutes ?? undefined,
-    socialLevel: entry.socialLevel ?? undefined,
+    socialLevel: entry.socialScore ?? undefined,
     voiceNote: entry.voiceNote ?? undefined,
     photoNames: entry.photoNames,
     archivedAt: entry.archivedAt?.toISOString(),

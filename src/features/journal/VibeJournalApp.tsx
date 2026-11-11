@@ -5,7 +5,6 @@ import {
   buildInsight,
   getPlaylistSuggestion,
   moods,
-  prompts,
   type MoodEntry,
   type MoodKey,
 } from "@/features/journal/mood";
@@ -17,8 +16,9 @@ import {
   filterEntries,
   getAverageMood,
 } from "@/features/journal/utils";
+import { journalCreateSchema, normalizeJournalInput } from "@/features/journal/schemas";
 import { AppChrome } from "@/features/journal/components/AppChrome/AppChrome";
-import { AuthScreen } from "@/features/auth/components/AuthScreen/AuthScreen";
+
 import { HomeScreen } from "@/features/journal/screens/HomeScreen/HomeScreen";
 import { InsightsScreen } from "@/features/journal/screens/InsightsScreen/InsightsScreen";
 import { JournalScreen } from "@/features/journal/screens/JournalScreen/JournalScreen";
@@ -56,6 +56,7 @@ export function VibeJournalApp() {
   const [sleepHours, setSleepHours] = useState(7);
   const [exerciseMinutes, setExerciseMinutes] = useState(20);
   const [socialLevel, setSocialLevel] = useState(5);
+  const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const [voiceNote, setVoiceNote] = useState("");
   const [photoNames, setPhotoNames] = useState<string[]>([]);
@@ -69,8 +70,6 @@ export function VibeJournalApp() {
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
-  const [authError, setAuthError] = useState("");
-  const [resetToken, setResetToken] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
 
   const activeEntries = useMemo(() => entries.filter((entry) => !entry.archivedAt), [entries]);
@@ -98,16 +97,14 @@ export function VibeJournalApp() {
       setActiveScreen(screen);
     }
 
-    const authErrorParam = new URLSearchParams(window.location.search).get("auth_error");
-    if (authErrorParam) {
-      setAuthError(authErrorParam);
-      window.history.replaceState(null, "", window.location.pathname + window.location.hash);
-    }
-
     syncScreenFromHash();
     window.addEventListener("hashchange", syncScreenFromHash);
+    window.addEventListener("popstate", syncScreenFromHash);
 
-    return () => window.removeEventListener("hashchange", syncScreenFromHash);
+    return () => {
+      window.removeEventListener("hashchange", syncScreenFromHash);
+      window.removeEventListener("popstate", syncScreenFromHash);
+    };
   }, []);
 
   useEffect(() => {
@@ -117,8 +114,11 @@ export function VibeJournalApp() {
           setUser(session.user);
           setEntries(session.entries);
           setSettings(session.settings);
+        } else {
+          window.location.replace("/login");
         }
       })
+      .catch(() => setStatusMessage("Could not load your session. Please reload."))
       .finally(() => setIsLoadingSession(false));
   }, []);
 
@@ -140,7 +140,8 @@ export function VibeJournalApp() {
       energy,
       stress,
       valence: deriveValence(mood, stress),
-      note: note.trim() || prompts[0],
+      title,
+      note,
       tags: Array.from(new Set(allTags)),
       sleepHours,
       exerciseMinutes,
@@ -149,6 +150,14 @@ export function VibeJournalApp() {
       photoNames,
     };
 
+    const parsed = journalCreateSchema.safeParse(normalizeJournalInput(entryPayload));
+    if (!parsed.success) {
+      setStatusMessage(
+        parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join(" ")
+      );
+      return;
+    }
+    if (isBusy) return;
     setIsBusy(true);
     setStatusMessage("");
 
@@ -156,11 +165,11 @@ export function VibeJournalApp() {
       const response = editingEntryId
         ? await apiFetch<{ entry: MoodEntry }>(`/api/entries/${editingEntryId}`, {
             method: "PATCH",
-            body: JSON.stringify(entryPayload),
+            body: JSON.stringify(parsed.data),
           })
         : await apiFetch<{ entry: MoodEntry }>("/api/entries", {
             method: "POST",
-            body: JSON.stringify(entryPayload),
+            body: JSON.stringify(parsed.data),
           });
 
       setEntries((current) =>
@@ -177,6 +186,7 @@ export function VibeJournalApp() {
       setIsBusy(false);
     }
 
+    setTitle("");
     setNote("");
     setVoiceNote("");
     setPhotoNames([]);
@@ -199,6 +209,7 @@ export function VibeJournalApp() {
     setSleepHours(entry.sleepHours ?? 7);
     setExerciseMinutes(entry.exerciseMinutes ?? 20);
     setSocialLevel(entry.socialLevel ?? 5);
+    setTitle(entry.title ?? "");
     setNote(entry.note);
     setVoiceNote(entry.voiceNote ?? "");
     setPhotoNames(entry.photoNames ?? []);
@@ -333,6 +344,10 @@ export function VibeJournalApp() {
     setStatusMessage("");
     try {
       await updateSettings(payload);
+      if (payload.newPassword) {
+        window.location.assign("/login");
+        return;
+      }
       setStatusMessage("Account updated.");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Could not update account.");
@@ -341,71 +356,10 @@ export function VibeJournalApp() {
 
   async function logout() {
     await apiFetch("/api/auth/logout", { method: "POST" });
+    window.location.assign("/login");
     setUser(null);
     setEntries([]);
     setSettings(defaultSettings);
-  }
-
-  async function authenticate(path: string, payload: Record<string, string>) {
-    setIsBusy(true);
-    setAuthError("");
-    setResetToken("");
-
-    try {
-      const response = await apiFetch<UserSession>(path, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-      setUser(response.user);
-      setSettings(response.settings);
-      setEntries(response.entries ?? []);
-    } catch (error) {
-      setAuthError(error instanceof Error ? error.message : "Authentication failed.");
-    } finally {
-      setIsBusy(false);
-    }
-  }
-
-  async function requestPasswordReset(email: string) {
-    setIsBusy(true);
-    setAuthError("");
-
-    try {
-      const response = await apiFetch<{ ok: true; resetToken?: string }>(
-        "/api/auth/password-reset/request",
-        {
-          method: "POST",
-          body: JSON.stringify({ email }),
-        }
-      );
-      setResetToken(response.resetToken ?? "");
-    } catch (error) {
-      setAuthError(error instanceof Error ? error.message : "Could not start password reset.");
-    } finally {
-      setIsBusy(false);
-    }
-  }
-
-  async function confirmPasswordReset(token: string, password: string) {
-    setIsBusy(true);
-    setAuthError("");
-
-    try {
-      await apiFetch("/api/auth/password-reset/confirm", {
-        method: "POST",
-        body: JSON.stringify({ token, password }),
-      });
-      setResetToken("");
-      setAuthError("Password reset. You can log in now.");
-    } catch (error) {
-      setAuthError(error instanceof Error ? error.message : "Could not reset password.");
-    } finally {
-      setIsBusy(false);
-    }
-  }
-
-  function startGoogleLogin() {
-    window.location.href = "/api/auth/google";
   }
 
   if (isLoadingSession) {
@@ -414,18 +368,10 @@ export function VibeJournalApp() {
 
   if (!user) {
     return (
-      <AuthScreen
-        error={authError}
-        isBusy={isBusy}
-        resetToken={resetToken}
-        onGoogleLogin={startGoogleLogin}
-        onLogin={(email, password) => authenticate("/api/auth/login", { email, password })}
-        onPasswordReset={requestPasswordReset}
-        onPasswordResetConfirm={confirmPasswordReset}
-        onSignup={(name, email, password) =>
-          authenticate("/api/auth/signup", { name, email, password })
-        }
-      />
+      <main>
+        <p>{statusMessage || "Please sign in to continue."}</p>
+        <a href="/login">Sign in</a>
+      </main>
     );
   }
 
@@ -453,6 +399,10 @@ export function VibeJournalApp() {
 
       {activeScreen === "new" ? (
         <NewEntryScreen
+          title={title}
+          onTitle={setTitle}
+          errorMessage={statusMessage}
+          isSaving={isBusy}
           customTag={customTag}
           energy={energy}
           exerciseMinutes={exerciseMinutes}

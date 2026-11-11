@@ -1,41 +1,37 @@
 import "server-only";
 
-import { hashPassword, hashToken } from "@/server/auth/session";
+import { credentialsSchema } from "@/features/auth/schemas";
+import { hashPassword } from "@/server/auth/password";
+import { hashToken } from "@/server/auth/tokens";
+import { isSameOriginRequest } from "@/server/auth/request";
 import { jsonError } from "@/lib/http";
 import { prisma } from "@/server/db";
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const token = String(body.token ?? "");
-  const password = String(body.password ?? "");
-
-  if (!token) {
-    return jsonError("Reset token is required.");
+  if (!isSameOriginRequest(request)) return jsonError("Invalid request origin.", 403);
+  const body = await request.json().catch(() => null);
+  const password = credentialsSchema.shape.password.safeParse(body?.password);
+  if (!password.success || typeof body?.token !== "string" || !/^[a-f0-9]{64}$/.test(body.token)) {
+    return jsonError("A valid reset token and an 8–128 character password are required.");
   }
-
-  if (password.length < 8) {
-    return jsonError("Password must be at least 8 characters.");
-  }
-
   const reset = await prisma.passwordResetToken.findUnique({
-    where: { tokenHash: hashToken(token) },
+    where: { tokenHash: hashToken(body.token) },
   });
-
-  if (!reset || reset.usedAt || reset.expiresAt <= new Date()) {
-    return jsonError("Reset token is invalid or expired.", 400);
-  }
-
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: reset.userId },
-      data: { passwordHash: await hashPassword(password) },
-    }),
-    prisma.passwordResetToken.update({
-      where: { id: reset.id },
+  if (!reset || reset.usedAt || reset.expiresAt <= new Date())
+    return jsonError("Reset token is invalid or expired.");
+  const passwordHash = await hashPassword(password.data);
+  const changed = await prisma.$transaction(async (tx) => {
+    const consumed = await tx.passwordResetToken.updateMany({
+      where: { id: reset.id, usedAt: null, expiresAt: { gt: new Date() } },
       data: { usedAt: new Date() },
-    }),
-    prisma.session.deleteMany({ where: { userId: reset.userId } }),
-  ]);
-
-  return Response.json({ ok: true });
+    });
+    if (consumed.count !== 1) return false;
+    await tx.user.update({ where: { id: reset.userId }, data: { passwordHash } });
+    await tx.session.deleteMany({ where: { userId: reset.userId } });
+    await tx.passwordResetToken.deleteMany({
+      where: { userId: reset.userId, id: { not: reset.id } },
+    });
+    return true;
+  });
+  return changed ? Response.json({ ok: true }) : jsonError("Reset token is invalid or expired.");
 }

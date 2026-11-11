@@ -5,9 +5,19 @@ import { Slider } from "@/components/ui/Slider/Slider";
 import type { EntryFormActions, EntryFormState } from "@/features/journal/types";
 import styles from "@/features/journal/screens/NewEntryScreen/NewEntryScreen.module.css";
 
-type NewEntryScreenProps = EntryFormState & EntryFormActions;
+type NewEntryScreenProps = EntryFormState &
+  EntryFormActions & {
+    title: string;
+    onTitle: (value: string) => void;
+    errorMessage: string;
+    isSaving: boolean;
+  };
 
 export function NewEntryScreen({
+  title,
+  onTitle,
+  errorMessage,
+  isSaving,
   customTag,
   energy,
   exerciseMinutes,
@@ -47,7 +57,12 @@ export function NewEntryScreen({
         </time>
       </header>
 
-      <form className={styles.entryForm} onSubmit={onSave}>
+      <form className={styles.entryForm} onSubmit={onSave} noValidate>
+        {errorMessage && <p role="alert">{errorMessage}</p>}
+        <label>
+          Title (optional)
+          <input value={title} onChange={(event) => onTitle(event.target.value)} maxLength={200} />
+        </label>
         <div className={styles.emojiScroller}>
           {moods.map((item) => (
             <button
@@ -72,7 +87,7 @@ export function NewEntryScreen({
           <label>
             Sleep
             <input
-              max="14"
+              max="24"
               min="0"
               onChange={(event) => onSleepHours(Number(event.target.value))}
               step="0.5"
@@ -183,8 +198,8 @@ export function NewEntryScreen({
           </div>
         ) : null}
 
-        <button className={styles.primaryButton} type="submit">
-          {isEditing ? "Update Entry" : "Save & Get Insight"}
+        <button className={styles.primaryButton} type="submit" disabled={isSaving}>
+          {isSaving ? "Saving…" : isEditing ? "Update Entry" : "Save & Get Insight"}
         </button>
       </form>
     </section>

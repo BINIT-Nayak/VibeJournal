@@ -1,18 +1,18 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+import Link from "next/link";
 import styles from "@/features/auth/components/AuthScreen/AuthScreen.module.css";
 
-type AuthMode = "login" | "signup" | "reset-request" | "reset-confirm";
+type AuthMode = "login" | "reset-request" | "reset-confirm";
 
 type AuthScreenProps = {
   error: string;
   isBusy: boolean;
-  onGoogleLogin: () => void;
+  onGoogleLogin?: () => void;
   onLogin: (email: string, password: string) => void;
   onPasswordReset: (email: string) => void;
   onPasswordResetConfirm: (token: string, password: string) => void;
-  onSignup: (name: string, email: string, password: string) => void;
   resetToken: string;
 };
 
@@ -23,11 +23,9 @@ export function AuthScreen({
   onLogin,
   onPasswordReset,
   onPasswordResetConfirm,
-  onSignup,
   resetToken,
 }: AuthScreenProps) {
-  const [mode, setMode] = useState<AuthMode>("login");
-  const [name, setName] = useState("");
+  const [mode, setMode] = useState<AuthMode>("reset-request");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,11 +34,6 @@ export function AuthScreen({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (mode === "signup") {
-      onSignup(name, email, password);
-      return;
-    }
 
     if (mode === "reset-request") {
       onPasswordReset(email);
@@ -77,25 +70,10 @@ export function AuthScreen({
           >
             Login
           </button>
-          <button
-            className={mode === "signup" ? styles.activeMode : ""}
-            onClick={() => setMode("signup")}
-            type="button"
-          >
-            Signup
-          </button>
+          <Link href="/register" className={styles.registerLink}>
+            Create account
+          </Link>
         </div>
-
-        {mode === "signup" ? (
-          <label>
-            Name
-            <input
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Your name"
-              value={name}
-            />
-          </label>
-        ) : null}
 
         {mode !== "reset-confirm" ? (
           <label>
@@ -158,16 +136,17 @@ export function AuthScreen({
           {mode === "reset-confirm" ? "Back to login" : "Forgot password?"}
         </button>
 
-        <button className={styles.googleButton} onClick={onGoogleLogin} type="button">
-          Continue with Google
-        </button>
+        {onGoogleLogin ? (
+          <button className={styles.googleButton} onClick={onGoogleLogin} type="button">
+            Continue with Google
+          </button>
+        ) : null}
       </form>
     </main>
   );
 }
 
 function getSubmitLabel(mode: AuthMode) {
-  if (mode === "signup") return "Create Account";
   if (mode === "reset-request") return "Send Reset Token";
   if (mode === "reset-confirm") return "Reset Password";
   return "Login";

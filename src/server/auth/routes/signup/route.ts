@@ -1,85 +1,43 @@
 import "server-only";
 
-import {
-  createSession,
-  hashPassword,
-  normalizeEmail,
-  setSessionCookie,
-} from "@/server/auth/session";
+import { Prisma } from "@prisma/client";
+import { registerSchema } from "@/features/auth/schemas";
+import { hashPassword } from "@/server/auth/password";
+import { isSameOriginRequest } from "@/server/auth/request";
+import { allowAuthAttempt } from "@/server/auth/rate-limit";
 import { jsonError } from "@/lib/http";
-import { serializeSettings } from "@/server/api";
 import { prisma } from "@/server/db";
+import { POST as login } from "../login/route";
 
 export async function POST(request: Request) {
+  if (!isSameOriginRequest(request)) return jsonError("Invalid request origin.", 403);
+  const parsed = registerSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return jsonError(parsed.error.issues[0]?.message || "Invalid registration.");
+  const { email, password, name } = parsed.data;
   try {
-    const body = await request.json();
-    const email = normalizeEmail(String(body.email ?? ""));
-    const password = String(body.password ?? "");
-    const name = String(body.name ?? "").trim() || null;
-
-    if (!email.includes("@")) {
-      return jsonError("Enter a valid email.");
+    if (!(await allowAuthAttempt("register", email, 5))) {
+      return jsonError("Too many attempts. Try again in 15 minutes.", 429);
     }
-
-    if (password.length < 8) {
-      return jsonError("Password must be at least 8 characters.");
-    }
-
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return jsonError("An account already exists for this email.", 409);
-    }
-
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email,
-        name,
+        name: name || null,
         passwordHash: await hashPassword(password),
         settings: { create: {} },
       },
-      include: { settings: true },
-    });
-    const session = await createSession(user.id);
-    await setSessionCookie(session.token, session.expiresAt);
-
-    if (!user.settings) {
-      return jsonError("Account settings could not be created.", 500);
-    }
-
-    return Response.json({
-      user: { id: user.id, email: user.email, name: user.name },
-      entries: [],
-      settings: serializeSettings(user.settings),
     });
   } catch (error) {
-    const code = getPrismaErrorCode(error);
-
-    if (code === "P2021") {
-      return jsonError(
-        "Database tables are missing. Run Prisma migrations on the deployed database.",
-        500
-      );
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return jsonError("An account already exists for this email.", 409);
     }
-
-    if (code === "P1001" || code === "P1017") {
-      return jsonError(
-        "Could not connect to the database. Check DATABASE_URL in deployment settings.",
-        500
-      );
-    }
-
-    return jsonError(
-      "Could not create account right now. Check server logs for the signup error.",
-      500
-    );
+    return jsonError("Registration is temporarily unavailable.", 503);
   }
-}
-
-function getPrismaErrorCode(error: unknown) {
-  if (!error || typeof error !== "object" || !("code" in error)) {
-    return null;
-  }
-
-  const code = error.code;
-  return typeof code === "string" ? code : null;
+  // Complete registration through the same Auth.js credentials flow as login.
+  return login(
+    new Request(request.url, {
+      method: "POST",
+      headers: request.headers,
+      body: JSON.stringify({ email, password }),
+    })
+  );
 }
