@@ -2,7 +2,7 @@ import "server-only";
 
 import { ZodError } from "zod";
 import { jsonError } from "@/lib/http";
-import { JournalNotFoundError } from "./service";
+import { JournalNotFoundError, JournalConflictError } from "./service";
 
 export function journalErrorResponse(error: unknown) {
   if (error instanceof ZodError) {
@@ -11,6 +11,7 @@ export function journalErrorResponse(error: unknown) {
       { status: 400 }
     );
   }
+  if (error instanceof JournalConflictError) return jsonError(error.message, 409);
   if (error instanceof JournalNotFoundError) return jsonError(error.message, 404);
   if (error instanceof SyntaxError) return jsonError("Invalid JSON request.", 400);
   if (error instanceof Error && error.message === "UNAUTHORIZED")

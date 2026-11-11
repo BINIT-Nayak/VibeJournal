@@ -125,7 +125,13 @@ export function VibeJournalApp() {
   async function saveEntry(values: JournalCreateInput) {
     const response = await apiFetch<{ entry: JournalEntryDto }>(
       editingEntry ? `/api/journal/${editingEntry.id}` : "/api/journal",
-      { method: editingEntry ? "PATCH" : "POST", body: JSON.stringify(values) }
+      {
+        method: editingEntry ? "PATCH" : "POST",
+        body: JSON.stringify({
+          ...values,
+          ...(editingEntry ? { expectedUpdatedAt: editingEntry.updatedAt } : {}),
+        }),
+      }
     );
     const entry: MoodEntry = {
       ...response.entry,
@@ -154,7 +160,7 @@ export function VibeJournalApp() {
   async function archiveEntry(entry: MoodEntry) {
     const response = await apiFetch<{ entry: MoodEntry }>(`/api/entries/${entry.id}`, {
       method: "PATCH",
-      body: JSON.stringify({ archived: !entry.archivedAt }),
+      body: JSON.stringify({ archived: !entry.archivedAt, expectedUpdatedAt: entry.updatedAt }),
     });
     setEntries((current) =>
       current.map((item) => (item.id === response.entry.id ? response.entry : item))

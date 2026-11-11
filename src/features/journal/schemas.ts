@@ -30,9 +30,12 @@ export const journalEntrySchema = z.object({
 export const journalCreateSchema = journalEntrySchema;
 export const journalUpdateSchema = journalEntrySchema
   .partial()
-  .extend({ archived: z.boolean().optional() })
+  .extend({ archived: z.boolean().optional(), expectedUpdatedAt: z.iso.datetime() })
   .refine(
-    (value) => Object.values(value).some((item) => item !== undefined),
+    (value) =>
+      Object.entries(value).some(
+        ([key, item]) => key !== "expectedUpdatedAt" && item !== undefined
+      ),
     "Provide at least one field to update."
   );
 

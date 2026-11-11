@@ -4,7 +4,8 @@ import type { JournalCreateInput } from "./schemas";
 export class JournalSaveError extends Error {
   constructor(
     message: string,
-    readonly issues: NonNullable<JournalApiError["error"]["issues"]> = []
+    readonly issues: NonNullable<JournalApiError["error"]["issues"]> = [],
+    readonly code?: JournalApiError["error"]["code"]
   ) {
     super(message);
   }
@@ -12,14 +13,15 @@ export class JournalSaveError extends Error {
 
 async function saveJournalEntry(
   values: JournalCreateInput,
-  id?: string
+  id?: string,
+  expectedUpdatedAt?: string
 ): Promise<JournalEntryResponse> {
   let response: Response;
   try {
     response = await fetch(id ? `/api/journal/${encodeURIComponent(id)}` : "/api/journal", {
       method: id ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify({ ...values, ...(id ? { expectedUpdatedAt } : {}) }),
     });
   } catch {
     throw new JournalSaveError(
@@ -39,7 +41,8 @@ async function saveJournalEntry(
             (issue: { path?: unknown; message?: unknown }) =>
               typeof issue?.path === "string" && typeof issue?.message === "string"
           )
-        : []
+        : [],
+      result?.error?.code
     );
   }
   if (typeof result?.entry?.id !== "string" || !result.entry.id) {
@@ -51,5 +54,8 @@ async function saveJournalEntry(
 }
 
 export const createJournalEntry = (values: JournalCreateInput) => saveJournalEntry(values);
-export const updateJournalEntry = (id: string, values: JournalCreateInput) =>
-  saveJournalEntry(values, id);
+export const updateJournalEntry = (
+  id: string,
+  values: JournalCreateInput,
+  expectedUpdatedAt: string
+) => saveJournalEntry(values, id, expectedUpdatedAt);

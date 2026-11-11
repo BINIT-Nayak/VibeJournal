@@ -53,3 +53,19 @@ uses the full-history session endpoint. View and edit links lead to protected
 `/journal/:id` and `/journal/:id/edit` pages. The existing `/api/entries` API remains
 compatible for legacy dashboard actions. Run `npm run test:journal` against the
 local app to verify the API contract, and `npm run test:api` for legacy regressions.
+
+## Safe editing
+
+PATCH requests to both `/api/journal/:id` and the legacy `/api/entries/:id` must
+include `expectedUpdatedAt`, copied unchanged from the entry's `updatedAt` field.
+The edit page prepopulates `JournalEditor` from the authenticated service response
+and sends this token with its validated changes. Missing or malformed tokens return
+400; missing or foreign-owned entries still return 404.
+
+The write atomically matches ID, authenticated owner, and timestamp. The timestamp
+always advances, even within the same millisecond. Competing edits cannot both
+succeed with the same token; a stale request returns `409` with code `CONFLICT` and
+changes neither content nor tags. After a conflict, the editor retains the draft,
+links to the latest saved entry, and offers an explicitly confirmed discard/reload.
+It never silently updates the token or retries over another user's changes.
+No database migration is required.

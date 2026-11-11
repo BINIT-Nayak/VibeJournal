@@ -17,6 +17,14 @@ export class JournalNotFoundError extends Error {
   }
 }
 
+export class JournalConflictError extends Error {
+  constructor() {
+    super(
+      "This entry has changed since you opened it. Your draft is still here. Review the latest version before saving again."
+    );
+  }
+}
+
 // The actor must come from server authentication, never request JSON or query params.
 type Actor = Pick<ClientUser, "id">;
 function ownerId(actor: Actor) {
@@ -50,18 +58,31 @@ export async function listEntries(actor: Actor) {
 
 export async function updateEntry(actor: Actor, id: string, input: unknown, canonical = false) {
   const userId = ownerId(actor);
-  const { tags, archived, ...fields } = journalUpdateSchema.parse(normalizeJournalInput(input));
+  const existing = await repository.findByOwner(userId, id);
+  if (!existing) throw new JournalNotFoundError();
+  const { tags, archived, expectedUpdatedAt, ...fields } = journalUpdateSchema.parse(
+    normalizeJournalInput(input)
+  );
+  const expected = new Date(expectedUpdatedAt);
+  if (existing.updatedAt.getTime() !== expected.getTime()) throw new JournalConflictError();
+  // Always advance the token, including two updates in the same millisecond.
+  const updatedAt = new Date(Math.max(Date.now(), existing.updatedAt.getTime() + 1));
   const entry = await repository.updateByOwner(
     userId,
     id,
+    expected,
     {
       ...fields,
+      updatedAt,
       legacyTags: tags,
       archivedAt: archived === undefined ? undefined : archived ? new Date() : null,
     },
     tags
   );
-  if (!entry) throw new JournalNotFoundError();
+  if (!entry) {
+    if (!(await repository.findByOwner(userId, id))) throw new JournalNotFoundError();
+    throw new JournalConflictError();
+  }
   return canonical ? toJournalDto(entry) : serializeEntry(entry);
 }
 
@@ -93,6 +114,7 @@ export async function listEntryPage(actor: Actor, query: unknown) {
 function toJournalDto(entry: repository.JournalEntryWithTags): JournalEntryDto {
   return {
     ...serializeEntry(entry),
+    updatedAt: entry.updatedAt.toISOString(),
     title: entry.title,
     content: entry.content,
     moodScore: entry.moodScore,

@@ -1,7 +1,7 @@
 import "server-only";
 import { ZodError } from "zod";
 import type { JournalApiError, JournalApiErrorCode } from "@/features/journal/api-types";
-import { JournalNotFoundError } from "./service";
+import { JournalNotFoundError, JournalConflictError } from "./service";
 import { InvalidJournalCursorError } from "./pagination";
 
 export function journalJson(data: unknown, status = 200, headers?: Record<string, string>) {
@@ -23,6 +23,10 @@ export function journalRestError(error: unknown) {
   } else if (error instanceof InvalidJournalCursorError) {
     status = 400;
     code = "INVALID_CURSOR";
+    message = error.message;
+  } else if (error instanceof JournalConflictError) {
+    status = 409;
+    code = "CONFLICT";
     message = error.message;
   } else if (error instanceof JournalNotFoundError) {
     status = 404;

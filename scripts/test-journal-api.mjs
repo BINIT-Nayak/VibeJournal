@@ -9,6 +9,10 @@ const origin = process.env.TEST_APP_URL || "http://localhost:3000";
 const accounts = [];
 
 async function request(account, path, method = "GET", body, expected = 200) {
+  if (method === "PATCH" && account?.cookie && body && !("expectedUpdatedAt" in body)) {
+    const current = await fetch(`${origin}${path}`, { headers: { Cookie: account.cookie } });
+    if (current.ok) body = { ...body, expectedUpdatedAt: (await current.json()).entry.updatedAt };
+  }
   const response = await fetch(`${origin}${path}`, {
     method,
     headers: {

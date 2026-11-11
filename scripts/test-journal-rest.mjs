@@ -9,6 +9,10 @@ const origin = process.env.TEST_APP_URL || "http://localhost:3000";
 const accounts = [];
 
 async function request(account, path, method = "GET", body, expected = 200) {
+  if (method === "PATCH" && account?.cookie && body && !("expectedUpdatedAt" in body)) {
+    const current = await fetch(`${origin}${path}`, { headers: { Cookie: account.cookie } });
+    if (current.ok) body = { ...body, expectedUpdatedAt: (await current.json()).entry.updatedAt };
+  }
   const response = await fetch(`${origin}${path}`, {
     method,
     headers: {
@@ -146,6 +150,43 @@ try {
   assert.equal(updated.entry.exercised, false);
   assert.deepEqual(updated.entry.tags, ["rest"]);
   assert.equal((await request(owner, path)).entry.content, "Edited");
+  const revision = (await request(owner, path)).entry.updatedAt;
+  const competing = await Promise.all(
+    ["First writer", "Second writer"].map((content) =>
+      fetch(`${origin}${path}`, {
+        method: "PATCH",
+        headers: { Cookie: owner.cookie, Origin: origin, "Content-Type": "application/json" },
+        body: JSON.stringify({ content, tags: [content], expectedUpdatedAt: revision }),
+      })
+    )
+  );
+  assert.deepEqual(competing.map((response) => response.status).sort(), [200, 409]);
+  const winner = await competing.find((response) => response.status === 200).json();
+  const conflict = await competing.find((response) => response.status === 409).json();
+  assert.equal(conflict.error.code, "CONFLICT");
+  const stored = (await request(owner, path)).entry;
+  assert.equal(stored.content, winner.entry.content);
+  assert.deepEqual(stored.tags, winner.entry.tags);
+  assert.notEqual(stored.updatedAt, revision);
+  const stale = await request(
+    owner,
+    path,
+    "PATCH",
+    { content: "Stale", expectedUpdatedAt: revision },
+    409
+  );
+  assert.equal(stale.error.code, "CONFLICT");
+  const missingRevision = await fetch(`${origin}${path}`, {
+    method: "PATCH",
+    headers: { Cookie: owner.cookie, Origin: origin, "Content-Type": "application/json" },
+    body: JSON.stringify({ content: "No token" }),
+  });
+  assert.equal(missingRevision.status, 400);
+  const fresh = await request(owner, path, "PATCH", {
+    content: "Fresh update",
+    expectedUpdatedAt: stored.updatedAt,
+  });
+  assert.equal(fresh.entry.content, "Fresh update");
   const malformed = await fetch(`${origin}/api/journal`, {
     method: "POST",
     headers: { Cookie: owner.cookie, Origin: origin, "Content-Type": "application/json" },

@@ -55,10 +55,19 @@ export function create(userId: string, data: CreateData, tags: string[]) {
   });
 }
 
-export function updateByOwner(userId: string, id: string, data: UpdateData, tags?: string[]) {
+export function updateByOwner(
+  userId: string,
+  id: string,
+  expectedUpdatedAt: Date,
+  data: UpdateData,
+  tags?: string[]
+) {
   return prisma.$transaction(async (tx) => {
     // Scope the write itself, not just an earlier read, to avoid ownership races.
-    const result = await tx.journalEntry.updateMany({ where: { id, userId }, data });
+    const result = await tx.journalEntry.updateMany({
+      where: { id, userId, updatedAt: expectedUpdatedAt },
+      data,
+    });
     if (result.count === 0) return null;
     if (tags !== undefined) await setEntryTags(tx, id, userId, tags);
     return tx.journalEntry.findFirstOrThrow({ where: { id, userId }, include: entryInclude });

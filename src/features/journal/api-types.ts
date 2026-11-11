@@ -1,6 +1,7 @@
 import type { MoodEntry } from "./mood";
 
 export type JournalEntryDto = Omit<MoodEntry, "sleepHours"> & {
+  updatedAt: string;
   title: string | null;
   content: string;
   moodScore: number;
@@ -17,6 +18,7 @@ export type JournalApiErrorCode =
   | "INVALID_JSON"
   | "INVALID_CURSOR"
   | "NOT_FOUND"
+  | "CONFLICT"
   | "INTERNAL_ERROR";
 export type JournalApiError = {
   error: {
