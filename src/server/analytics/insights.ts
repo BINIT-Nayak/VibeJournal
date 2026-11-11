@@ -4,6 +4,7 @@ import type {
   AnalyticsCorrelation,
   AnalyticsInsight,
   SleepMoodComparison,
+  ExerciseMetricComparison,
 } from "@/features/analytics/types";
 
 export function generateInsights(
@@ -47,7 +48,7 @@ export function generateInsights(
     result.push({
       id: "top-tag",
       kind: "summary",
-      text: `“${stats.tagFrequency[0].tag}” appeared in ${stats.tagFrequency[0].entryCount} reflections, making it a most-used tag in this period.`,
+      text: `“${stats.tagFrequency[0].tag}” appeared in ${stats.tagFrequency[0].entryCount} reflections, making it a most-used tag among those with enough observations in this period.`,
     });
   for (const correlation of correlations) {
     if (
@@ -77,4 +78,15 @@ export function describeSleepComparison(comparison: Omit<SleepMoodComparison, "s
     return `Not enough data to compare yet: ${high.sampleSize} days with at least 7 hours of sleep and ${low.sampleSize} days with less than 7 hours. At least ${comparison.minimumDaysPerGroup} recorded days in each group are needed. No conclusion is drawn from these averages.`;
   }
   return `Average mood was ${high.averageMood}/10 across ${high.sampleSize} days with at least 7 hours of sleep, compared with ${low.averageMood}/10 across ${low.sampleSize} days with less than 7 hours. These are descriptive averages, not evidence that sleep caused a mood change or that the difference is statistically meaningful.`;
+}
+
+export function describeExerciseComparison(
+  comparison: Omit<ExerciseMetricComparison, "summary">,
+  metric: "mood" | "energy"
+): string {
+  const yes = comparison.exercise,
+    no = comparison.nonExercise;
+  if (comparison.status === "insufficient_data")
+    return `Not enough data to compare ${metric} yet: ${yes.sampleSize} exercise days and ${no.sampleSize} non-exercise days with ${metric} recorded. At least 5 days in each group are needed. No conclusion is drawn from these averages.`;
+  return `Average ${metric} was ${yes.average}/10 across ${yes.sampleSize} exercise days and ${no.average}/10 across ${no.sampleSize} non-exercise days. These are descriptive averages, not evidence that exercise caused a change or that the difference is statistically meaningful. Other factors may contribute.`;
 }

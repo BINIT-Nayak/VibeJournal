@@ -5,6 +5,7 @@ import type { AnalyticsResponse } from "@/features/analytics/types";
 import { readAnalytics } from "./repository";
 import { calculateStatistics } from "./statistics";
 import { calculateCorrelations } from "./correlations";
+import { calculateExerciseComparison } from "./exercise-comparison";
 import { calculateSleepComparison } from "./sleep-comparison";
 import { generateInsights, describeSleepComparison } from "./insights";
 
@@ -44,6 +45,7 @@ export async function getAnalytics(
     statistics,
     correlations,
     sleepComparison: { ...sleepComparison, summary: describeSleepComparison(sleepComparison) },
+    exerciseComparison: calculateExerciseComparison(aggregates.daily),
     insights: generateInsights(statistics, correlations),
   };
 }

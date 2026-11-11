@@ -33,11 +33,15 @@ export function readAnalytics(userId: string, start: Date, asOf: Date) {
       ) AS values_by_metric(metric,x,y)
       WHERE x IS NOT NULL GROUP BY metric`);
       const tags = await tx.$queryRaw<TagAggregate[]>(Prisma.sql`
-      WITH entries AS (SELECT id FROM "JournalEntry" WHERE ${filter})
-      SELECT tag.name AS tag, COUNT(*)::int AS "entryCount" FROM entries
+      WITH entries AS (SELECT id, "moodScore", "createdAt" FROM "JournalEntry" WHERE ${filter})
+      SELECT tag.name AS tag, COUNT(*)::int AS "entryCount",
+        COUNT(DISTINCT entries."createdAt"::date)::int AS "distinctDays",
+        SUM(entries."moodScore")::float8 AS "moodSum" FROM entries
       JOIN "JournalTag" link ON link."journalEntryId" = entries.id AND link."userId" = ${userId}
       JOIN "Tag" tag ON tag.id = link."tagId" AND tag."userId" = ${userId}
-      GROUP BY tag.name ORDER BY "entryCount" DESC, tag.name ASC LIMIT 20`);
+      GROUP BY tag.name
+      HAVING COUNT(*) >= 5 AND COUNT(DISTINCT entries."createdAt"::date) >= 5
+      ORDER BY "entryCount" DESC, tag.name ASC LIMIT 20`);
       return { daily, pairs, tags };
     },
     { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead }

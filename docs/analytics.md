@@ -8,7 +8,7 @@ Responsibilities under `src/server/analytics`:
 
 - `repository.ts`: owner-scoped Prisma/SQL aggregates in one repeatable-read snapshot.
   Reads no journal text; returns at most 90 daily buckets, three correlation rows,
-  and the top 20 tags, ordered by frequency then name.
+  and the top 20 qualifying tags, ordered by frequency then name.
 - `statistics.ts`: entry-weighted means, recorded/missing counts, gap-filled mood
   and energy trends, sleep range, exercise counts and grouped mood means, tag frequency.
 - `correlations.ts`: Pearson coefficients from paired sufficient statistics.
@@ -82,3 +82,60 @@ A seven-day window cannot meet this minimum; choose 30 or 90 days for more data.
 The Analytics screen displays both sample sizes, averages, and the cautious
 summary. Run `npm run test:sleep-analysis` against a local app/database to check
 empty, sparse, one-group, threshold, daily-weighting, date-range and ownership cases.
+
+## Mood and energy versus exercise
+
+`exerciseComparison` compares exercise and non-exercise **UTC days**, with separate
+`mood` and `energy` results. Each returns group averages and day sample sizes,
+`status`, `difference` (exercise minus non-exercise), and conservative `summary`.
+The server reuses existing daily aggregates without additional queries.
+
+A day is exercise if its recorded statuses are all true, or non-exercise if all
+are false. Null statuses do not override explicit records. Days with no known
+status or conflicting true/false records are excluded and reported separately.
+Each included day contributes one daily mean of all its recorded mood scores,
+and one daily mean of recorded energy scores when available. Missing energy
+does not become zero or count toward energy's sample size.
+
+Each metric independently requires five days in **each** group. Otherwise its
+difference is null and its summary draws no conclusion. Empty averages are null.
+This minimum is a display guardrail, not evidence of statistical significance.
+Even available summaries describe observations without implying causation;
+other factors may contribute. Seven-day windows cannot meet the minimum.
+
+The Analytics screen renders both comparisons. Run
+`npm run test:exercise-analysis` for empty/sparse data, per-metric sample sizes,
+daily weighting, conflicting/missing status, missing energy, exclusions and ownership.
+
+## Top tags and average mood
+
+`statistics.tagFrequency` now returns only tags with at least **5 reflections
+across 5 distinct UTC days** within the requested period. The response includes
+`tagCriteria` with the minimum observations, minimum days, and limit (20).
+Eligibility is applied in the database before ranking and limiting results.
+Archived, future, out-of-range, and other-user entries remain excluded.
+
+Each item has `tag`, `entryCount`, `distinctDays`, and `averageMood` (rounded
+to two decimals). Average mood is entry-weighted: each tagged reflection counts
+once for that tag. A reflection with multiple tags contributes to each tag, so
+groups overlap. Ordering is descending observation count, then ascending tag name;
+it is not a ranking of tags by mood or benefit. Empty/insufficient data returns [].
+
+The Analytics page displays the qualifying tags, both sample counts, the mean,
+the eligibility rule, and an insufficient-data state. Five days is a conservative
+display rule, not a statistical significance test; wording does not imply that
+a tag causes a mood change. Run `npm run test:tag-analysis` for boundaries, means,
+overlapping tags, repeated-day exclusion, ranking/limit, ranges, and privacy checks.
+
+## Analytics page
+
+`/analytics` requires a server-verified session and redirects guests to login.
+Desktop and mobile Analytics navigation point to this route. It loads the single
+analytics endpoint, with 7-, 30-, and 90-day range selection and the exact UTC
+dates displayed. Personal insights are deterministic summaries of recorded data.
+
+The responsive Recharts mood chart preserves gaps, uses the explicit 1–10 scale,
+and offers a disclosure with the daily values in a table. Empty and sparse
+histories include journaling links and guidance; each relationship explains its
+sample requirements. Error responses offer retry. No dashboard or full-history
+request is required to load this page.

@@ -1,0 +1,32 @@
+.page > section {
+  margin-bottom: 20px;
+}
+
+.range {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.range select,
+.page button {
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+
+.page button {
+  margin: 8px;
+}
+
+.range select:focus-visible,
+.page button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 3px;
+}

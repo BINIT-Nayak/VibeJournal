@@ -117,8 +117,7 @@ try {
   assert.equal(data.correlations.find((c) => c.metric === "sleep").coefficient, -1);
   assert.equal(data.correlations.find((c) => c.metric === "exercise").coefficient, 0.87);
   assert.deepEqual(data.statistics.tagFrequency, [
-    { tag: "work", entryCount: 6 },
-    { tag: "rest", entryCount: 4 },
+    { tag: "work", entryCount: 6, distinctDays: 6, averageMood: 3.5 },
   ]);
   assert.equal(data.statistics.moodTrend[0].averageMood, null);
   assert.equal(data.statistics.moodTrend[29].averageMood, 7.5);

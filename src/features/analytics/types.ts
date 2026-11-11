@@ -22,7 +22,13 @@ export type AnalyticsStatistics = {
     averageMoodWhenNotExercised: number | null;
   };
   moodTrend: MoodTrendPoint[];
-  tagFrequency: Array<{ tag: string; entryCount: number }>;
+  tagCriteria: { minimumObservations: 5; minimumDays: 5; limit: 20 };
+  tagFrequency: Array<{
+    tag: string;
+    entryCount: number;
+    distinctDays: number;
+    averageMood: number;
+  }>;
 };
 export type AnalyticsCorrelation = {
   metric: "energy" | "sleep" | "exercise";
@@ -41,6 +47,7 @@ export type AnalyticsResponse = {
   statistics: AnalyticsStatistics;
   correlations: AnalyticsCorrelation[];
   sleepComparison: SleepMoodComparison;
+  exerciseComparison: ExerciseComparison;
   insights: AnalyticsInsight[];
 };
 
@@ -55,4 +62,21 @@ export type SleepMoodComparison = {
   /** At-least-7-hours mean minus less-than-7-hours mean; null for insufficient data. */
   moodDifference: number | null;
   summary: string;
+};
+
+export type ExerciseMetricComparison = {
+  status: "insufficient_data" | "available";
+  exercise: { sampleSize: number; average: number | null };
+  nonExercise: { sampleSize: number; average: number | null };
+  /** Exercise minus non-exercise; null unless both groups meet the minimum. */
+  difference: number | null;
+  summary: string;
+};
+export type ExerciseComparison = {
+  sampleUnit: "day";
+  minimumDaysPerGroup: 5;
+  excludedDaysWithoutExercise: number;
+  excludedDaysWithConflictingExercise: number;
+  mood: ExerciseMetricComparison;
+  energy: ExerciseMetricComparison;
 };

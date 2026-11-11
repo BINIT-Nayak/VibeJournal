@@ -24,7 +24,9 @@
     "test:dashboard": "node scripts/test-dashboard-api.mjs",
     "test:analytics": "node scripts/test-analytics-api.mjs",
     "test:mood-trend": "node scripts/test-mood-trend-api.mjs",
-    "test:sleep-analysis": "node scripts/test-sleep-analysis-api.mjs"
+    "test:sleep-analysis": "node scripts/test-sleep-analysis-api.mjs",
+    "test:exercise-analysis": "node scripts/test-exercise-analysis-api.mjs",
+    "test:tag-analysis": "node scripts/test-tag-analysis-api.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",

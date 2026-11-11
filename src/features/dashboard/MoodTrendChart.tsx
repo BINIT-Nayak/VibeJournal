@@ -29,7 +29,7 @@ export function MoodTrendChart({ days }: { days: DashboardResponse["moodTrend"] 
         <div
           className={styles.chart}
           role="group"
-          aria-label="Daily average mood over the last seven days, from 1 to 10"
+          aria-label={`Daily average mood over the last ${days.length} days, from 1 to 10`}
         >
           <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <LineChart
@@ -40,11 +40,12 @@ export function MoodTrendChart({ days }: { days: DashboardResponse["moodTrend"] 
               <CartesianGrid stroke="var(--line)" strokeDasharray="3 5" vertical={false} />
               <XAxis
                 dataKey="date"
-                tickFormatter={(value) => dateLabel(value, true)}
+                tickFormatter={(value) => dateLabel(value, days.length <= 7)}
                 tick={{ fill: "var(--muted)", fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
-                interval={0}
+                interval="preserveStartEnd"
+                minTickGap={24}
                 tickMargin={12}
               />
               <YAxis
@@ -82,7 +83,7 @@ export function MoodTrendChart({ days }: { days: DashboardResponse["moodTrend"] 
         <div className={styles.chartEmpty}>
           <span aria-hidden="true">◌</span>
           <strong>Your story takes shape one day at a time.</strong>
-          <p>Record a mood to begin your seven-day view.</p>
+          <p>Record a mood to begin your {days.length}-day view.</p>
         </div>
       )}
       <div className={styles.chartNote}>
@@ -95,7 +96,7 @@ export function MoodTrendChart({ days }: { days: DashboardResponse["moodTrend"] 
       <details className={styles.chartDetails}>
         <summary>View mood values as a table</summary>
         <table>
-          <caption>Seven-day mood history</caption>
+          <caption>{days.length}-day mood history · UTC</caption>
           <thead>
             <tr>
               <th scope="col">Date</th>

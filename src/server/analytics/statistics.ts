@@ -44,6 +44,12 @@ export function calculateStatistics(
       averageMoodWhenNotExercised: mean(sum("noMoodSum"), no),
     },
     moodTrend: buildMoodTrend(daily, dates),
-    tagFrequency: tags,
+    tagCriteria: { minimumObservations: 5, minimumDays: 5, limit: 20 },
+    tagFrequency: tags.map(({ tag, entryCount, distinctDays, moodSum }) => ({
+      tag,
+      entryCount,
+      distinctDays,
+      averageMood: mean(moodSum, entryCount)!,
+    })),
   };
 }

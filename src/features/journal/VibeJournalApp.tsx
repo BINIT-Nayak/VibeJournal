@@ -114,6 +114,10 @@ export function VibeJournalApp() {
   }, [activeScreen, user, fullHistoryLoaded]);
 
   function navigateToScreen(screen: Screen) {
+    if (screen === "insights") {
+      window.location.assign("/analytics");
+      return;
+    }
     if (screen === "journal") {
       window.location.assign("/journal");
       return;
