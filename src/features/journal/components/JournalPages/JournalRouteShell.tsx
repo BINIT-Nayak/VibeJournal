@@ -12,7 +12,13 @@ export function JournalRouteShell({ children }: { children: React.ReactNode }) {
       darkMode={false}
       onNewEntry={() => router.push("/journal/new")}
       onScreenChange={(screen) =>
-        router.push(screen === "home" ? "/dashboard" : `/dashboard#${screen}`)
+        router.push(
+          screen === "journal"
+            ? "/journal"
+            : screen === "home"
+              ? "/dashboard"
+              : `/dashboard#${screen}`
+        )
       }
     >
       {children}

@@ -31,6 +31,12 @@ export async function createEntry(actor: Actor, input: unknown, canonical = fals
   return canonical ? toJournalDto(entry) : serializeEntry(entry);
 }
 
+export function getEntry(actor: Actor, id: string, canonical: true): Promise<JournalEntryDto>;
+export function getEntry(
+  actor: Actor,
+  id: string,
+  canonical?: false
+): Promise<ReturnType<typeof serializeEntry>>;
 export async function getEntry(actor: Actor, id: string, canonical = false) {
   const entry = await repository.findByOwner(ownerId(actor), id);
   // Missing and foreign-owned entries intentionally have the same outcome.

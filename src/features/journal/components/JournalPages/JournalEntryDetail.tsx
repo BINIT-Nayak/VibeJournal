@@ -30,7 +30,7 @@ export function JournalEntryDetail({ entry, created }: { entry: MoodEntry; creat
         </p>
       )}
       <nav aria-label="Journal actions">
-        <Link href="/dashboard#journal">Back to journal</Link>
+        <Link href="/journal">Back to journal</Link>
         <Link href="/journal/new">Write another entry</Link>
       </nav>
     </article>

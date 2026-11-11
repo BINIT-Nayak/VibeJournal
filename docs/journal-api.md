@@ -46,7 +46,10 @@ Codes: `UNAUTHORIZED` (401), `FORBIDDEN` (403), `NOT_FOUND` (404),
 (500). Field issues appear on validation errors. Foreign-owned and missing entry
 IDs both return 404; unexpected failures never return database details.
 
-The reusable journal editor uses `/api/journal` for creation and editing. The existing
-`/api/entries` API remains compatible for other actions. History still loads through
-the existing session payload; new history consumers should paginate explicitly. Run `npm run test:journal` against the local
-app to verify the new contract, and `npm run test:api` for legacy regression checks.
+The reusable journal editor uses `/api/journal` for creation and editing. The
+`/journal` history page requests 20 entries at a time through cursor pagination,
+with explicit newer/older controls and loading, empty, and retry states. It never
+uses the full-history session endpoint. View and edit links lead to protected
+`/journal/:id` and `/journal/:id/edit` pages. The existing `/api/entries` API remains
+compatible for legacy dashboard actions. Run `npm run test:journal` against the
+local app to verify the API contract, and `npm run test:api` for legacy regressions.

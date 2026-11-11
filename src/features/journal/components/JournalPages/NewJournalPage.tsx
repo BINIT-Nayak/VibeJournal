@@ -25,11 +25,7 @@ export function NewJournalPage() {
   return (
     <>
       {redirecting && <p role="status">Your entry is saved. Opening your reflection…</p>}
-      <JournalEditor
-        onSave={save}
-        pending={redirecting}
-        onCancel={() => router.push("/dashboard#journal")}
-      />
+      <JournalEditor onSave={save} pending={redirecting} onCancel={() => router.push("/journal")} />
     </>
   );
 }

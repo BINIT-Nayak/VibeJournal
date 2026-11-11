@@ -106,6 +106,10 @@ export function VibeJournalApp() {
   }, []);
 
   function navigateToScreen(screen: Screen) {
+    if (screen === "journal") {
+      window.location.assign("/journal");
+      return;
+    }
     setActiveScreen(screen);
 
     const nextHash = screen === "home" ? "" : `#${screen}`;

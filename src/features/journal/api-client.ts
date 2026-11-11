@@ -10,13 +10,14 @@ export class JournalSaveError extends Error {
   }
 }
 
-export async function createJournalEntry(
-  values: JournalCreateInput
+async function saveJournalEntry(
+  values: JournalCreateInput,
+  id?: string
 ): Promise<JournalEntryResponse> {
   let response: Response;
   try {
-    response = await fetch("/api/journal", {
-      method: "POST",
+    response = await fetch(id ? `/api/journal/${encodeURIComponent(id)}` : "/api/journal", {
+      method: id ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
     });
@@ -48,3 +49,7 @@ export async function createJournalEntry(
   }
   return result as JournalEntryResponse;
 }
+
+export const createJournalEntry = (values: JournalCreateInput) => saveJournalEntry(values);
+export const updateJournalEntry = (id: string, values: JournalCreateInput) =>
+  saveJournalEntry(values, id);
