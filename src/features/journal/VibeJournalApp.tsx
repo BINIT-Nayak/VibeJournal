@@ -2,14 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  buildInsight,
   getPlaylistSuggestion,
   moods,
   type MoodEntry,
   type MoodKey,
 } from "@/features/journal/mood";
 import type { ClientSettings, ClientUser } from "@/features/auth/types";
-import type { InsightTab, Screen, UserSession } from "@/features/journal/types";
+import type { Screen, UserSession } from "@/features/journal/types";
 import { calculateStreak, filterEntries, getAverageMood } from "@/features/journal/utils";
 import type { JournalCreateInput } from "@/features/journal/schemas";
 import type { JournalEntryDto } from "@/features/journal/api-types";
@@ -17,7 +16,7 @@ import { AppChrome } from "@/features/journal/components/AppChrome/AppChrome";
 
 import { DashboardScreen } from "@/features/dashboard/DashboardScreen";
 import type { DashboardResponse } from "@/features/dashboard/types";
-import { InsightsScreen } from "@/features/journal/screens/InsightsScreen/InsightsScreen";
+import { AnalyticsScreen } from "@/features/analytics/AnalyticsScreen";
 import { JournalScreen } from "@/features/journal/screens/JournalScreen/JournalScreen";
 import { MusicScreen } from "@/features/journal/screens/MusicScreen/MusicScreen";
 import { JournalEditor } from "@/features/journal/components/JournalEditor/JournalEditor";
@@ -32,16 +31,6 @@ const defaultSettings: ClientSettings = {
   spotifyConnected: false,
 };
 
-const aiConsentRequiredInsight = {
-  headline: "AI insights are off until you consent.",
-  detail:
-    "Your journal entries remain available for manual review. Enable AI consent in Profile when you want reflection prompts.",
-  reframe: "VibeJournal should support reflection without pretending to diagnose or provide care.",
-  context: "Privacy controls live in Profile.",
-  safety:
-    "If you might hurt yourself or feel unsafe, contact local emergency services or a crisis hotline now.",
-};
-
 export function VibeJournalApp() {
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [fullHistoryLoaded, setFullHistoryLoaded] = useState(false);
@@ -53,7 +42,6 @@ export function VibeJournalApp() {
   const [query, setQuery] = useState("");
   const [moodFilter, setMoodFilter] = useState<"all" | MoodKey>("all");
   const [tagFilter, setTagFilter] = useState("all");
-  const [insightTab, setInsightTab] = useState<InsightTab>("daily");
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
@@ -61,10 +49,6 @@ export function VibeJournalApp() {
   const activeEntries = useMemo(() => entries.filter((entry) => !entry.archivedAt), [entries]);
   const latestEntry = activeEntries[0] ?? null;
   const latestMood = moods.find((item) => item.key === (latestEntry?.mood ?? "calm")) ?? moods[1];
-  const insight = useMemo(
-    () => (settings.aiConsent ? buildInsight(activeEntries) : aiConsentRequiredInsight),
-    [activeEntries, settings.aiConsent]
-  );
   const playlist = useMemo(() => getPlaylistSuggestion(latestEntry), [latestEntry]);
   const streak = useMemo(() => calculateStreak(activeEntries), [activeEntries]);
   const averageMood = useMemo(() => getAverageMood(activeEntries), [activeEntries]);
@@ -112,7 +96,7 @@ export function VibeJournalApp() {
   }, []);
 
   useEffect(() => {
-    if (!user || fullHistoryLoaded || !["insights", "profile"].includes(activeScreen)) return;
+    if (!user || fullHistoryLoaded || activeScreen !== "profile") return;
     let cancelled = false;
     apiFetch<UserSession>("/api/auth/me")
       .then((session) => {
@@ -396,18 +380,11 @@ export function VibeJournalApp() {
         />
       ) : null}
 
-      {["insights", "profile"].includes(activeScreen) && !fullHistoryLoaded && (
+      {activeScreen === "profile" && !fullHistoryLoaded && (
         <p role="status">{statusMessage || "Loading your journal history…"}</p>
       )}
 
-      {activeScreen === "insights" && fullHistoryLoaded ? (
-        <InsightsScreen
-          entries={activeEntries}
-          insight={insight}
-          tab={insightTab}
-          onTab={setInsightTab}
-        />
-      ) : null}
+      {activeScreen === "insights" ? <AnalyticsScreen userId={user.id} /> : null}
 
       {activeScreen === "music" ? (
         <MusicScreen latestMood={latestMood} playlist={playlist} />
