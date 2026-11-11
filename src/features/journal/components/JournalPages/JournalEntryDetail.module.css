@@ -45,3 +45,76 @@
   min-height: 44px;
   padding: 12px 0;
 }
+
+.detail section {
+  margin-top: 32px;
+}
+
+.detail h2 {
+  font-size: 18px;
+}
+
+.timestamps,
+.context {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.timestamps dt,
+.context dt {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.timestamps dd,
+.context dd {
+  line-height: 1.6;
+  margin: 0;
+}
+
+.context {
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+.tags li {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 8px 14px;
+}
+
+.deleteAction {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 24px;
+}
+
+.deleteAction .deleteButton {
+  background: var(--surface-strong);
+  border: 1px solid #a52a3b;
+  border-radius: 8px;
+  box-shadow: none;
+  color: #a52a3b;
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 18px;
+}
+
+@media (max-width: 560px) {
+  .timestamps,
+  .context {
+    grid-template-columns: 1fr;
+  }
+}

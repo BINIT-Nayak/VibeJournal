@@ -7,7 +7,7 @@ import type { JournalHistoryResponse } from "../../api-types";
 import { moods } from "../../mood";
 import styles from "./JournalHistory.module.css";
 
-export function JournalHistory({ userId }: { userId: string }) {
+export function JournalHistory({ userId, deleted = false }: { userId: string; deleted?: boolean }) {
   const [cursors, setCursors] = useState<Array<string | null>>([null]);
   const [page, setPage] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -36,6 +36,7 @@ export function JournalHistory({ userId }: { userId: string }) {
   }, [page]);
   return (
     <section className={styles.history}>
+      {deleted && <p role="status">Your entry was deleted.</p>}
       <header className={styles.header}>
         <div>
           <p>YOUR PERSONAL SPACE</p>

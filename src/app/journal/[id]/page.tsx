@@ -13,13 +13,8 @@ export default async function EntryPage({
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   try {
-    const entry = await getEntry(user, (await params).id);
-    return (
-      <JournalEntryDetail
-        entry={{ ...entry, sleepHours: entry.sleepHours ?? undefined }}
-        created={(await searchParams).created === "1"}
-      />
-    );
+    const entry = await getEntry(user, (await params).id, true);
+    return <JournalEntryDetail entry={entry} created={(await searchParams).created === "1"} />;
   } catch (error) {
     if (error instanceof JournalNotFoundError) notFound();
     throw error;
