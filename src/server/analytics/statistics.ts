@@ -1,4 +1,5 @@
 import "server-only";
+import { buildMoodTrend } from "./mood-trend";
 import type { AnalyticsStatistics } from "@/features/analytics/types";
 import type { DailyAggregate, TagAggregate } from "./data";
 
@@ -42,15 +43,7 @@ export function calculateStatistics(
       averageMoodWhenExercised: mean(sum("yesMoodSum"), yes),
       averageMoodWhenNotExercised: mean(sum("noMoodSum"), no),
     },
-    moodTrend: dates.map((date) => {
-      const day = daily.find((item) => item.date === date);
-      return {
-        date,
-        averageMood: day ? mean(day.moodSum, day.count) : null,
-        averageEnergy: day ? mean(day.energySum ?? 0, day.energyCount) : null,
-        journalCount: day?.count ?? 0,
-      };
-    }),
+    moodTrend: buildMoodTrend(daily, dates),
     tagFrequency: tags,
   };
 }

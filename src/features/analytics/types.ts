@@ -1,3 +1,13 @@
+export const analyticsRanges = [7, 30, 90] as const;
+export type MoodTrendPoint = {
+  /** UTC calendar date; usable directly as a chart's x-axis key. */
+  date: string;
+  /** Mean of entries that day, or null when no mood was recorded. */
+  averageMood: number | null;
+  averageEnergy: number | null;
+  journalCount: number;
+};
+
 export type MetricSummary = { average: number | null; recordedCount: number; missingCount: number };
 export type AnalyticsStatistics = {
   journalCount: number;
@@ -11,12 +21,7 @@ export type AnalyticsStatistics = {
     averageMoodWhenExercised: number | null;
     averageMoodWhenNotExercised: number | null;
   };
-  moodTrend: Array<{
-    date: string;
-    averageMood: number | null;
-    averageEnergy: number | null;
-    journalCount: number;
-  }>;
+  moodTrend: MoodTrendPoint[];
   tagFrequency: Array<{ tag: string; entryCount: number }>;
 };
 export type AnalyticsCorrelation = {

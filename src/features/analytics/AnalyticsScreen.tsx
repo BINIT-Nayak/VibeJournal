@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AnalyticsResponse } from "./types";
+import { analyticsRanges, type AnalyticsResponse } from "./types";
 import styles from "@/features/dashboard/DashboardScreen.module.css";
 
 export function AnalyticsScreen({ userId }: { userId: string }) {
@@ -28,7 +28,7 @@ export function AnalyticsScreen({ userId }: { userId: string }) {
         <label>
           Period{" "}
           <select value={days} onChange={(event) => setDays(event.target.value)}>
-            {[7, 30, 90].map((value) => (
+            {analyticsRanges.map((value) => (
               <option key={value} value={value}>
                 Last {value} days
               </option>

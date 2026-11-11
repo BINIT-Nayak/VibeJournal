@@ -22,7 +22,8 @@
     "test:auth": "node scripts/test-auth-api.mjs",
     "test:journal": "node scripts/test-journal-rest.mjs",
     "test:dashboard": "node scripts/test-dashboard-api.mjs",
-    "test:analytics": "node scripts/test-analytics-api.mjs"
+    "test:analytics": "node scripts/test-analytics-api.mjs",
+    "test:mood-trend": "node scripts/test-mood-trend-api.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",

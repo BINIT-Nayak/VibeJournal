@@ -33,3 +33,29 @@ samples or evidence of causation. Empty periods have null averages and zero coun
 
 Run `npm run test:analytics` with a local app/database for aggregate, correlation,
 missing-value, date-range, privacy, and ownership checks using disposable fixtures.
+
+## Chart-ready mood history
+
+Use `/api/analytics?days=7`, `?days=30`, or `?days=90` (30 by default).
+`statistics.moodTrend` contains exactly that many `MoodTrendPoint` objects in
+ascending UTC calendar-date order, including today. `period` identifies the exact
+range and observation time. The API retains support for other integer ranges
+between 1 and 90; the UI presets are 7, 30, and 90.
+
+```json
+[
+  { "date": "2026-11-09", "averageMood": 6.5, "averageEnergy": null, "journalCount": 2 },
+  { "date": "2026-11-10", "averageMood": null, "averageEnergy": null, "journalCount": 0 }
+]
+```
+
+Charts can use `date` as the x-axis and `averageMood` as the numeric y-axis (1–10).
+Do not replace nulls with zero, carry values forward, or interpolate gaps. For a
+Recharts line chart, keep `connectNulls={false}`. Days with multiple entries use the
+mean of their recorded mood scores, rounded to two decimals. The period mean is
+entry-weighted, not the mean of daily means. Unknown energy is excluded from its
+own daily denominator. Empty ranges still return every day, with null averages.
+
+`mood-trend.ts` builds these points on the server. `npm run test:mood-trend` exercises
+empty and sparse datasets for all three presets, including gap preservation,
+multiple entries per day, ordering, exact boundaries, exclusions, and isolation.
