@@ -3,7 +3,7 @@ import "server-only";
 import type { Mood, UserSettings } from "@prisma/client";
 import type { MoodEntry as ClientMoodEntry, MoodKey } from "@/features/journal/mood";
 
-import type { JournalEntryWithTags } from "@/server/journal/entries";
+import type { JournalEntryWithTags } from "@/server/journal/repository";
 
 import type { ClientSettings } from "@/features/auth/types";
 

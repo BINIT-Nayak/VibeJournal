@@ -78,3 +78,22 @@ AI-provider integration, music-provider integration, or offline sync is added he
 - [Auth.js App Router setup](https://authjs.dev/getting-started/installation)
 - [Tailwind with Next.js](https://tailwindcss.com/docs/installation/framework-guides/nextjs)
 - [TanStack Query App Router guidance](https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr)
+
+## Journal backend
+
+Journal HTTP handlers authenticate requests, parse JSON, and map errors to responses.
+They call `src/server/journal/service.ts`, which owns shared Zod validation,
+legacy field normalization, archive timestamps, serialization, and ownership rules.
+The actor passed to the service must come from server authentication; body user IDs
+are stripped by validation. Missing and foreign-owned entries both return 404.
+
+`src/server/journal/repository.ts` contains only persistence operations and Prisma
+transactions. Every lookup and mutation is scoped to the service-supplied owner.
+Entry changes and tag replacement commit atomically; update/delete filters enforce
+ownership at write time. Authentication payloads also use the journal service to
+list entries. React components use HTTP APIs and never import Prisma.
+
+The service supports create, get by ID, list (newest first), partial update, delete,
+and the existing delete-all operation. HTTP validation errors return 400 with field
+issues, unauthorized requests return 401, invalid origins return 403, and unexpected
+failures return a generic 500 without database details. No migration is required.

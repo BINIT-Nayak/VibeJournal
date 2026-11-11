@@ -72,6 +72,20 @@ try {
   for (const method of ["GET", "PATCH", "DELETE"]) {
     await request(other, path, method, method === "PATCH" ? { note: "Forbidden" } : undefined, 404);
   }
+  for (const method of ["GET", "PATCH", "DELETE"]) {
+    await request(
+      owner,
+      `/api/entries/${randomUUID()}`,
+      method,
+      method === "PATCH" ? { content: "Missing" } : undefined,
+      404
+    );
+  }
+  await request(owner, path, "PATCH", { userId: other.id, content: input.note });
+  assert.equal(
+    (await prisma.journalEntry.findUniqueOrThrow({ where: { id: entry.id } })).userId,
+    owner.id
+  );
   const changed = await request(owner, path, "PATCH", {
     tags: ["rest", "new-tag"],
     archived: true,
