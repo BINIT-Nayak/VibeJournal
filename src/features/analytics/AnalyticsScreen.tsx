@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { WeeklyReflectionPanel } from "@/features/weekly-reflection/WeeklyReflectionPanel";
 import Link from "next/link";
 import { MoodTrendChart } from "@/features/dashboard/MoodTrendChart";
 import { useQuery } from "@tanstack/react-query";
@@ -103,6 +104,7 @@ export function AnalyticsScreen({ userId }: { userId: string }) {
                 </div>
               ))}
             </dl>
+            <WeeklyReflectionPanel userId={userId} />
             <section className={styles.panel}>
               <h2>Personal insights</h2>
               <p>
