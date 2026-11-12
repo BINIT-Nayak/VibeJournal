@@ -10,6 +10,7 @@ import { serializeEntry } from "@/server/api";
 import type { JournalEntryDto, JournalHistoryResponse } from "@/features/journal/api-types";
 import { historyQuerySchema, decodeCursor, encodeCursor } from "./pagination";
 import * as repository from "./repository";
+import { analyzeCreatedEntry } from "@/server/journal-analysis/after-create";
 
 export class JournalNotFoundError extends Error {
   constructor() {
@@ -36,6 +37,7 @@ export async function createEntry(actor: Actor, input: unknown, canonical = fals
   const userId = ownerId(actor);
   const { tags = [], ...fields } = journalCreateSchema.parse(normalizeJournalInput(input));
   const entry = await repository.create(userId, { ...fields, legacyTags: tags }, tags);
+  await analyzeCreatedEntry(userId, entry.id);
   return canonical ? toJournalDto(entry) : serializeEntry(entry);
 }
 

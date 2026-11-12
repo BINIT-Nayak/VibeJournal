@@ -79,10 +79,10 @@ model MoodEntry {
 }
 
 model JournalEntry {
-  id              String       @id @default(cuid())
+  id              String           @id @default(cuid())
   userId          String
   title           String?
-  content         String       @db.Text
+  content         String           @db.Text
   /// Required integer score; PostgreSQL CHECK enforces 1–10.
   moodScore       Int
   /// Optional integer scores; PostgreSQL CHECK enforces 1–10 when present.
@@ -95,14 +95,15 @@ model JournalEntry {
   stress          Int?
   exerciseMinutes Int?
   voiceNote       String?
-  photoNames      String[]     @default([])
+  photoNames      String[]         @default([])
   archivedAt      DateTime?
   // Retained for compatibility with the original schema.
   prompt          String?
-  legacyTags      String[]     @map("tags")
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  legacyTags      String[]         @map("tags")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis        JournalAnalysis?
   tags            JournalTag[]
 
   @@unique([id, userId])
@@ -163,4 +164,23 @@ model AuthRateLimit {
   resetAt  DateTime
 
   @@index([resetAt])
+}
+
+model JournalAnalysis {
+  id               String       @id @default(cuid())
+  journalEntryId   String       @unique
+  userId           String
+  sourceUpdatedAt  DateTime
+  primaryEmotion   String
+  emotions         String[]
+  sentimentScore   Float
+  themes           String[]
+  estimatedEnergy  Int
+  reflectionPrompt String
+  confidence       Float
+  createdAt        DateTime     @default(now())
+  journalEntry     JournalEntry @relation(fields: [journalEntryId, userId], references: [id, userId], onDelete: Cascade)
+
+  @@unique([journalEntryId, userId])
+  @@index([userId, createdAt])
 }
