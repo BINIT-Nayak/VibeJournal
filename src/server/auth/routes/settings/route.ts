@@ -11,6 +11,10 @@ export async function PATCH(request: Request) {
   try {
     const user = await requireUser(request);
     const body = await request.json();
+    if (!body || typeof body !== "object" || Array.isArray(body))
+      return jsonError("Provide a settings object.", 400);
+    if ("aiConsent" in body && typeof body.aiConsent !== "boolean")
+      return jsonError("AI analysis preference must be true or false.", 400);
     const userUpdates: { name?: string | null; email?: string; passwordHash?: string } = {};
 
     if (typeof body.name === "string") {

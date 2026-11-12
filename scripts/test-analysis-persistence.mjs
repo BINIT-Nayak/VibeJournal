@@ -48,6 +48,7 @@ const { analyzeCreatedEntry } = loadTypeScript(
   resolve("src/server/journal-analysis/after-create.ts")
 );
 const { createEntry } = loadTypeScript(resolve("src/server/journal/service.ts"));
+const { getJournalAnalysis } = loadTypeScript(resolve("src/server/journal-analysis/read.ts"));
 const repository = loadTypeScript(resolve("src/server/journal-analysis/repository.ts"));
 const users = [];
 const originalProvider = process.env.AI_JOURNAL_PROVIDER;
@@ -85,6 +86,43 @@ try {
   for (const key of Object.keys(valid)) assert.deepEqual(row[key], valid[key]);
   assert.equal(row.userId, owner.id);
   assert.equal(row.sourceUpdatedAt.toISOString(), entry.updatedAt);
+  const display = await getJournalAnalysis(owner.id, entry.id, entry.updatedAt);
+  assert.equal(display.status, "available");
+  assert.deepEqual(display.analysis, {
+    primaryEmotion: valid.primaryEmotion,
+    emotions: valid.emotions,
+    themes: valid.themes,
+    reflectionPrompt: valid.reflectionPrompt,
+  });
+  assert.equal((await getJournalAnalysis(other.id, entry.id, entry.updatedAt)).status, "missing");
+  assert.equal(
+    (await getJournalAnalysis(owner.id, entry.id, new Date(0).toISOString())).status,
+    "stale"
+  );
+  await prisma.journalAnalysis.update({
+    where: { journalEntryId: entry.id },
+    data: { confidence: 99 },
+  });
+  assert.equal(
+    (await getJournalAnalysis(owner.id, entry.id, entry.updatedAt)).status,
+    "unavailable"
+  );
+  await prisma.journalAnalysis.update({
+    where: { journalEntryId: entry.id },
+    data: { confidence: valid.confidence },
+  });
+  const read = repository.findStoredAnalysis;
+  repository.findStoredAnalysis = async () => {
+    throw new Error("private database error");
+  };
+  try {
+    assert.deepEqual(await getJournalAnalysis(owner.id, entry.id, entry.updatedAt), {
+      status: "unavailable",
+    });
+  } finally {
+    repository.findStoredAnalysis = read;
+  }
+
   assert.equal(await analyzeCreatedEntry(owner.id, entry.id, provider), "saved");
   assert.equal(await prisma.journalAnalysis.count({ where: { journalEntryId: entry.id } }), 1);
   await prisma.journalAnalysis.deleteMany({ where: { journalEntryId: entry.id } });

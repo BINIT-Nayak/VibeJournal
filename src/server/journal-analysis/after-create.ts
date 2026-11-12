@@ -17,7 +17,7 @@ export async function analyzeCreatedEntry(
     if (!entry) return "skipped";
     const result = await analyzeJournal(
       { title: entry.title, content: entry.content },
-      undefined,
+      { userId, journalEntryId },
       provider
     );
     const saved = await repository.persistAnalysis(

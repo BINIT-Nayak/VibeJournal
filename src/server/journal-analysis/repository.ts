@@ -36,3 +36,10 @@ export function persistAnalysis(
     return true;
   });
 }
+
+export function findStoredAnalysis(userId: string, journalEntryId: string) {
+  return prisma.journalAnalysis.findFirst({
+    where: { journalEntryId, userId, journalEntry: { userId } },
+    include: { journalEntry: { select: { updatedAt: true } } },
+  });
+}

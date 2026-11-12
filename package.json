@@ -29,7 +29,8 @@
     "test:tag-analysis": "node scripts/test-tag-analysis-api.mjs",
     "test:journal-analysis": "node --conditions=react-server scripts/test-journal-analysis.mjs",
     "test:ai-provider": "node --conditions=react-server scripts/test-ai-provider.mjs",
-    "test:analysis-persistence": "node --conditions=react-server scripts/test-analysis-persistence.mjs"
+    "test:analysis-persistence": "node --conditions=react-server scripts/test-analysis-persistence.mjs",
+    "test:ai-consent": "node scripts/test-ai-consent-api.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",

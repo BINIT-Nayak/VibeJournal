@@ -11,6 +11,7 @@ export interface JournalAnalysisProvider {
 export class JournalAnalysisProviderError extends Error {
   constructor(
     readonly code:
+      | "AI_CONSENT_REQUIRED"
       | "AI_NOT_CONFIGURED"
       | "AI_UNAVAILABLE"
       | "AI_TIMEOUT"
@@ -19,6 +20,7 @@ export class JournalAnalysisProviderError extends Error {
   ) {
     super(
       {
+        AI_CONSENT_REQUIRED: "AI analysis requires consent and an owned journal entry.",
         AI_NOT_CONFIGURED: "Journal analysis is not configured.",
         AI_UNAVAILABLE: "Journal analysis is temporarily unavailable.",
         AI_TIMEOUT: "Journal analysis took too long. Please try again.",

@@ -7,6 +7,7 @@ import {
   type JournalAnalysisInput,
   type AnalysisOptions,
 } from "./provider";
+import { findEligibleEntry } from "./repository";
 import { validateJournalAnalysis } from "./validation";
 
 const configSchema = z.object({
@@ -35,9 +36,19 @@ export function createJournalAnalysisProvider(): JournalAnalysisProvider {
 /** Call only after the caller has checked consent and loaded an owned entry. */
 export async function analyzeJournal(
   input: JournalAnalysisInput,
-  options?: AnalysisOptions,
-  provider: JournalAnalysisProvider = createJournalAnalysisProvider()
+  options: AnalysisOptions & { userId: string; journalEntryId: string },
+  provider?: JournalAnalysisProvider
 ) {
-  // Revalidate even injected/new providers; a TypeScript return type is not a trust boundary.
-  return validateJournalAnalysis(await provider.analyze(input, options));
+  // Reload consent and ownership immediately before resolving/calling any provider.
+  // The caller's text must match the owned source version.
+  const entry = await findEligibleEntry(options.userId, options.journalEntryId);
+  if (!entry || entry.content !== input.content || entry.title !== (input.title ?? null))
+    throw new JournalAnalysisProviderError("AI_CONSENT_REQUIRED");
+  const selected = provider ?? createJournalAnalysisProvider();
+  return validateJournalAnalysis(
+    await selected.analyze(
+      { title: entry.title, content: entry.content },
+      { signal: options.signal }
+    )
+  );
 }

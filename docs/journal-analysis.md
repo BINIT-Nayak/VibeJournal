@@ -49,7 +49,7 @@ modules in memory, without network or database access.
 
 ## Provider abstraction
 
-Server callers use `analyzeJournal(input, options)` from
+Server callers use `analyzeJournal(input, { userId, journalEntryId, signal })` from
 `src/server/journal-analysis/service.ts`. The vendor-neutral
 `JournalAnalysisProvider.analyze` contract accepts only title/content plus an
 optional abort signal, and returns a validated `JournalAnalysis`. A provider can
@@ -120,3 +120,48 @@ Migration: `20261112090000_journal_analysis`. Run `prisma migrate deploy` and
 `npm run test:analysis-persistence` uses disposable database records and mocked
 AI to verify valid persistence, invalid output, failure isolation, ownership,
 consent changes, stale/deleted entries, idempotency, and cascading deletion.
+
+## Explicit per-user opt-in
+
+The existing `UserSettings.aiConsent` preference defaults to false; no migration
+or automatic enablement is needed. Settings has one unchecked-by-default control
+under **AI journal analysis**, explaining that new entries' title and text go to
+the configured external provider, that results are stored, and what opting out
+does. The checkbox reflects server-confirmed state, is disabled while saving,
+and retains its prior value if saving fails.
+
+`PATCH /api/settings` authenticates the user and uses that identity for the write.
+An explicitly supplied `aiConsent` must be a JSON boolean. Omitting it preserves
+the stored value (or defaults to false for a new settings row); strings, null and
+other types return 400. Client-provided user IDs never select whose setting changes.
+
+Both creation orchestration and the analysis service independently reload an
+owned entry with database consent enabled before any provider call. The service
+also checks that the supplied source text matches the owned entry. Missing settings,
+false consent, a foreign entry, or mismatched text cannot invoke the provider.
+No provider is even resolved until the service check succeeds. Consent is rechecked
+before persistence as well.
+
+Disabling consent blocks subsequent requests; an already transmitted request
+cannot be recalled. Existing stored analyses are retained until their entry is
+deleted. There is no backfill when enabling consent, and deterministic analytics
+does not require AI consent.
+
+Tests: `npm run test:ai-consent`, `npm run test:ai-provider`, and
+`npm run test:analysis-persistence` cover defaults, malformed preferences, owner
+scope, persistence, provider non-invocation without consent, and revocation.
+
+## Detail-page interpretation
+
+The authenticated journal detail page loads saved analysis through an owner-scoped
+repository query. The read service revalidates every stored field with Zod and
+compares the source timestamp both to the displayed entry and its current database
+version. Invalid/unavailable analysis gets a neutral unavailable state; stale
+analysis is hidden with an explanation. None of these reads invokes the AI provider.
+
+The separate AI-generated interpretation panel shows possible emotions, suggested
+themes, and one optional reflection prompt. User context and tags retain their own
+sections. The panel explicitly describes its output as suggestions that can be
+wrong, not recorded facts or a medical diagnosis. It renders text through React's
+normal escaping, without HTML or Markdown interpretation. Previously stored
+analysis remains readable after opting out, consistent with the settings policy.

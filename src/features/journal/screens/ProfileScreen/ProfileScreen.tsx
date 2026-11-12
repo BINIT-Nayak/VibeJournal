@@ -28,6 +28,7 @@ import styles from "@/features/journal/screens/ProfileScreen/ProfileScreen.modul
 type ProfileScreenProps = EntriesProps & {
   averageMood: number;
   aiConsent: boolean;
+  aiConsentSaving: boolean;
   darkMode: boolean;
   isReminderEnabled: boolean;
   onAccountUpdate: (payload: {
@@ -57,6 +58,7 @@ type ProfileScreenProps = EntriesProps & {
 export function ProfileScreen({
   averageMood,
   aiConsent,
+  aiConsentSaving,
   darkMode,
   entries,
   isReminderEnabled,
@@ -330,14 +332,6 @@ export function ProfileScreen({
               therapy, or emergency support.
             </p>
           </div>
-          <label className={styles.toggleRow}>
-            <input
-              checked={aiConsent}
-              onChange={(event) => onAiConsent(event.target.checked)}
-              type="checkbox"
-            />
-            Allow AI reflection insights for my entries
-          </label>
           <button
             className={styles.settingButton}
             disabled={privacyAcknowledged}
@@ -393,20 +387,36 @@ export function ProfileScreen({
         <div className={styles.settingsGroup}>
           <h3>
             <Brain size={18} />
-            AI Consent
+            AI journal analysis
           </h3>
-          <span>
-            AI summaries and reframes should stay supportive and non-diagnostic. Turn consent off
-            any time to keep entries available without AI-assisted interpretation.
-          </span>
+          <p id="ai-consent-description">
+            Off by default. When enabled, the title and text of new journal entries are sent to our
+            configured external AI provider (currently Anthropic) for emotion, theme, and reflection
+            suggestions. Validated results are stored with your journal. AI can be wrong; these
+            suggestions are not diagnoses.
+          </p>
+          <p id="ai-consent-revocation">
+            Turning this off stops future AI requests. A request already sent cannot be recalled.
+            Existing analyses remain stored; deleting an entry also deletes its analysis. Your
+            journal and regular analytics work without AI.
+          </p>
           <label className={styles.toggleRow}>
             <input
               checked={aiConsent}
+              disabled={aiConsentSaving}
+              aria-describedby="ai-consent-description ai-consent-revocation"
               onChange={(event) => onAiConsent(event.target.checked)}
               type="checkbox"
             />
-            AI insights enabled
+            Allow AI analysis of my new journal entries
           </label>
+          <p role="status">
+            {aiConsentSaving
+              ? "Saving AI preference…"
+              : aiConsent
+                ? "AI analysis is on."
+                : "AI analysis is off."}
+          </p>
         </div>
 
         <div className={styles.settingsGroup}>
@@ -489,7 +499,11 @@ export function ProfileScreen({
           </button>
         </div>
 
-        {statusMessage ? <p className={styles.statusMessage}>{statusMessage}</p> : null}
+        {statusMessage ? (
+          <p role="status" className={styles.statusMessage}>
+            {statusMessage}
+          </p>
+        ) : null}
         {isEditingProfile || isChangingPassword ? (
           <button className={styles.primaryButton} type="submit">
             <Mail size={17} />

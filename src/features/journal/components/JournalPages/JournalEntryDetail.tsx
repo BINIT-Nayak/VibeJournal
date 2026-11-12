@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { JournalAnalysisPanel } from "@/features/journal-analysis/JournalAnalysisPanel";
+import type { JournalAnalysisView } from "@/features/journal-analysis/types";
 import type { JournalEntryDto } from "../../api-types";
 import { moods } from "../../mood";
 import { DeleteJournalEntry } from "./DeleteJournalEntry";
@@ -15,9 +17,11 @@ function timestamp(value: string) {
 export function JournalEntryDetail({
   entry,
   created,
+  analysis,
 }: {
   entry: JournalEntryDto;
   created: boolean;
+  analysis: JournalAnalysisView;
 }) {
   const feeling = moods.find((mood) => mood.key === entry.mood);
   const context = [
@@ -62,7 +66,7 @@ export function JournalEntryDetail({
         <p className={styles.content}>{entry.content}</p>
       </section>
       <section aria-labelledby="entry-context-heading">
-        <h2 id="entry-context-heading">Your context</h2>
+        <h2 id="entry-context-heading">Your recorded context</h2>
         <dl className={styles.context}>
           {context.map(([label, value]) => (
             <div key={label}>
@@ -73,7 +77,7 @@ export function JournalEntryDetail({
         </dl>
       </section>
       <section aria-labelledby="entry-tags-heading">
-        <h2 id="entry-tags-heading">Tags</h2>
+        <h2 id="entry-tags-heading">Your tags</h2>
         {entry.tags.length ? (
           <ul className={styles.tags}>
             {entry.tags.map((tag) => (
@@ -90,6 +94,7 @@ export function JournalEntryDetail({
           <p className={styles.content}>{entry.voiceNote}</p>
         </section>
       )}
+      <JournalAnalysisPanel result={analysis} />
       <nav aria-label="Journal actions">
         <Link href="/journal">Back to journal</Link>
         <Link href={`/journal/${entry.id}/edit`}>Edit entry</Link>

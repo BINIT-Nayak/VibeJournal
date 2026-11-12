@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getPlaylistSuggestion,
   moods,
@@ -45,6 +45,8 @@ export function VibeJournalApp() {
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
+  const [aiConsentSaving, setAiConsentSaving] = useState(false);
+  const aiConsentPending = useRef(false);
 
   const activeEntries = useMemo(() => entries.filter((entry) => !entry.archivedAt), [entries]);
   const latestEntry = activeEntries[0] ?? null;
@@ -286,6 +288,21 @@ export function VibeJournalApp() {
     }
   }
 
+  async function updateAiConsent(value: boolean) {
+    if (aiConsentPending.current) return;
+    aiConsentPending.current = true;
+    setAiConsentSaving(true);
+    try {
+      await updateProfileSetting(
+        { aiConsent: value },
+        value ? "AI analysis enabled for new entries." : "AI analysis disabled for future requests."
+      );
+    } finally {
+      aiConsentPending.current = false;
+      setAiConsentSaving(false);
+    }
+  }
+
   async function updateAccount(payload: {
     currentPassword?: string;
     email?: string;
@@ -398,6 +415,7 @@ export function VibeJournalApp() {
         <ProfileScreen
           averageMood={averageMood}
           aiConsent={settings.aiConsent}
+          aiConsentSaving={aiConsentSaving}
           darkMode={settings.darkMode}
           entries={entries}
           isReminderEnabled={settings.reminderEnabled}
@@ -408,12 +426,7 @@ export function VibeJournalApp() {
           streak={streak}
           user={user}
           onAccountUpdate={updateAccount}
-          onAiConsent={(value) =>
-            updateProfileSetting(
-              { aiConsent: value },
-              value ? "AI insight consent enabled." : "AI insight consent disabled."
-            )
-          }
+          onAiConsent={updateAiConsent}
           onDeleteAccount={deleteAccount}
           onDeleteEntries={deleteAllEntries}
           onExportEntries={exportEntries}
