@@ -31,6 +31,8 @@ function loadTypeScript(filename) {
   return exports;
 }
 
+// Quotas are exercised separately in test:rate-limits.
+loadTypeScript(resolve("src/server/rate-limit.ts")).enforceRateLimit = async () => {};
 const { default: nextEnv } = await import("@next/env");
 nextEnv.loadEnvConfig(process.cwd());
 const { randomUUID } = await import("node:crypto");

@@ -1,3 +1,4 @@
+import { RateLimitError, rateLimitResponse } from "@/server/rate-limit";
 import { requireUser } from "@/server/auth/session";
 import {
   generateWeeklyReflection,
@@ -7,6 +8,7 @@ import {
 
 const headers = { "Cache-Control": "private, no-store" };
 function failure(error: unknown) {
+  if (error instanceof RateLimitError) return rateLimitResponse(error);
   const unauthorized = error instanceof Error && error.message === "UNAUTHORIZED";
   const known = error instanceof WeeklyReflectionError;
   return Response.json(

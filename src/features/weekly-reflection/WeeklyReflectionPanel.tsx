@@ -49,9 +49,11 @@ export function WeeklyReflectionPanel({ userId }: { userId: string }) {
         summary: weeklySummarySchema.parse(data.summary),
         reflection: weeklyReflectionSchema.parse(data.reflection),
       });
-    } catch {
+    } catch (error) {
       setError(
-        "Could not generate a weekly reflection. Check that AI analysis is enabled in Settings, then try again. Your journal is unchanged."
+        error instanceof Error
+          ? error.message
+          : "Could not generate a weekly reflection. Your journal is unchanged."
       );
       void preview.refetch();
     } finally {

@@ -1,4 +1,5 @@
 import "server-only";
+import { RateLimitError, rateLimitResponse, rateLimitRetryAfter } from "@/server/rate-limit";
 
 import { AuthError, CredentialsSignin } from "next-auth";
 import { cookies } from "next/headers";
@@ -37,7 +38,10 @@ export async function POST(request: Request) {
     return Response.json(await currentUserPayload(user));
   } catch (error) {
     if (error instanceof CredentialsSignin && error.code === "rate_limited") {
-      return jsonError("Too many attempts. Try again in 15 minutes.", 429);
+      return rateLimitResponse(
+        new RateLimitError(await rateLimitRetryAfter("login", parsed.data.email)),
+        true
+      );
     }
     if (error instanceof AuthError && error.type === "CredentialsSignin") {
       return jsonError("Email or password is incorrect.", 401);

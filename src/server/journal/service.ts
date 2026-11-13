@@ -37,8 +37,8 @@ export async function createEntry(actor: Actor, input: unknown, canonical = fals
   const userId = ownerId(actor);
   const { tags = [], ...fields } = journalCreateSchema.parse(normalizeJournalInput(input));
   const entry = await repository.create(userId, { ...fields, legacyTags: tags }, tags);
-  await analyzeCreatedEntry(userId, entry.id);
-  return canonical ? toJournalDto(entry) : serializeEntry(entry);
+  const analysisStatus = await analyzeCreatedEntry(userId, entry.id);
+  return { ...(canonical ? toJournalDto(entry) : serializeEntry(entry)), analysisStatus };
 }
 
 export function getEntry(actor: Actor, id: string, canonical: true): Promise<JournalEntryDto>;

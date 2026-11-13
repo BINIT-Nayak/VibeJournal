@@ -35,7 +35,8 @@
     "test:weekly-reflection": "node --conditions=react-server scripts/test-weekly-reflection.mjs",
     "test:music": "node scripts/test-music-recommendation.mjs",
     "test:music-provider": "node --conditions=react-server scripts/test-music-provider.mjs",
-    "test:music-preferences": "node scripts/test-music-preferences-api.mjs"
+    "test:music-preferences": "node scripts/test-music-preferences-api.mjs",
+    "test:rate-limits": "node --conditions=react-server scripts/test-rate-limits.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",

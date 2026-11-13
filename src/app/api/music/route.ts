@@ -1,3 +1,4 @@
+import { RateLimitError, rateLimitResponse } from "@/server/rate-limit";
 import { ZodError } from "zod";
 import { requireUser } from "@/server/auth/session";
 import { getMusicSource, getMusicRecommendations } from "@/server/music/service";
@@ -5,6 +6,7 @@ import { MusicProviderError } from "@/server/music/provider";
 
 const headers = { "Cache-Control": "private, no-store" };
 function failure(error: unknown) {
+  if (error instanceof RateLimitError) return rateLimitResponse(error);
   const message = error instanceof Error ? error.message : "";
   const status =
     message === "UNAUTHORIZED"

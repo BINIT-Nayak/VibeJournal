@@ -1,4 +1,5 @@
 import "server-only";
+import { enforceRateLimit } from "../rate-limit";
 import { readAnalytics } from "../analytics/repository";
 import { hasConsent, readTopThemes } from "./repository";
 import { buildWeeklySummary } from "./summary";
@@ -44,10 +45,10 @@ export async function generateWeeklyReflection(
   const preview = await getWeeklyPreview(userId);
   if (!preview.eligible) throw new WeeklyReflectionError("INSUFFICIENT_DATA");
   if (!(await hasConsent(userId))) throw new WeeklyReflectionError("CONSENT_REQUIRED");
-  const result = await (provider ?? createAnthropicWeeklyProvider(getAIConfiguration())).reflect(
-    preview.summary,
-    { signal }
-  );
+  await enforceRateLimit("ai-weekly", userId);
+  await enforceRateLimit("ai-user", userId);
+  const selected = provider ?? createAnthropicWeeklyProvider(getAIConfiguration());
+  const result = await selected.reflect(preview.summary, { signal });
   const reflection = weeklyReflectionSchema.parse(result);
   if (!(await hasConsent(userId))) throw new WeeklyReflectionError("CONSENT_REQUIRED");
   return { summary: preview.summary, reflection };

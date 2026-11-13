@@ -1,4 +1,5 @@
 import "server-only";
+import { enforceRateLimit } from "../rate-limit";
 import { getMusicPreferences } from "./preferences";
 import { z } from "zod";
 import { prisma } from "../db";
@@ -54,6 +55,7 @@ export async function getMusicRecommendations(
     },
     source.preferences
   );
+  await enforceRateLimit("music", userId);
   return {
     criteria,
     tracks: await provider.recommend(criteria, signal),

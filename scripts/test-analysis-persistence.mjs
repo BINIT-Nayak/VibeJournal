@@ -30,6 +30,8 @@ function loadTypeScript(filename) {
   );
   return exports;
 }
+// Quotas are exercised separately in test:rate-limits.
+loadTypeScript(resolve("src/server/rate-limit.ts")).enforceRateLimit = async () => {};
 const valid = {
   primaryEmotion: "hopeful",
   emotions: ["hopeful", "anxious"],

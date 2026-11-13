@@ -1,4 +1,5 @@
 import "server-only";
+import { enforceRateLimit } from "../rate-limit";
 import { getAIConfiguration } from "./config";
 import { createAnthropicProvider } from "./anthropic";
 import {
@@ -25,6 +26,7 @@ export async function analyzeJournal(
   const entry = await findEligibleEntry(options.userId, options.journalEntryId);
   if (!entry || entry.content !== input.content || entry.title !== (input.title ?? null))
     throw new JournalAnalysisProviderError("AI_CONSENT_REQUIRED");
+  await enforceRateLimit("ai-user", options.userId);
   const selected = provider ?? createJournalAnalysisProvider();
   return validateJournalAnalysis(
     await selected.analyze(

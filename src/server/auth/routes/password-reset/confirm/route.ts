@@ -1,4 +1,5 @@
 import "server-only";
+import { enforceRateLimit, RateLimitError, rateLimitResponse } from "@/server/rate-limit";
 
 import { credentialsSchema } from "@/features/auth/schemas";
 import { hashPassword } from "@/server/auth/password";
@@ -19,6 +20,12 @@ export async function POST(request: Request) {
   });
   if (!reset || reset.usedAt || reset.expiresAt <= new Date())
     return jsonError("Reset token is invalid or expired.");
+  try {
+    await enforceRateLimit("reset-confirm", reset.userId);
+  } catch (error) {
+    if (error instanceof RateLimitError) return rateLimitResponse(error, true);
+    return jsonError("Password reset is temporarily unavailable.", 503);
+  }
   const passwordHash = await hashPassword(password.data);
   const changed = await prisma.$transaction(async (tx) => {
     const consumed = await tx.passwordResetToken.updateMany({

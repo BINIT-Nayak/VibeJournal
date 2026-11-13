@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import { registerSchema } from "@/features/auth/schemas";
 import { hashPassword } from "@/server/auth/password";
 import { isSameOriginRequest } from "@/server/auth/request";
-import { allowAuthAttempt } from "@/server/auth/rate-limit";
+import { enforceRateLimit, RateLimitError, rateLimitResponse } from "@/server/rate-limit";
 import { jsonError } from "@/lib/http";
 import { prisma } from "@/server/db";
 import { POST as login } from "../login/route";
@@ -15,9 +15,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return jsonError(parsed.error.issues[0]?.message || "Invalid registration.");
   const { email, password, name } = parsed.data;
   try {
-    if (!(await allowAuthAttempt("register", email, 5))) {
-      return jsonError("Too many attempts. Try again in 15 minutes.", 429);
-    }
+    await enforceRateLimit("register", email);
     await prisma.user.create({
       data: {
         email,
@@ -27,6 +25,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    if (error instanceof RateLimitError) return rateLimitResponse(error, true);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return jsonError("An account already exists for this email.", 409);
     }
