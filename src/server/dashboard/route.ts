@@ -1,7 +1,6 @@
 import "server-only";
-import { ZodError } from "zod";
 import { requireUser } from "@/server/auth/session";
-import { getDashboard } from "./service";
+import { getDashboard, DashboardQueryError } from "./service";
 
 export async function GET(request: Request) {
   const headers = { "Cache-Control": "private, no-store" };
@@ -14,13 +13,13 @@ export async function GET(request: Request) {
       { headers }
     );
   } catch (error) {
-    if (error instanceof ZodError)
+    if (error instanceof DashboardQueryError)
       return Response.json(
         {
           error: {
             code: "VALIDATION_ERROR",
             message: "Use a valid time zone.",
-            issues: error.issues.map((issue) => ({
+            issues: error.validation.issues.map((issue) => ({
               path: issue.path.join("."),
               message: issue.message,
             })),

@@ -20,11 +20,19 @@ const querySchema = z.object({
     }, "Use a valid IANA time zone.")
     .default("UTC"),
 });
+export class DashboardQueryError extends Error {
+  constructor(readonly validation: z.ZodError) {
+    super("Invalid dashboard query.");
+  }
+}
+
 const round = (value: number | null) => (value == null ? null : Math.round(value * 100) / 100);
 
 export async function getDashboard(user: ClientUser, query: unknown): Promise<DashboardResponse> {
   if (!user.id) throw new Error("UNAUTHORIZED");
-  const { timeZone } = querySchema.parse(query);
+  const parsed = querySchema.safeParse(query);
+  if (!parsed.success) throw new DashboardQueryError(parsed.error);
+  const { timeZone } = parsed.data;
   const asOf = new Date();
   const parts = new Intl.DateTimeFormat("en", {
     timeZone,
@@ -81,8 +89,8 @@ export async function getDashboard(user: ClientUser, query: unknown): Promise<Da
       message: "Personal insights will appear here in a future update.",
     },
     musicRecommendations: {
-      status: "coming_soon",
-      message: "Music recommendations will appear here in a future update.",
+      status: "available",
+      message: "Choose a listening intent to explore music for your latest mood.",
     },
   };
 }

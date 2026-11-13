@@ -1,9 +1,9 @@
 import Link from "next/link";
+import { MusicRecommendationsPanel } from "@/features/music/MusicRecommendationsPanel";
 import {
   ArrowRight,
   BookOpen,
   Check,
-  Headphones,
   Leaf,
   PenLine,
   Sparkles,
@@ -182,7 +182,7 @@ export function DashboardScreen({ data }: { data: DashboardResponse }) {
             )}
           </section>
         </div>
-        <aside className={styles.placeholders} aria-label="Coming to your journal">
+        <aside className={styles.placeholders} aria-label="Insights and music">
           <section className={styles.panel}>
             <span className={styles.placeholderIcon}>
               <Sparkles size={22} aria-hidden="true" />
@@ -194,19 +194,7 @@ export function DashboardScreen({ data }: { data: DashboardResponse }) {
               A little perspective for your personal journey.
             </div>
           </section>
-          <section className={styles.panel}>
-            <span className={styles.placeholderIcon}>
-              <Headphones size={22} aria-hidden="true" />
-            </span>
-            <span className={styles.comingSoon}>COMING SOON</span>
-            <h2>Music recommendations</h2>
-            <p>{data.musicRecommendations.message}</p>
-            <div className={styles.soundBars} aria-hidden="true">
-              {[16, 30, 22, 42, 26, 34, 18, 28, 12].map((height, index) => (
-                <i key={index} style={{ height }} />
-              ))}
-            </div>
-          </section>
+          <MusicRecommendationsPanel userId={data.user.id} compact />
         </aside>
       </div>
     </section>

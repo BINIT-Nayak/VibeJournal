@@ -64,13 +64,15 @@ export function AppChrome({
               <li key={item.screen}>
                 <a
                   href={
-                    item.screen === "insights"
-                      ? "/analytics"
-                      : item.screen === "journal"
-                        ? "/journal"
-                        : item.screen === "home"
-                          ? "/dashboard"
-                          : `/dashboard#${item.screen}`
+                    item.screen === "music"
+                      ? "/music"
+                      : item.screen === "insights"
+                        ? "/analytics"
+                        : item.screen === "journal"
+                          ? "/journal"
+                          : item.screen === "home"
+                            ? "/dashboard"
+                            : `/dashboard#${item.screen}`
                   }
                   aria-current={current ? "page" : undefined}
                   onClick={(event) => navigate(event, item.screen)}

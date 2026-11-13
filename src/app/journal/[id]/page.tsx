@@ -18,6 +18,7 @@ export default async function EntryPage({
     const analysis = await getJournalAnalysis(user.id, entry.id, entry.updatedAt);
     return (
       <JournalEntryDetail
+        userId={user.id}
         entry={entry}
         analysis={analysis}
         created={(await searchParams).created === "1"}

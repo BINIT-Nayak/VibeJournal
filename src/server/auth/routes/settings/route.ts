@@ -1,4 +1,6 @@
 import "server-only";
+import { Prisma } from "@prisma/client";
+import { musicPreferencesSchema } from "@/features/music/preferences";
 
 import { requireUser } from "@/server/auth/session";
 import { hashPassword, verifyPassword } from "@/server/auth/password";
@@ -15,6 +17,13 @@ export async function PATCH(request: Request) {
       return jsonError("Provide a settings object.", 400);
     if ("aiConsent" in body && typeof body.aiConsent !== "boolean")
       return jsonError("AI analysis preference must be true or false.", 400);
+    const preferences =
+      "musicPreferences" in body
+        ? musicPreferencesSchema.safeParse(body.musicPreferences)
+        : undefined;
+    if (preferences && !preferences.success)
+      return jsonError(preferences.error.issues[0]?.message ?? "Invalid music preferences.", 400);
+    const musicUpdates = preferences?.success ? preferences.data : {};
     const userUpdates: { name?: string | null; email?: string; passwordHash?: string } = {};
 
     if (typeof body.name === "string") {
@@ -51,6 +60,7 @@ export async function PATCH(request: Request) {
     const settings = await prisma.userSettings.upsert({
       where: { userId: user.id },
       update: {
+        ...musicUpdates,
         aiConsent: typeof body.aiConsent === "boolean" ? body.aiConsent : undefined,
         darkMode: typeof body.darkMode === "boolean" ? body.darkMode : undefined,
         privacyAcknowledged:
@@ -63,6 +73,7 @@ export async function PATCH(request: Request) {
       },
       create: {
         userId: user.id,
+        ...musicUpdates,
         aiConsent: typeof body.aiConsent === "boolean" ? body.aiConsent : false,
         darkMode: typeof body.darkMode === "boolean" ? body.darkMode : false,
         privacyAcknowledged:
@@ -91,10 +102,13 @@ export async function PATCH(request: Request) {
       settings: serializeSettings(settings),
     });
   } catch (error) {
-    if (error instanceof Error && error.message !== "UNAUTHORIZED") {
-      return jsonError(error.message);
-    }
-
-    return jsonError("Please log in to update settings.", 401);
+    if (error instanceof Error && error.message === "UNAUTHORIZED")
+      return jsonError("Please log in to update settings.", 401);
+    if (error instanceof Error && error.message === "Invalid request origin.")
+      return jsonError("Invalid request origin.", 403);
+    if (error instanceof SyntaxError) return jsonError("Provide valid JSON settings.", 400);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002")
+      return jsonError("That email is already in use.", 409);
+    return jsonError("Settings are temporarily unavailable. Please try again.", 500);
   }
 }

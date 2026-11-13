@@ -20,5 +20,5 @@ export type DashboardResponse = {
   moodTrend: Array<{ date: string; averageMood: number | null; journalCount: number }>;
   recentEntries: MoodEntry[];
   personalInsights: { status: "coming_soon"; message: string };
-  musicRecommendations: { status: "coming_soon"; message: string };
+  musicRecommendations: { status: "available"; message: string };
 };

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MusicIntentPrompt } from "@/features/music/MusicIntentPrompt";
 import { JournalAnalysisPanel } from "@/features/journal-analysis/JournalAnalysisPanel";
 import type { JournalAnalysisView } from "@/features/journal-analysis/types";
 import type { JournalEntryDto } from "../../api-types";
@@ -18,10 +19,12 @@ export function JournalEntryDetail({
   entry,
   created,
   analysis,
+  userId,
 }: {
   entry: JournalEntryDto;
   created: boolean;
   analysis: JournalAnalysisView;
+  userId: string;
 }) {
   const feeling = moods.find((mood) => mood.key === entry.mood);
   const context = [
@@ -38,6 +41,9 @@ export function JournalEntryDetail({
           <strong>Your entry was saved.</strong>
           <p>Your reflection is ready to revisit whenever you need it.</p>
         </div>
+      )}
+      {created && (
+        <MusicIntentPrompt mood={entry.moodScore} energy={entry.energyScore} userId={userId} />
       )}
       <header>
         <p>YOUR JOURNAL{entry.archivedAt ? " · ARCHIVED" : ""}</p>

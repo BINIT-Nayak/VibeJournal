@@ -108,7 +108,7 @@ try {
   assert.equal(data.moodTrend[1].averageMood, null);
   assert.equal(data.moodTrend[1].journalCount, 0);
   assert.equal(data.personalInsights.status, "coming_soon");
-  assert.equal(data.musicRecommendations.status, "coming_soon");
+  assert.equal(data.musicRecommendations.status, "available");
   for (const zone of ["Asia/Kolkata", "America/New_York", "Pacific/Kiritimati"]) {
     const local = await request(owner, `/api/dashboard?timeZone=${encodeURIComponent(zone)}`);
     const format = (date) =>

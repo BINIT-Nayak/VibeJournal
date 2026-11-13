@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getPlaylistSuggestion,
@@ -23,6 +24,12 @@ import { JournalEditor } from "@/features/journal/components/JournalEditor/Journ
 import { ProfileScreen } from "@/features/journal/screens/ProfileScreen/ProfileScreen";
 
 const defaultSettings: ClientSettings = {
+  musicPreferences: {
+    favoriteGenres: [],
+    dislikedGenres: [],
+    preferredLanguages: [],
+    allowExplicit: false,
+  },
   aiConsent: false,
   darkMode: false,
   privacyAcknowledged: false,
@@ -32,6 +39,7 @@ const defaultSettings: ClientSettings = {
 };
 
 export function VibeJournalApp() {
+  const router = useRouter();
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [fullHistoryLoaded, setFullHistoryLoaded] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>("home");
@@ -116,6 +124,10 @@ export function VibeJournalApp() {
   }, [activeScreen, user, fullHistoryLoaded]);
 
   function navigateToScreen(screen: Screen) {
+    if (screen === "music") {
+      router.push("/music");
+      return;
+    }
     if (screen === "insights") {
       window.location.assign("/analytics");
       return;

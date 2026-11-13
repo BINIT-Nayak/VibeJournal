@@ -1,4 +1,5 @@
 import "server-only";
+import { musicPreferencesSchema } from "@/features/music/preferences";
 
 import type { Mood, UserSettings } from "@prisma/client";
 import type { MoodEntry as ClientMoodEntry, MoodKey } from "@/features/journal/mood";
@@ -30,6 +31,12 @@ export function serializeEntry(entry: JournalEntryWithTags): ClientMoodEntry {
 
 export function serializeSettings(settings: UserSettings): ClientSettings {
   return {
+    musicPreferences: musicPreferencesSchema.parse({
+      favoriteGenres: settings.favoriteGenres,
+      dislikedGenres: settings.dislikedGenres,
+      preferredLanguages: settings.preferredLanguages,
+      allowExplicit: settings.allowExplicit,
+    }),
     aiConsent: settings.aiConsent,
     darkMode: settings.darkMode,
     privacyAcknowledged: settings.privacyAcknowledged,

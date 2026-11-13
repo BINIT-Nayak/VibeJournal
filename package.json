@@ -31,7 +31,10 @@
     "test:ai-provider": "node --conditions=react-server scripts/test-ai-provider.mjs",
     "test:analysis-persistence": "node --conditions=react-server scripts/test-analysis-persistence.mjs",
     "test:ai-consent": "node scripts/test-ai-consent-api.mjs",
-    "test:weekly-reflection": "node --conditions=react-server scripts/test-weekly-reflection.mjs"
+    "test:weekly-reflection": "node --conditions=react-server scripts/test-weekly-reflection.mjs",
+    "test:music": "node scripts/test-music-recommendation.mjs",
+    "test:music-provider": "node --conditions=react-server scripts/test-music-provider.mjs",
+    "test:music-preferences": "node scripts/test-music-preferences-api.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",

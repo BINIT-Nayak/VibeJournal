@@ -1,0 +1,74 @@
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+  padding: 24px;
+}
+
+.panel fieldset {
+  border: 0;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.panel legend {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.choices {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.choices label {
+  align-items: center;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  min-height: 44px;
+  padding: 12px;
+}
+
+.choices input {
+  accent-color: var(--accent-strong);
+}
+
+.panel button,
+.energy select {
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  min-height: 44px;
+  padding: 10px 14px;
+}
+
+.panel button {
+  margin-top: 20px;
+}
+
+.energy {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.energy span,
+.result p {
+  font-size: 14px;
+}
+
+.panel :is(input, button, select):focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 4px;
+}

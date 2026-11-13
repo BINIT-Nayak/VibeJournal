@@ -1,3 +1,4 @@
+import { MusicPreferencesForm } from "@/features/music/MusicPreferencesForm";
 import { type FormEvent, useState } from "react";
 import {
   AlertTriangle,
@@ -268,6 +269,8 @@ export function ProfileScreen({
           </button>
         </article>
       </section>
+
+      <MusicPreferencesForm userId={user.id} />
 
       <form
         className={`${styles.panel} ${styles.settingsPanel}`}

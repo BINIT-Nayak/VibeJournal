@@ -1,3 +1,4 @@
+import type { MusicPreferences } from "@/features/music/preferences";
 export type ClientUser = {
   id: string;
   email: string;
@@ -5,6 +6,7 @@ export type ClientUser = {
 };
 
 export type ClientSettings = {
+  musicPreferences: MusicPreferences;
   aiConsent: boolean;
   darkMode: boolean;
   privacyAcknowledged: boolean;

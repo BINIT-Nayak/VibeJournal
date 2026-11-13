@@ -1,0 +1,99 @@
+.page {
+  margin: 0 auto;
+  max-width: 1000px;
+}
+
+.page h1 {
+  font-family: Georgia, serif;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 400;
+}
+
+.panel {
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  line-height: 1.7;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 24px;
+}
+
+.panel h2 {
+  font-size: 21px;
+}
+
+.panel fieldset {
+  border: 0;
+  margin: 16px 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.choices {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.choices label {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px;
+}
+
+.panel button,
+.panel select {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+
+.panel a {
+  color: var(--accent-strong);
+  display: inline-block;
+  min-height: 44px;
+  padding: 10px 0;
+}
+
+.panel :is(input, select, button, a):focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+.energy {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.tracks {
+  display: grid;
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+}
+
+.tracks li {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.tracks h3 {
+  margin: 0;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 13px;
+}
