@@ -22,6 +22,7 @@
     "test:auth": "node scripts/test-auth-api.mjs",
     "test:journal": "node scripts/test-journal-rest.mjs",
     "test:dashboard": "node scripts/test-dashboard-api.mjs",
+    "test:dashboard-errors": "node --conditions=react-server scripts/test-dashboard-errors.mjs",
     "test:analytics": "node scripts/test-analytics-api.mjs",
     "test:mood-trend": "node scripts/test-mood-trend-api.mjs",
     "test:sleep-analysis": "node scripts/test-sleep-analysis-api.mjs",
