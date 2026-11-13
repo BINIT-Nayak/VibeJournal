@@ -36,7 +36,8 @@
     "test:music": "node scripts/test-music-recommendation.mjs",
     "test:music-provider": "node --conditions=react-server scripts/test-music-provider.mjs",
     "test:music-preferences": "node scripts/test-music-preferences-api.mjs",
-    "test:rate-limits": "node --conditions=react-server scripts/test-rate-limits.mjs"
+    "test:rate-limits": "node --conditions=react-server scripts/test-rate-limits.mjs",
+    "test:analytics-cache": "node --conditions=react-server scripts/test-analytics-cache.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",
@@ -50,6 +51,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.91.0",
     "recharts": "^3.10.1",
+    "redis": "^6.3.1",
     "server-only": "^0.0.1",
     "zod": "^4.6.7"
   },

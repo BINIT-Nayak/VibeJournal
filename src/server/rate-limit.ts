@@ -1,6 +1,7 @@
 import "server-only";
 import { createHmac } from "node:crypto";
 import { prisma } from "./db";
+import { readRateLimitBlock, readRateLimitState, cacheRateLimitBlock } from "./redis/rate-limit";
 
 // Fixed windows use the database clock and atomic upserts across all processes.
 export const rateLimitPolicies = {
@@ -26,6 +27,9 @@ export function rateLimitKey(scope: string, identifier: string) {
 export async function consumeRateLimit(scope: RateLimitScope, identifier: string) {
   const { limit, seconds } = rateLimitPolicies[scope];
   const key = rateLimitKey(scope, identifier);
+  const redisState = await readRateLimitState(key, limit, seconds);
+  if (redisState?.retryAfter != null) return { allowed: false, retryAfter: redisState.retryAfter };
+  const started = performance.now();
   const [row] = await prisma.$queryRaw<Array<{ attempts: number; retryAfter: number }>>`
     INSERT INTO "AuthRateLimit" ("key", "attempts", "resetAt")
     VALUES (${key}, 1, (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + ${seconds} * INTERVAL '1 second')
@@ -37,6 +41,12 @@ export async function consumeRateLimit(scope: RateLimitScope, identifier: string
         ELSE "AuthRateLimit"."resetAt" END
     RETURNING "attempts", GREATEST(1, CEIL(EXTRACT(EPOCH FROM ("resetAt" - (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')))))::int AS "retryAfter"
   `;
+  if (row.attempts > limit && redisState) {
+    // Round down and subtract all DB latency: Redis must never outlive the
+    // durable window, including when a response is delayed in transit.
+    const ttlMs = (row.retryAfter - 1) * 1000 - (performance.now() - started);
+    await cacheRateLimitBlock(key, limit, seconds, ttlMs, redisState.clockMs);
+  }
   return { allowed: row.attempts <= limit, retryAfter: row.retryAfter };
 }
 export async function enforceRateLimit(scope: RateLimitScope, identifier: string) {
@@ -45,6 +55,9 @@ export async function enforceRateLimit(scope: RateLimitScope, identifier: string
 }
 export async function rateLimitRetryAfter(scope: RateLimitScope, identifier: string) {
   const key = rateLimitKey(scope, identifier);
+  const { limit, seconds } = rateLimitPolicies[scope];
+  const blockedFor = await readRateLimitBlock(key, limit, seconds);
+  if (blockedFor !== null) return blockedFor;
   const [row] = await prisma.$queryRaw<Array<{ retryAfter: number }>>`
     SELECT GREATEST(1, CEIL(EXTRACT(EPOCH FROM ("resetAt" - (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')))))::int AS "retryAfter"
     FROM "AuthRateLimit" WHERE "key" = ${key}

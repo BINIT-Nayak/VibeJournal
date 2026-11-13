@@ -10,6 +10,7 @@ import { serializeEntry } from "@/server/api";
 import type { JournalEntryDto, JournalHistoryResponse } from "@/features/journal/api-types";
 import { historyQuerySchema, decodeCursor, encodeCursor } from "./pagination";
 import * as repository from "./repository";
+import { invalidateAnalytics } from "@/server/analytics/cache";
 import { analyzeCreatedEntry } from "@/server/journal-analysis/after-create";
 
 export class JournalNotFoundError extends Error {
@@ -37,6 +38,7 @@ export async function createEntry(actor: Actor, input: unknown, canonical = fals
   const userId = ownerId(actor);
   const { tags = [], ...fields } = journalCreateSchema.parse(normalizeJournalInput(input));
   const entry = await repository.create(userId, { ...fields, legacyTags: tags }, tags);
+  await invalidateAnalytics(userId);
   const analysisStatus = await analyzeCreatedEntry(userId, entry.id);
   return { ...(canonical ? toJournalDto(entry) : serializeEntry(entry)), analysisStatus };
 }
@@ -85,16 +87,19 @@ export async function updateEntry(actor: Actor, id: string, input: unknown, cano
     if (!(await repository.findByOwner(userId, id))) throw new JournalNotFoundError();
     throw new JournalConflictError();
   }
+  await invalidateAnalytics(userId);
   return canonical ? toJournalDto(entry) : serializeEntry(entry);
 }
 
 export async function deleteEntry(actor: Actor, id: string) {
   const result = await repository.deleteByOwner(ownerId(actor), id);
   if (result.count === 0) throw new JournalNotFoundError();
+  await invalidateAnalytics(ownerId(actor));
 }
 
 export async function deleteAllEntries(actor: Actor) {
   await repository.deleteAllByOwner(ownerId(actor));
+  await invalidateAnalytics(ownerId(actor));
 }
 
 export async function listEntryPage(actor: Actor, query: unknown) {

@@ -2,7 +2,9 @@
 
 The shared server-only limiter uses atomic PostgreSQL upserts in the existing
 AuthRateLimit table. Its historical table name now also covers AI and music.
-No Redis or new migration is required. HMAC keys contain no plaintext email,
+Optional Redis caches exhausted buckets to absorb repeated blocked requests;
+PostgreSQL remains the durable counter, so an outage never resets quotas.
+No new migration is required. See [Redis infrastructure](redis.md). HMAC keys contain no plaintext email,
 user ID, token, or journal content; AUTH_SECRET must remain stable across instances.
 Database time defines fixed windows. Denied requests do not extend the window,
 and counters are capped to avoid unbounded integer growth.
