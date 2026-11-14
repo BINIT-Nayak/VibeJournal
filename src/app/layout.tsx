@@ -1,3 +1,5 @@
+import { getCurrentUser } from "@/server/auth/session";
+import { SyncQueueRunner } from "@/features/journal/sync/SyncQueueRunner";
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { Providers } from "@/components/providers";
@@ -10,15 +12,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getCurrentUser();
   return (
     <html lang="en">
       <body className="min-h-screen">
-        <Providers>{children}</Providers>
+        <Providers>
+          {user && <SyncQueueRunner key={user.id} userId={user.id} />}
+          {children}
+        </Providers>
       </body>
     </html>
   );

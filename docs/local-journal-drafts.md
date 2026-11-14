@@ -12,7 +12,9 @@ The editor loads a draft before enabling input, restores incomplete/invalid form
 values without applying submission constraints, and writes on every form change.
 Writes are serialized; cleanup waits for outstanding writes before deletion.
 Status text distinguishes local draft storage from a successful journal save.
-Successful edit saves clear the draft; failed edits retain it. New-entry drafts
+Edits now commit to the dedicated local mutation queue before clearing their
+draft. Failed enqueue operations retain the draft; failed uploads retain the queued
+content for review. See [journal sync](journal-sync.md). New-entry drafts
 are cleared only after their content has been committed to the local entries table
 (or saved online if local storage is unavailable). Upload failures retain the
 committed local entry for retry. Explicit discard and confirmed cancellation remove the local draft.

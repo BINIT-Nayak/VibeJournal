@@ -40,19 +40,25 @@ export function listByOwner(userId: string) {
   });
 }
 
-export function findByOwner(userId: string, id: string) {
-  return prisma.journalEntry.findFirst({ where: { id, userId }, include: entryInclude });
+export function findByOwner(userId: string, id: string, tx: Prisma.TransactionClient = prisma) {
+  return tx.journalEntry.findFirst({ where: { id, userId }, include: entryInclude });
 }
 
-export function create(userId: string, data: CreateData, tags: string[]) {
-  return prisma.$transaction(async (tx) => {
+export function create(
+  userId: string,
+  data: CreateData,
+  tags: string[],
+  transaction?: Prisma.TransactionClient
+) {
+  const write = async (tx: Prisma.TransactionClient) => {
     const saved = await tx.journalEntry.create({ data: { ...data, userId } });
     await setEntryTags(tx, saved.id, userId, tags);
     return tx.journalEntry.findFirstOrThrow({
       where: { id: saved.id, userId },
       include: entryInclude,
     });
-  });
+  };
+  return transaction ? write(transaction) : prisma.$transaction(write);
 }
 
 export function updateByOwner(
@@ -60,9 +66,10 @@ export function updateByOwner(
   id: string,
   expectedUpdatedAt: Date,
   data: UpdateData,
-  tags?: string[]
+  tags?: string[],
+  transaction?: Prisma.TransactionClient
 ) {
-  return prisma.$transaction(async (tx) => {
+  const write = async (tx: Prisma.TransactionClient) => {
     // Scope the write itself, not just an earlier read, to avoid ownership races.
     const result = await tx.journalEntry.updateMany({
       where: { id, userId, updatedAt: expectedUpdatedAt },
@@ -71,7 +78,8 @@ export function updateByOwner(
     if (result.count === 0) return null;
     if (tags !== undefined) await setEntryTags(tx, id, userId, tags);
     return tx.journalEntry.findFirstOrThrow({ where: { id, userId }, include: entryInclude });
-  });
+  };
+  return transaction ? write(transaction) : prisma.$transaction(write);
 }
 
 export function deleteByOwner(userId: string, id: string) {
@@ -103,4 +111,13 @@ export function pageByOwner(
     take,
     include: entryInclude,
   });
+}
+
+export function deleteVersion(
+  userId: string,
+  id: string,
+  updatedAt: Date,
+  tx: Prisma.TransactionClient
+) {
+  return tx.journalEntry.deleteMany({ where: { userId, id, updatedAt } });
 }

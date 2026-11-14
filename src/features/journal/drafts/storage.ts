@@ -2,6 +2,7 @@
 
 import Dexie, { type Table } from "dexie";
 import { z } from "zod";
+import type { JournalMutation, MutationResult } from "../sync/schemas";
 import { journalCreateSchema, type JournalCreateInput } from "../schemas";
 
 // Drafts may be incomplete or invalid; submission still uses the shared strict schema.
@@ -28,13 +29,35 @@ export type LocalJournalEntry = {
   values: JournalCreateInput;
   createdAt: string;
   status: "pending" | "syncing" | "synced" | "failed";
+  deleted?: boolean;
+  serverUpdatedAt?: string;
   attempt?: string;
   leaseUntil?: number;
+  error?: string;
+};
+export type SyncMutationRecord = {
+  seq?: number;
+  key: string;
+  userId: string;
+  entryId: string;
+  kind: "create" | "update" | "delete";
+  values?: JournalCreateInput;
+  expectedUpdatedAt?: string;
+  dependsOn?: string;
+  payload?: JournalMutation;
+  result?: MutationResult;
+  status: "pending" | "syncing" | "synced" | "failed";
+  attempts: number;
+  retryable: boolean;
+  nextAttemptAt: number;
+  leaseUntil?: number;
+  attempt?: string;
   error?: string;
 };
 type DraftDatabase = Dexie & {
   drafts: Table<JournalDraft, string>;
   localEntries: Table<LocalJournalEntry, string>;
+  mutations: Table<SyncMutationRecord, number>;
 };
 let database: DraftDatabase | undefined;
 export function journalLocalDb() {
@@ -44,6 +67,33 @@ export function journalLocalDb() {
     database
       .version(2)
       .stores({ drafts: "key, userId", localEntries: "id, userId, [userId+status]" });
+    database
+      .version(3)
+      .stores({
+        drafts: "key, userId",
+        localEntries: "id, userId, [userId+status]",
+        mutations: "++seq, &key, userId, [userId+entryId]",
+      })
+      .upgrade(async (tx) => {
+        const rows = await tx.table<LocalJournalEntry>("localEntries").toArray();
+        for (const row of rows) {
+          if (row.status === "synced") continue;
+          await tx.table("mutations").add({
+            key: crypto.randomUUID(),
+            userId: row.userId,
+            entryId: row.id,
+            kind: "create",
+            values: row.values,
+            status: "pending",
+            attempts: 0,
+            retryable: true,
+            nextAttemptAt: 0,
+          });
+          await tx
+            .table("localEntries")
+            .update(row.id, { status: "pending", leaseUntil: undefined });
+        }
+      });
   }
   return database;
 }

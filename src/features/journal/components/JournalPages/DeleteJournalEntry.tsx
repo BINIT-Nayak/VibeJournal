@@ -1,17 +1,20 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import type { JournalHistoryResponse } from "../../api-types";
+import { liveQuery } from "dexie";
+import { journalLocalDb } from "../../drafts/storage";
+import { enqueueMutation } from "../../sync/queue";
+import { LocalEntries } from "../../offline/LocalEntries";
+import type { JournalEntryDto } from "../../api-types";
 import styles from "./JournalEntryDetail.module.css";
 
-export function DeleteJournalEntry({ id }: { id: string }) {
+export function DeleteJournalEntry({ entry, userId }: { entry: JournalEntryDto; userId: string }) {
   const lock = useRef(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const cancel = useRef<HTMLButtonElement>(null);
   const labelId = useId();
-  const queryClient = useQueryClient();
+  const [queued, setQueued] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   async function remove() {
@@ -20,38 +23,10 @@ export function DeleteJournalEntry({ id }: { id: string }) {
     setPending(true);
     setError("");
     try {
-      let response: Response;
-      try {
-        response = await fetch(`/api/journal/${encodeURIComponent(id)}`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        });
-      } catch {
-        throw new Error("We couldn't connect. Check your connection and try again.");
-      }
-      if (response.status !== 204) {
-        const result = await response.json().catch(() => null);
-        throw new Error(
-          response.status === 401
-            ? "Your session has expired. Sign in again to delete this entry."
-            : response.status === 404
-              ? "This entry is no longer available. Return to your journal."
-              : (result?.error?.message ?? "Could not delete your entry. Please try again.")
-        );
-      }
-      // Stop an older request from restoring the removed entry, update every
-      // cached history page, and mark those pages stale before navigation.
-      await queryClient.cancelQueries({ queryKey: ["journal-history"] });
-      queryClient.setQueriesData<JournalHistoryResponse>(
-        { queryKey: ["journal-history"] },
-        (current) =>
-          current
-            ? { ...current, entries: current.entries.filter((entry) => entry.id !== id) }
-            : current
-      );
-      await queryClient.invalidateQueries({ queryKey: ["journal-history"], refetchType: "none" });
-      // A fresh route also clears any cached server-rendered detail after deletion.
-      window.location.replace("/journal?deleted=1");
+      await enqueueMutation(userId, entry.id, "delete", entry, entry.updatedAt);
+      dialog.current?.close();
+      setQueued(true);
+      setPending(false);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Could not delete your entry.");
       lock.current = false;
@@ -65,6 +40,17 @@ export function DeleteJournalEntry({ id }: { id: string }) {
     }
   }, [pending]);
 
+  useEffect(() => {
+    if (!queued) return;
+    const subscription = liveQuery(() => journalLocalDb().localEntries.get(entry.id)).subscribe(
+      (row) => {
+        if (row?.userId === userId && row.deleted && row.status === "synced")
+          window.location.replace("/journal?deleted=1");
+      }
+    );
+    return () => subscription.unsubscribe();
+  }, [queued, entry.id, userId]);
+
   function open() {
     if (lock.current) return;
     setError("");
@@ -74,6 +60,16 @@ export function DeleteJournalEntry({ id }: { id: string }) {
   function close() {
     if (!lock.current) dialog.current?.close();
   }
+  if (queued)
+    return (
+      <>
+        <p role="status">
+          Deletion saved locally and queued for sync. It is not deleted on the server until
+          confirmed.
+        </p>
+        <LocalEntries userId={userId} />
+      </>
+    );
   return (
     <div className={styles.deleteAction}>
       <button
@@ -100,7 +96,8 @@ export function DeleteJournalEntry({ id }: { id: string }) {
       >
         <h2 id={`${labelId}-title`}>Delete this entry?</h2>
         <p id={`${labelId}-description`}>
-          This will permanently delete this journal entry and its tags. You cannot undo this action.
+          This queues permanent deletion of the journal entry and its tags. It will be deleted when
+          sync succeeds. You cannot undo a completed deletion.
         </p>
         {error && (
           <p className={styles.deleteError} role="alert">

@@ -8,14 +8,14 @@ datasource db {
 }
 
 model User {
-  id                  String               @id @default(cuid())
-  authProvider        String               @default("password")
-  email               String               @unique
-  googleSubject       String?              @unique
+  id                  String                   @id @default(cuid())
+  authProvider        String                   @default("password")
+  email               String                   @unique
+  googleSubject       String?                  @unique
   passwordHash        String?
   name                String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
   sessions            Session[]
   moodEntries         MoodEntry[]
   journalEntries      JournalEntry[]
@@ -23,6 +23,7 @@ model User {
   playlistRuns        PlaylistRun[]
   settings            UserSettings?
   passwordResetTokens PasswordResetToken[]
+  journalMutations    JournalMutationReceipt[]
 }
 
 model Session {
@@ -187,4 +188,18 @@ model JournalAnalysis {
 
   @@unique([journalEntryId, userId])
   @@index([userId, createdAt])
+}
+
+model JournalMutationReceipt {
+  userId      String
+  key         String
+  entryId     String
+  kind        String
+  payloadHash String
+  result      Json
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, key])
+  @@index([userId, entryId])
 }

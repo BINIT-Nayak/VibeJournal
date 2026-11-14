@@ -106,7 +106,7 @@ export function JournalEntryDetail({
         <Link href={`/journal/${entry.id}/edit`}>Edit entry</Link>
         <Link href="/journal/new">Write another entry</Link>
       </nav>
-      <DeleteJournalEntry id={entry.id} />
+      <DeleteJournalEntry entry={entry} userId={userId} />
     </article>
   );
 }

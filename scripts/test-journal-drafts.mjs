@@ -36,7 +36,7 @@ try {
   await page.goto(origin + "/journal/new");
   await page.getByText("Local draft restored from this browser.").waitFor();
   assert.equal(await content().inputValue(), "A private unfinished reflection");
-  await page.route("**/api/journal", (route) =>
+  await page.route("**/api/journal/sync", (route) =>
     route.fulfill({
       status: 500,
       contentType: "application/json",
@@ -47,7 +47,7 @@ try {
   await page.getByText("Test save failure", { exact: false }).waitFor();
   await page.reload();
   await page.getByText("Failed to sync — saved on this device only.").waitFor();
-  await page.unroute("**/api/journal");
+  await page.unroute("**/api/journal/sync");
   await page.getByRole("button", { name: "Retry sync", exact: true }).click();
   await page.getByText("Synced — saved to your journal.").waitFor();
   const entryId = (await page.getByRole("link", { name: "View saved entry" }).getAttribute("href"))
@@ -69,15 +69,10 @@ try {
   await page.reload();
   await page.getByText("The saved entry has changed", { exact: false }).waitFor();
   await page.getByRole("button", { name: "Save changes", exact: true }).click();
-  await page.getByText("A newer version is available.", { exact: false }).waitFor();
+  await page.getByText("Failed to sync", { exact: false }).waitFor();
   assert.equal(
     (await db.journalEntry.findUnique({ where: { id: entryId } })).content,
     "Concurrent server change"
-  );
-  page.once("dialog", (dialog) => dialog.accept());
-  await page.getByRole("button", { name: "Discard local draft", exact: true }).click();
-  await page.waitForFunction(
-    () => document.querySelector("textarea")?.value === "Concurrent server change"
   );
   await page.goto(origin + "/journal/new");
   await content().fill("Only the first account should see this draft");
@@ -93,7 +88,9 @@ try {
     data: { name: "Second Account", email: email2, password: "LocalDraftTest123!" },
   });
   assert.equal(second.status(), 200);
-  await page.reload();
+  await page.close();
+  page = await context.newPage();
+  await page.goto(origin + "/journal/new");
   await page.getByText("Changes are saved locally", { exact: false }).waitFor();
   assert.equal(await content().inputValue(), "", "account isolation within same browser storage");
   const blockedStorage = await browser.newContext();
