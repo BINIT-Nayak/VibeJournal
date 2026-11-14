@@ -1,4 +1,5 @@
 import "server-only";
+import { EncryptionError } from "../encryption/envelope";
 import { ZodError } from "zod";
 import type { JournalApiError, JournalApiErrorCode } from "@/features/journal/api-types";
 import { JournalNotFoundError, JournalConflictError } from "./service";
@@ -15,7 +16,10 @@ export function journalRestError(error: unknown) {
   let code: JournalApiErrorCode = "INTERNAL_ERROR";
   let message = "Your journal is temporarily unavailable. Please try again.";
   let issues: JournalApiError["error"]["issues"];
-  if (error instanceof ZodError) {
+  if (error instanceof EncryptionError) {
+    status = 503;
+    message = error.message;
+  } else if (error instanceof ZodError) {
     status = 400;
     code = "VALIDATION_ERROR";
     message = "Check the journal fields.";

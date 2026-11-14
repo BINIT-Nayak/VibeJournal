@@ -43,6 +43,7 @@ const { getWeeklyPreview, generateWeeklyReflection } = loadTypeScript(
 const { createAnthropicWeeklyProvider } = loadTypeScript(
   resolve("src/server/weekly-reflection/anthropic.ts")
 );
+const { sealJournal, sealValue } = loadTypeScript(resolve("src/server/encryption/content.ts"));
 const users = [];
 const output = {
   reflection: "A week with room for reflection.",
@@ -84,12 +85,17 @@ try {
   const now = new Date();
   const start = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
   async function add(age, moodScore, sleepHours, exercised, account = owner, extra = {}) {
+    const id = randomUUID();
+    const sealed = await sealJournal(account.id, id, 1, {
+      content: "RAW_TEXT_MUST_NEVER_LEAVE",
+      title: "PRIVATE_TITLE",
+      voiceNote: "PRIVATE_TRANSCRIPT",
+    });
     const entry = await prisma.journalEntry.create({
       data: {
         userId: account.id,
-        content: "RAW_TEXT_MUST_NEVER_LEAVE",
-        title: "PRIVATE_TITLE",
-        voiceNote: "PRIVATE_TRANSCRIPT",
+        id,
+        ...sealed,
         moodScore,
         sleepHours,
         exercised,
@@ -105,9 +111,16 @@ try {
         primaryEmotion: "calm",
         emotions: ["calm"],
         sentimentScore: 0,
-        themes: ["work"],
+        themes: [],
+        privatePayload: await sealValue(
+          account.id,
+          "analysis",
+          entry.id,
+          { themes: ["work"], reflectionPrompt: "PRIVATE_PROMPT" },
+          entry.updatedAt.toISOString()
+        ),
         estimatedEnergy: 5,
-        reflectionPrompt: "PRIVATE_PROMPT",
+        reflectionPrompt: "",
         confidence: 0.5,
       },
     });

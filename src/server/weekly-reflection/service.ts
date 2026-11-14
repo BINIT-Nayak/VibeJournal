@@ -1,7 +1,9 @@
 import "server-only";
+import { z } from "zod";
+import { openValue } from "../encryption/content";
 import { enforceRateLimit } from "../rate-limit";
 import { readAnalytics } from "../analytics/repository";
-import { hasConsent, readTopThemes } from "./repository";
+import { hasConsent, readAnalysisPage } from "./repository";
 import { buildWeeklySummary } from "./summary";
 import { createAnthropicWeeklyProvider } from "./anthropic";
 import { getAIConfiguration } from "../journal-analysis/config";
@@ -52,4 +54,44 @@ export async function generateWeeklyReflection(
   const reflection = weeklyReflectionSchema.parse(result);
   if (!(await hasConsent(userId))) throw new WeeklyReflectionError("CONSENT_REQUIRED");
   return { summary: preview.summary, reflection };
+}
+
+async function readTopThemes(userId: string, start: Date, asOf: Date) {
+  const counts = new Map<string, { entries: Set<string>; days: Set<string> }>();
+  let after: string | undefined;
+  let total = 0;
+  for (;;) {
+    const page = await readAnalysisPage(userId, start, asOf, after);
+    total += page.length;
+    if (total > 10000) throw new Error("Weekly theme processing limit reached.");
+    for (const row of page) {
+      if (+row.sourceUpdatedAt !== +row.journalEntry.updatedAt) continue;
+      const parsed = z
+        .object({ themes: z.array(z.string().max(80)).max(8) })
+        .parse(
+          await openValue(
+            userId,
+            "analysis",
+            row.journalEntryId,
+            row.privatePayload,
+            row.sourceUpdatedAt.toISOString()
+          )
+        );
+      for (const theme of parsed.themes) {
+        const name = theme.trim().toLowerCase();
+        if (!name) continue;
+        const value = counts.get(name) ?? { entries: new Set<string>(), days: new Set<string>() };
+        value.entries.add(row.journalEntryId);
+        value.days.add(row.journalEntry.createdAt.toISOString().slice(0, 10));
+        counts.set(name, value);
+      }
+    }
+    if (page.length < 200) break;
+    after = page[page.length - 1].id;
+  }
+  return [...counts]
+    .filter(([, value]) => value.days.size >= 2)
+    .map(([theme, value]) => ({ theme, entries: value.entries.size, days: value.days.size }))
+    .sort((a, b) => b.entries - a.entries || a.theme.localeCompare(b.theme))
+    .slice(0, 5);
 }

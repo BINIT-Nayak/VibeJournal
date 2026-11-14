@@ -1,5 +1,7 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
+import { sealJournal, openEntry, protectTag } from "../encryption/content";
 import type { ClientUser } from "@/features/auth/types";
 import {
   journalCreateRequestSchema,
@@ -45,23 +47,26 @@ export async function createEntry(actor: Actor, input: unknown, canonical = fals
     const existing = await repository.findByOwner(userId, clientEntryId);
     if (existing)
       return {
-        ...(canonical ? toJournalDto(existing) : serializeEntry(existing)),
+        ...(canonical
+          ? toJournalDto(await openEntry(userId, existing))
+          : serializeEntry(await openEntry(userId, existing))),
         analysisStatus: "skipped",
       };
   }
+  const id = clientEntryId ?? randomUUID();
+  const encrypted = await sealJournal(userId, id, 1, fields);
+  const protectedTags = await Promise.all(tags.map((tag) => protectTag(userId, tag)));
   let entry;
   try {
-    entry = await repository.create(
-      userId,
-      { ...fields, ...(clientEntryId ? { id: clientEntryId } : {}), legacyTags: tags },
-      tags
-    );
+    entry = await repository.create(userId, { ...fields, id, ...encrypted }, protectedTags);
   } catch (error) {
     if (clientEntryId && error instanceof Error && "code" in error && error.code === "P2002") {
       const existing = await repository.findByOwner(userId, clientEntryId);
       if (existing)
         return {
-          ...(canonical ? toJournalDto(existing) : serializeEntry(existing)),
+          ...(canonical
+            ? toJournalDto(await openEntry(userId, existing))
+            : serializeEntry(await openEntry(userId, existing))),
           analysisStatus: "skipped",
         };
       // Never return or modify an entry belonging to a different account.
@@ -71,7 +76,8 @@ export async function createEntry(actor: Actor, input: unknown, canonical = fals
   }
   await invalidateAnalytics(userId);
   const analysisStatus = await analyzeCreatedEntry(userId, entry.id);
-  return { ...(canonical ? toJournalDto(entry) : serializeEntry(entry)), analysisStatus };
+  const opened = await openEntry(userId, entry);
+  return { ...(canonical ? toJournalDto(opened) : serializeEntry(opened)), analysisStatus };
 }
 
 export function getEntry(actor: Actor, id: string, canonical: true): Promise<JournalEntryDto>;
@@ -84,11 +90,17 @@ export async function getEntry(actor: Actor, id: string, canonical = false) {
   const entry = await repository.findByOwner(ownerId(actor), id);
   // Missing and foreign-owned entries intentionally have the same outcome.
   if (!entry) throw new JournalNotFoundError();
-  return canonical ? toJournalDto(entry) : serializeEntry(entry);
+  const opened = await openEntry(ownerId(actor), entry);
+  return canonical ? toJournalDto(opened) : serializeEntry(opened);
 }
 
 export async function listEntries(actor: Actor) {
-  return (await repository.listByOwner(ownerId(actor))).map(serializeEntry);
+  const userId = ownerId(actor);
+  return Promise.all(
+    (await repository.listByOwner(userId)).map(async (row) =>
+      serializeEntry(await openEntry(userId, row))
+    )
+  );
 }
 
 export async function updateEntry(actor: Actor, id: string, input: unknown, canonical = false) {
@@ -102,6 +114,13 @@ export async function updateEntry(actor: Actor, id: string, input: unknown, cano
   if (existing.updatedAt.getTime() !== expected.getTime()) throw new JournalConflictError();
   // Always advance the token, including two updates in the same millisecond.
   const updatedAt = new Date(Math.max(Date.now(), existing.updatedAt.getTime() + 1));
+  const plaintext = await openEntry(userId, existing);
+  const encrypted = await sealJournal(userId, id, existing.contentRevision + 1, {
+    ...plaintext,
+    ...fields,
+  });
+  const protectedTags =
+    tags === undefined ? undefined : await Promise.all(tags.map((tag) => protectTag(userId, tag)));
   const entry = await repository.updateByOwner(
     userId,
     id,
@@ -109,17 +128,18 @@ export async function updateEntry(actor: Actor, id: string, input: unknown, cano
     {
       ...fields,
       updatedAt,
-      legacyTags: tags,
+      ...encrypted,
       archivedAt: archived === undefined ? undefined : archived ? new Date() : null,
     },
-    tags
+    protectedTags
   );
   if (!entry) {
     if (!(await repository.findByOwner(userId, id))) throw new JournalNotFoundError();
     throw new JournalConflictError();
   }
   await invalidateAnalytics(userId);
-  return canonical ? toJournalDto(entry) : serializeEntry(entry);
+  const opened = await openEntry(ownerId(actor), entry);
+  return canonical ? toJournalDto(opened) : serializeEntry(opened);
 }
 
 export async function deleteEntry(actor: Actor, id: string) {
@@ -144,7 +164,7 @@ export async function listEntryPage(actor: Actor, query: unknown) {
   const hasMore = rows.length > limit;
   const page = rows.slice(0, limit);
   return {
-    entries: page.map(toJournalDto),
+    entries: await Promise.all(page.map(async (row) => toJournalDto(await openEntry(userId, row)))),
     pageInfo: { hasMore, nextCursor: hasMore ? encodeCursor(userId, page[page.length - 1]) : null },
   } satisfies JournalHistoryResponse;
 }

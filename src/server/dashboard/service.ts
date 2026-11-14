@@ -1,4 +1,5 @@
 import "server-only";
+import { openEntry } from "../encryption/content";
 import { z } from "zod";
 import type { ClientUser } from "@/features/auth/types";
 import type { DashboardResponse } from "@/features/dashboard/types";
@@ -83,7 +84,9 @@ export async function getDashboard(user: ClientUser, query: unknown): Promise<Da
         journalCount: day?.journalCount ?? 0,
       };
     }),
-    recentEntries: recent.map(serializeEntry),
+    recentEntries: await Promise.all(
+      recent.map(async (row) => serializeEntry(await openEntry(user.id, row)))
+    ),
     personalInsights: {
       status: "coming_soon",
       message: "Personal insights will appear here in a future update.",

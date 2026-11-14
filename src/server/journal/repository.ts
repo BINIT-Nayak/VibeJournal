@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/server/db";
+import type { ProtectedTag } from "../encryption/content";
 import type { Prisma } from "@prisma/client";
 
 export const entryInclude = {
@@ -15,13 +16,13 @@ async function setEntryTags(
   tx: Prisma.TransactionClient,
   journalEntryId: string,
   userId: string,
-  values: string[]
+  values: ProtectedTag[]
 ) {
   await tx.journalTag.deleteMany({ where: { journalEntryId, userId } });
-  for (const [position, name] of values.entries()) {
+  for (const [position, tagData] of values.entries()) {
     const tag = await tx.tag.upsert({
-      where: { userId_name: { userId, name } },
-      create: { userId, name },
+      where: { userId_name: { userId, name: tagData.name } },
+      create: { ...tagData, userId },
       update: {},
     });
     await tx.journalTag.create({ data: { journalEntryId, tagId: tag.id, userId, position } });
@@ -47,7 +48,7 @@ export function findByOwner(userId: string, id: string, tx: Prisma.TransactionCl
 export function create(
   userId: string,
   data: CreateData,
-  tags: string[],
+  tags: ProtectedTag[],
   transaction?: Prisma.TransactionClient
 ) {
   const write = async (tx: Prisma.TransactionClient) => {
@@ -66,7 +67,7 @@ export function updateByOwner(
   id: string,
   expectedUpdatedAt: Date,
   data: UpdateData,
-  tags?: string[],
+  tags?: ProtectedTag[],
   transaction?: Prisma.TransactionClient
 ) {
   const write = async (tx: Prisma.TransactionClient) => {

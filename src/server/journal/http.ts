@@ -1,10 +1,12 @@
 import "server-only";
+import { EncryptionError } from "../encryption/envelope";
 
 import { ZodError } from "zod";
 import { jsonError } from "@/lib/http";
 import { JournalNotFoundError, JournalConflictError } from "./service";
 
 export function journalErrorResponse(error: unknown) {
+  if (error instanceof EncryptionError) return jsonError(error.message, 503);
   if (error instanceof ZodError) {
     return Response.json(
       { error: "Check the journal fields.", issues: error.issues },

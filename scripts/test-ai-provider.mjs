@@ -21,9 +21,11 @@ function loadTypeScript(filename) {
   });
   new Function("require", "exports", compiled.outputText)(
     (specifier) =>
-      specifier.startsWith(".")
-        ? loadTypeScript(resolve(dirname(filename), specifier + ".ts"))
-        : require(specifier),
+      specifier.startsWith("@/")
+        ? loadTypeScript(resolve("src", specifier.slice(2) + ".ts"))
+        : specifier.startsWith(".")
+          ? loadTypeScript(resolve(dirname(filename), specifier + ".ts"))
+          : require(specifier),
     exports
   );
   return exports;
@@ -47,6 +49,8 @@ const { analyzeJournal, createJournalAnalysisProvider } = loadTypeScript(
   resolve("src/server/journal-analysis/service.ts")
 );
 const consentRepository = loadTypeScript(resolve("src/server/journal-analysis/repository.ts"));
+// This provider-contract test mocks storage; encryption is tested separately.
+loadTypeScript(resolve("src/server/encryption/content.ts")).openJournal = async (_user, row) => row;
 let consentEnabled = true;
 consentRepository.findEligibleEntry = async (userId, id) =>
   consentEnabled && userId === "owner" && id === "entry"

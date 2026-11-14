@@ -27,6 +27,8 @@ export type CorrelationAggregate = {
 };
 export type TagAggregate = {
   tag: string;
+  tagId?: string;
+  privateLabel?: string;
   entryCount: number;
   distinctDays: number;
   moodSum: number;

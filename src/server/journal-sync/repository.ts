@@ -38,3 +38,7 @@ export function saveReceipt(
 ) {
   return tx.journalMutationReceipt.create({ data });
 }
+
+export function lookupReceipt(userId: string, key: string) {
+  return prisma.journalMutationReceipt.findUnique({ where: { userId_key: { userId, key } } });
+}

@@ -1,5 +1,6 @@
 import "server-only";
-import { createHash } from "node:crypto";
+import { sealJournal, openJournal, protectTag, sealValue, openValue } from "../encryption/content";
+import { createHash, timingSafeEqual } from "node:crypto";
 import {
   journalMutationSchema,
   mutationResultSchema,
@@ -18,6 +19,39 @@ export async function replayMutation(userId: string, input: unknown) {
   const mutation = journalMutationSchema.parse(input);
   // Zod constructs keys in a stable order and normalizes the same form fields.
   const payloadHash = createHash("sha256").update(JSON.stringify(mutation)).digest("hex");
+  const matches = async (encoded: string) => {
+    const fingerprint = await openValue(userId, "receipt", mutation.key, encoded);
+    if (
+      typeof fingerprint !== "string" ||
+      fingerprint.length !== 64 ||
+      !/^[0-9a-f]+$/.test(fingerprint)
+    )
+      return false;
+    return timingSafeEqual(Buffer.from(fingerprint, "hex"), Buffer.from(payloadHash, "hex"));
+  };
+  const prior = await receipts.lookupReceipt(userId, mutation.key);
+  if (prior) {
+    if (!(await matches(prior.payloadHash))) throw new JournalConflictError();
+    return mutationResultSchema.parse(prior.result);
+  }
+  // Prepare encryption/key access before entering the mutation transaction.
+  const snapshot =
+    mutation.kind === "update" ? await journal.findByOwner(userId, mutation.entryId) : null;
+  const plaintext = snapshot ? await openJournal(userId, snapshot) : undefined;
+  const sealed =
+    mutation.kind === "delete"
+      ? undefined
+      : await sealJournal(
+          userId,
+          mutation.entryId,
+          mutation.kind === "create" ? 1 : (snapshot?.contentRevision ?? 0) + 1,
+          { ...plaintext, ...mutation.values }
+        );
+  const tags =
+    mutation.kind === "delete"
+      ? []
+      : await Promise.all((mutation.values.tags ?? []).map((label) => protectTag(userId, label)));
+  const protectedHash = await sealValue(userId, "receipt", mutation.key, payloadHash);
   const committed = await receipts.transaction(
     userId,
     mutation.key,
@@ -25,7 +59,7 @@ export async function replayMutation(userId: string, input: unknown) {
     async (tx) => {
       const receipt = await receipts.receipt(tx, userId, mutation.key);
       if (receipt) {
-        if (receipt.payloadHash !== payloadHash) throw new JournalConflictError();
+        if (!(await matches(receipt.payloadHash))) throw new JournalConflictError();
         return { result: mutationResultSchema.parse(receipt.result), created: false };
       }
       const existing = await journal.findByOwner(userId, mutation.entryId, tx);
@@ -41,10 +75,11 @@ export async function replayMutation(userId: string, input: unknown) {
         } else {
           if (await receipts.previousMutation(tx, userId, mutation.entryId))
             throw new JournalConflictError();
-          const { tags = [], ...fields } = mutation.values;
+          const { tags: ignoredTags, ...fields } = mutation.values;
+          void ignoredTags;
           const row = await journal.create(
             userId,
-            { ...fields, id: mutation.entryId, legacyTags: tags },
+            { ...fields, id: mutation.entryId, ...sealed! },
             tags,
             tx
           );
@@ -56,14 +91,17 @@ export async function replayMutation(userId: string, input: unknown) {
         const expected = new Date(mutation.expectedUpdatedAt);
         if (+existing.updatedAt !== +expected) throw new JournalVersionConflictError();
         if (mutation.kind === "update") {
-          const { tags = [], ...fields } = mutation.values;
+          if (!snapshot || snapshot.contentRevision !== existing.contentRevision)
+            throw new JournalVersionConflictError();
+          const { tags: ignoredTags, ...fields } = mutation.values;
+          void ignoredTags;
           const row = await journal.updateByOwner(
             userId,
             mutation.entryId,
             expected,
             {
               ...fields,
-              legacyTags: tags,
+              ...sealed!,
               updatedAt: new Date(Math.max(Date.now(), +expected + 1)),
             },
             tags,
@@ -82,7 +120,7 @@ export async function replayMutation(userId: string, input: unknown) {
         key: mutation.key,
         entryId: mutation.entryId,
         kind: mutation.kind,
-        payloadHash,
+        payloadHash: protectedHash,
         result,
       });
       return { result, created };

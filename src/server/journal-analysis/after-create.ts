@@ -1,4 +1,5 @@
 import "server-only";
+import { openJournal, sealValue } from "../encryption/content";
 import { RateLimitError } from "../rate-limit";
 import { analyzeJournal } from "./service";
 import type { JournalAnalysisProvider } from "./provider";
@@ -26,8 +27,9 @@ export async function analyzeAndStoreEntry(
   journalEntryId: string,
   provider?: JournalAnalysisProvider
 ): Promise<AnalysisOutcome> {
-  const entry = await repository.findEligibleEntry(userId, journalEntryId);
-  if (!entry) return "skipped";
+  const stored = await repository.findEligibleEntry(userId, journalEntryId);
+  if (!stored) return "skipped";
+  const entry = await openJournal(userId, stored);
   const result = await analyzeJournal(
     { title: entry.title, content: entry.content },
     { userId, journalEntryId },
@@ -37,7 +39,14 @@ export async function analyzeAndStoreEntry(
     userId,
     entry.id,
     entry.updatedAt,
-    validateJournalAnalysis(result)
+    validateJournalAnalysis(result),
+    await sealValue(
+      userId,
+      "analysis",
+      entry.id,
+      { themes: result.themes, reflectionPrompt: result.reflectionPrompt },
+      entry.updatedAt.toISOString()
+    )
   );
   return saved ? "saved" : "skipped";
 }

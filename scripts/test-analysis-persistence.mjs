@@ -85,7 +85,13 @@ try {
   assert.equal(calls, 0);
   assert.equal(await analyzeCreatedEntry(owner.id, entry.id, provider), "saved");
   const row = await prisma.journalAnalysis.findUnique({ where: { journalEntryId: entry.id } });
-  for (const key of Object.keys(valid)) assert.deepEqual(row[key], valid[key]);
+  for (const key of Object.keys(valid).filter(
+    (key) => !["themes", "reflectionPrompt"].includes(key)
+  ))
+    assert.deepEqual(row[key], valid[key]);
+  assert.deepEqual(row.themes, []);
+  assert.equal(row.reflectionPrompt, "");
+  assert.ok(row.privatePayload.startsWith("e1."));
   assert.equal(row.userId, owner.id);
   assert.equal(row.sourceUpdatedAt.toISOString(), entry.updatedAt);
   const display = await getJournalAnalysis(owner.id, entry.id, entry.updatedAt);
@@ -157,7 +163,7 @@ try {
       analyze: async () => {
         await prisma.journalEntry.update({
           where: { id: entry.id },
-          data: { content: "Edited", updatedAt: new Date(Date.now() + 1000) },
+          data: { updatedAt: new Date(Date.now() + 1000) },
         });
         return valid;
       },

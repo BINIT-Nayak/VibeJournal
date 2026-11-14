@@ -1,4 +1,5 @@
 import "server-only";
+import { openTag } from "../encryption/content";
 import { z } from "zod";
 import type { ClientUser } from "@/features/auth/types";
 import type { AnalyticsResponse } from "@/features/analytics/types";
@@ -33,7 +34,13 @@ export async function getAnalytics(
   );
   return cachedAnalytics(user.id, dates[0], dates[days - 1], async () => {
     const aggregates = await readAnalytics(user.id, start, asOf);
-    const statistics = calculateStatistics(aggregates.daily, aggregates.tags, dates);
+    const tags = await Promise.all(
+      aggregates.tags.map(async (row) => ({
+        ...row,
+        tag: await openTag(user.id, row.tagId!, row.privateLabel ?? null),
+      }))
+    );
+    const statistics = calculateStatistics(aggregates.daily, tags, dates);
     const correlations = calculateCorrelations(aggregates.pairs);
     const sleepComparison = calculateSleepComparison(aggregates.daily);
     return {

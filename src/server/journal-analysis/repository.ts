@@ -5,7 +5,13 @@ import type { JournalAnalysis } from "../../features/journal-analysis/schemas";
 export function findEligibleEntry(userId: string, id: string) {
   return prisma.journalEntry.findFirst({
     where: { id, userId, archivedAt: null, user: { settings: { aiConsent: true } } },
-    select: { id: true, title: true, content: true, updatedAt: true },
+    select: {
+      id: true,
+      userId: true,
+      privatePayload: true,
+      contentRevision: true,
+      updatedAt: true,
+    },
   });
 }
 
@@ -13,7 +19,8 @@ export function persistAnalysis(
   userId: string,
   journalEntryId: string,
   sourceUpdatedAt: Date,
-  analysis: JournalAnalysis
+  analysis: JournalAnalysis,
+  privatePayload: string
 ) {
   return prisma.$transaction(async (tx) => {
     // Lock the matching source version so an edit/delete cannot race this insert.
@@ -30,8 +37,16 @@ export function persistAnalysis(
     if (!consent.count) return false;
     await tx.journalAnalysis.upsert({
       where: { journalEntryId },
-      create: { journalEntryId, userId, sourceUpdatedAt, ...analysis },
-      update: { sourceUpdatedAt, ...analysis },
+      create: {
+        journalEntryId,
+        userId,
+        sourceUpdatedAt,
+        ...analysis,
+        themes: [],
+        reflectionPrompt: "",
+        privatePayload,
+      },
+      update: { sourceUpdatedAt, ...analysis, themes: [], reflectionPrompt: "", privatePayload },
     });
     return true;
   });

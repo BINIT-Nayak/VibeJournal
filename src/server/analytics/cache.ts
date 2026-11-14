@@ -1,4 +1,5 @@
 import "server-only";
+import { sealValue, openValue } from "../encryption/content";
 import { createHash, randomUUID } from "node:crypto";
 import type { AnalyticsResponse } from "@/features/analytics/types";
 import { redisCommand } from "../redis/client";
@@ -9,7 +10,7 @@ const GENERATION_TTL_SECONDS = 86400;
 function userPrefix(userId: string) {
   // Hash tags keep each user's Lua keys in the same Redis Cluster slot.
   const owner = createHash("sha256").update(userId).digest("hex");
-  return `vibejournal:analytics:v1:{${owner}}`;
+  return `vibejournal:analytics:v2:{${owner}}`;
 }
 
 export async function invalidateAnalytics(userId: string) {
@@ -48,7 +49,7 @@ export async function cachedAnalytics(
   const cached = await redisCommand(["GET", key]);
   if (typeof cached === "string") {
     try {
-      const value = JSON.parse(cached) as AnalyticsResponse;
+      const value = (await openValue(userId, "cache", key, cached)) as AnalyticsResponse;
       if (
         value.period?.startDate === startDate &&
         value.period.endDate === endDate &&
@@ -66,18 +67,22 @@ export async function cachedAnalytics(
   const result = await compute();
   // Compare and set atomically: a journal write during computation makes this
   // generation obsolete, so the old result cannot repopulate the active cache.
-  await redisCommand([
-    "EVAL",
-    `if redis.call('GET', KEYS[1]) == ARGV[1] then
+  try {
+    await redisCommand([
+      "EVAL",
+      `if redis.call('GET', KEYS[1]) == ARGV[1] then
        return redis.call('SET', KEYS[2], ARGV[2], 'EX', ARGV[3])
      end
      return 0`,
-    "2",
-    generationKey,
-    key,
-    generation,
-    JSON.stringify(result),
-    String(ANALYTICS_TTL_SECONDS),
-  ]);
+      "2",
+      generationKey,
+      key,
+      generation,
+      await sealValue(userId, "cache", key, result),
+      String(ANALYTICS_TTL_SECONDS),
+    ]);
+  } catch {
+    /* Never substitute plaintext when cache encryption is unavailable. */
+  }
   return result;
 }

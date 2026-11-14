@@ -24,6 +24,7 @@ model User {
   settings            UserSettings?
   passwordResetTokens PasswordResetToken[]
   journalMutations    JournalMutationReceipt[]
+  contentKeys         UserContentKey[]
 }
 
 model Session {
@@ -84,6 +85,8 @@ model MoodEntry {
 }
 
 model JournalEntry {
+  privatePayload  String?          @db.Text
+  contentRevision Int              @default(0)
   id              String           @id @default(cuid())
   userId          String
   title           String?
@@ -116,6 +119,7 @@ model JournalEntry {
 }
 
 model Tag {
+  privateLabel   String?      @db.Text
   id             String       @id @default(cuid())
   userId         String
   name           String
@@ -172,6 +176,7 @@ model AuthRateLimit {
 }
 
 model JournalAnalysis {
+  privatePayload   String?      @db.Text
   id               String       @id @default(cuid())
   journalEntryId   String       @unique
   userId           String
@@ -202,4 +207,19 @@ model JournalMutationReceipt {
 
   @@id([userId, key])
   @@index([userId, entryId])
+}
+
+model UserContentKey {
+  id            String   @id
+  userId        String
+  purpose       String
+  version       Int
+  environment   String
+  provider      String
+  wrappingKeyId String
+  wrapped       String   @db.Text
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, purpose, version])
 }

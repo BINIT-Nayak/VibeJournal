@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { randomBytes, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { readFileSync } from "node:fs";
@@ -55,6 +56,17 @@ function load(filename) {
   }, exports);
   return exports;
 }
+// Real authenticated encryption with ephemeral data keys; no database dependency.
+process.env.JOURNAL_ENCRYPTION_ENV = "cache-test";
+const keyBytes = randomBytes(32),
+  keyId = randomUUID();
+modules.set(resolve("src/server/encryption/keys.ts"), {
+  encryptionEnvironment: () => "cache-test",
+  contentKeys: {
+    current: async () => ({ id: keyId, bytes: Buffer.from(keyBytes) }),
+    byId: async () => ({ id: keyId, bytes: Buffer.from(keyBytes) }),
+  },
+});
 try {
   const { cachedAnalytics, invalidateAnalytics } = load(resolve("src/server/analytics/cache.ts"));
   let calculations = 0;
@@ -104,6 +116,7 @@ try {
   const results = keys.filter((key) => key.includes(":UTC:"));
   assert.ok(results.length);
   for (const key of results) {
+    assert.ok((await admin.get(key)).startsWith("e1."), "cache stores encrypted envelopes");
     const ttl = await admin.ttl(key);
     assert.ok(ttl > 0 && ttl <= 300);
     await admin.expire(key, 1);
@@ -130,7 +143,7 @@ try {
   await analytics();
   await analytics();
   assert.equal(reads, 1, "analytics service skips repository on cache hits");
-  const entry = { id: "entry", updatedAt: new Date("2026-11-01T00:00:00Z") };
+  const entry = { id: "entry", contentRevision: 1, updatedAt: new Date("2026-11-01T00:00:00Z") };
   let failWrite = false;
   modules.set(resolve("src/server/journal/repository.ts"), {
     create: async () => {
@@ -146,6 +159,7 @@ try {
   modules.set(resolve("src/server/journal-analysis/after-create.ts"), {
     analyzeCreatedEntry: async () => "skipped",
   });
+  load(resolve("src/server/encryption/content.ts")).openEntry = async (_owner, row) => row;
   const journal = load(resolve("src/server/journal/service.ts"));
   const mutations = [
     () => journal.createEntry(actor, { content: "Test", moodScore: 5 }),

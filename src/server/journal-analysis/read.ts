@@ -1,4 +1,6 @@
 import "server-only";
+import { openValue } from "../encryption/content";
+import { z } from "zod";
 import type { JournalAnalysisView } from "../../features/journal-analysis/types";
 import { findStoredAnalysis } from "./repository";
 import { validateJournalAnalysis } from "./validation";
@@ -18,22 +20,24 @@ export async function getJournalAnalysis(
       row.sourceUpdatedAt.getTime() !== row.journalEntry.updatedAt.getTime()
     )
       return { status: "stale" };
-    const {
-      primaryEmotion,
-      emotions,
-      sentimentScore,
-      themes,
-      estimatedEnergy,
-      reflectionPrompt,
-      confidence,
-    } = row;
+    const { primaryEmotion, emotions, sentimentScore, estimatedEnergy, confidence } = row;
+    const privateFields = z
+      .object({ themes: z.array(z.string()), reflectionPrompt: z.string() })
+      .parse(
+        await openValue(
+          userId,
+          "analysis",
+          journalEntryId,
+          row.privatePayload,
+          row.sourceUpdatedAt.toISOString()
+        )
+      );
     const analysis = validateJournalAnalysis({
+      ...privateFields,
       primaryEmotion,
       emotions,
       sentimentScore,
-      themes,
       estimatedEnergy,
-      reflectionPrompt,
       confidence,
     });
     return {
