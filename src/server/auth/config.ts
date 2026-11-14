@@ -1,4 +1,5 @@
 import "server-only";
+import { recordAuditEvent } from "../audit/service";
 import {
   checkGoogleDeletionIdentity,
   completeGoogleDeletionReauth,
@@ -30,12 +31,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: { email: { type: "email" }, password: { type: "password" } },
       async authorize(input) {
         const parsed = credentialsSchema.safeParse(input);
-        if (!parsed.success) return null;
+        if (!parsed.success) {
+          await recordAuditEvent({
+            event: "login",
+            outcome: "denied",
+            reason: "invalid_input",
+            provider: "credentials",
+          });
+          return null;
+        }
         const { email, password } = parsed.data;
-        if (!(await allowAuthAttempt("login", email))) throw new RateLimited();
+        if (!(await allowAuthAttempt("login", email))) {
+          await recordAuditEvent({
+            event: "login",
+            outcome: "denied",
+            reason: "rate_limited",
+            provider: "credentials",
+          });
+          throw new RateLimited();
+        }
         const user = await prisma.user.findUnique({ where: { email } });
         const valid = await verifyPassword(password, user?.passwordHash || dummyPasswordHash);
-        if (!user?.passwordHash || !valid) return null;
+        if (!user?.passwordHash || !valid) {
+          await recordAuditEvent({
+            event: "login",
+            outcome: "denied",
+            userId: user?.id,
+            reason: "invalid_credentials",
+            provider: "credentials",
+          });
+          return null;
+        }
         let passwordHash = user.passwordHash;
         if (!passwordHash.startsWith("scrypt$")) {
           const upgraded = await hashPassword(password);
@@ -138,9 +164,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
+    async signIn({ user, account }) {
+      await recordAuditEvent({
+        event: "login",
+        outcome: "succeeded",
+        userId: user.id,
+        provider: account?.provider === "google" ? "google" : "credentials",
+      });
+    },
     async signOut(message) {
       if ("token" in message && typeof message.token?.sid === "string") {
-        await prisma.session.deleteMany({ where: { tokenHash: hashToken(message.token.sid) } });
+        const stored = await prisma.session.findUnique({
+          where: { tokenHash: hashToken(message.token.sid) },
+          select: { userId: true },
+        });
+        const removed = await prisma.session.deleteMany({
+          where: { tokenHash: hashToken(message.token.sid) },
+        });
+        if (stored && removed.count)
+          await recordAuditEvent({ event: "logout", outcome: "succeeded", userId: stored.userId });
       }
     },
   },

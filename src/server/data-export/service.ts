@@ -107,5 +107,6 @@ export async function exportUserData(actor: { id: string }) {
     tags,
     aiAnalyses,
     musicHistory: snapshot.musicHistory,
+    securityAuditEvents: snapshot.securityAuditEvents,
   };
 }

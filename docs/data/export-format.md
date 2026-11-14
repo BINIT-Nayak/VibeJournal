@@ -76,3 +76,11 @@ and journal text are never included in error responses or logged by the exporter
 
 Run npm run test:data-export against the local development server and PostgreSQL.
 The suite uses two disposable accounts to verify isolation and cleans them up.
+
+## Security audit addition
+
+Version 1 also includes securityAuditEvents: the account's retained security
+event metadata (id, createdAt, event, outcome, nullable reason/provider/enabled).
+It excludes anonymous and other-account events. See security-audit.md for the
+allowlist and retention policy. This is an additive field; readers should ignore
+unknown top-level fields.

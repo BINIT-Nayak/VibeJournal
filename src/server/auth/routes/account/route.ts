@@ -1,12 +1,16 @@
 import "server-only";
+import { recordAuditEvent } from "@/server/audit/service";
 import { destroyCurrentSession, requireUser } from "@/server/auth/session";
 import { deleteOwnAccount, DeletionError } from "@/server/account-deletion/service";
 import { deletionTokenHash, clearDeletionCookie } from "@/server/account-deletion/reauth";
 import { RateLimitError, rateLimitResponse } from "@/server/rate-limit";
 
 export async function DELETE(request: Request) {
+  let userId: string | undefined;
   try {
     const user = await requireUser(request);
+    userId = user.id;
+    await recordAuditEvent({ event: "account.delete", outcome: "requested", userId });
     await deleteOwnAccount(user.id, await request.json(), await deletionTokenHash());
     // Deletion is already committed. Cookie cleanup failure must not report a false rollback.
     try {
@@ -17,9 +21,28 @@ export async function DELETE(request: Request) {
     }
     return Response.json({ ok: true }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
-    if (error instanceof RateLimitError) return rateLimitResponse(error, true);
     const unauthorized = error instanceof Error && error.message === "UNAUTHORIZED";
     const origin = error instanceof Error && error.message === "Invalid request origin.";
+    const reason =
+      error instanceof RateLimitError
+        ? "rate_limited"
+        : unauthorized
+          ? "unauthorized"
+          : origin
+            ? "invalid_origin"
+            : error instanceof SyntaxError ||
+                (error instanceof DeletionError && error.code === "INVALID_CONFIRMATION")
+              ? "invalid_input"
+              : error instanceof DeletionError
+                ? "reauth_required"
+                : "unavailable";
+    await recordAuditEvent({
+      event: "account.delete",
+      outcome: reason === "unavailable" ? "failed" : "denied",
+      userId,
+      reason,
+    });
+    if (error instanceof RateLimitError) return rateLimitResponse(error, true);
     const status = unauthorized
       ? 401
       : origin

@@ -1,4 +1,5 @@
 import "server-only";
+import { recordAuditEvent } from "@/server/audit/service";
 import { RateLimitError, rateLimitResponse, rateLimitRetryAfter } from "@/server/rate-limit";
 
 import { AuthError, CredentialsSignin } from "next-auth";
@@ -13,9 +14,15 @@ import { currentUserPayload } from "@/server/auth/current-user";
 import { prisma } from "@/server/db";
 
 export async function POST(request: Request) {
-  if (!isSameOriginRequest(request)) return jsonError("Invalid request origin.", 403);
+  if (!isSameOriginRequest(request)) {
+    await recordAuditEvent({ event: "login", outcome: "denied", reason: "invalid_origin" });
+    return jsonError("Invalid request origin.", 403);
+  }
   const parsed = credentialsSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return jsonError("Enter a valid email and password.");
+  if (!parsed.success) {
+    await recordAuditEvent({ event: "login", outcome: "denied", reason: "invalid_input" });
+    return jsonError("Enter a valid email and password.");
+  }
   try {
     await signIn("credentials", { ...parsed.data, redirect: false, redirectTo: "/dashboard" });
     await clearLegacyCookie();
@@ -46,6 +53,7 @@ export async function POST(request: Request) {
     if (error instanceof AuthError && error.type === "CredentialsSignin") {
       return jsonError("Email or password is incorrect.", 401);
     }
+    await recordAuditEvent({ event: "login", outcome: "failed", reason: "unavailable" });
     return jsonError("Login is temporarily unavailable.", 503);
   }
 }

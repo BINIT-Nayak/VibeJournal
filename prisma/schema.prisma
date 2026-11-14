@@ -26,6 +26,7 @@ model User {
   journalMutations    JournalMutationReceipt[]
   contentKeys         UserContentKey[]
   deletionChallenges  AccountDeletionChallenge[]
+  securityAuditEvents SecurityAuditEvent[]
 }
 
 model Session {
@@ -234,4 +235,19 @@ model AccountDeletionChallenge {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model SecurityAuditEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  event     String
+  outcome   String
+  userId    String?
+  reason    String?
+  provider  String?
+  enabled   Boolean?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
 }

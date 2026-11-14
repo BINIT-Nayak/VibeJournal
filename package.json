@@ -41,7 +41,10 @@
     "encryption:backfill": "node --conditions=react-server scripts/encrypt-existing-journals.mjs",
     "test:encryption": "node --conditions=react-server scripts/test-encryption.mjs",
     "test:data-export": "node --conditions=react-server scripts/test-data-export.mjs",
-    "test:account-deletion": "node --conditions=react-server scripts/test-account-deletion.mjs"
+    "test:account-deletion": "node --conditions=react-server scripts/test-account-deletion.mjs",
+    "test:audit": "node --conditions=react-server scripts/test-audit-logger.mjs",
+    "test:audit-events": "node --conditions=react-server scripts/test-audit-events.mjs",
+    "audit:prune": "node --conditions=react-server scripts/prune-security-audit.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.1169.0",

@@ -185,6 +185,7 @@ try {
     "userContentKey",
     "moodEntry",
     "accountDeletionChallenge",
+    "securityAuditEvent",
   ])
     assert.equal(
       await prisma[model].count({ where: { userId: owner.id } }),

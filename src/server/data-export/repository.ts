@@ -42,7 +42,20 @@ export function readExportSnapshot(userId: string) {
         },
         orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       });
-      return { account, settings, journals, analyses, tags, musicHistory };
+      const securityAuditEvents = await tx.securityAuditEvent.findMany({
+        where: { userId },
+        select: {
+          id: true,
+          createdAt: true,
+          event: true,
+          outcome: true,
+          reason: true,
+          provider: true,
+          enabled: true,
+        },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      });
+      return { account, settings, journals, analyses, tags, musicHistory, securityAuditEvents };
     },
     { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead, timeout: 30000 }
   );

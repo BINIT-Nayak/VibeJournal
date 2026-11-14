@@ -89,3 +89,7 @@ cross-tab sign-out. Set PLAYWRIGHT_MODULE to an installed Playwright module when
 it is not a project dependency. The Google identity/authorization flow requires
 configured Google credentials for live provider verification; proof validation
 and deletion authorization are tested locally.
+
+SecurityAuditEvent records linked to the account also cascade on deletion.
+Only an unlinked deletion-completed event is recorded afterward, with no account
+identifier. See security-audit.md for retention and limitations.

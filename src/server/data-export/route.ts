@@ -1,4 +1,5 @@
 import "server-only";
+import { recordAuditEvent } from "../audit/service";
 import { requireUser } from "../auth/session";
 import { exportUserData } from "./service";
 import { EncryptionError } from "../encryption/envelope";
@@ -10,10 +11,19 @@ const headers = {
 };
 
 export async function GET(request: Request) {
+  let userId: string | undefined;
   try {
     const actor = await requireUser(request);
+    userId = actor.id;
+    await recordAuditEvent({ event: "data.export", outcome: "requested", userId });
     // No owner IDs, filters or partial-export controls are accepted from the client.
-    if (new URL(request.url).search)
+    if (new URL(request.url).search) {
+      await recordAuditEvent({
+        event: "data.export",
+        outcome: "denied",
+        userId,
+        reason: "invalid_input",
+      });
       return Response.json(
         {
           error: {
@@ -23,7 +33,9 @@ export async function GET(request: Request) {
         },
         { status: 400, headers }
       );
+    }
     const payload = await exportUserData(actor);
+    await recordAuditEvent({ event: "data.export", outcome: "succeeded", userId });
     return new Response(JSON.stringify(payload, null, 2), {
       headers: {
         ...headers,
@@ -34,6 +46,12 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     const unauthorized = error instanceof Error && error.message === "UNAUTHORIZED";
+    await recordAuditEvent({
+      event: "data.export",
+      outcome: unauthorized ? "denied" : "failed",
+      userId,
+      reason: unauthorized ? "unauthorized" : "unavailable",
+    });
     const status = unauthorized ? 401 : error instanceof EncryptionError ? 503 : 500;
     return Response.json(
       {

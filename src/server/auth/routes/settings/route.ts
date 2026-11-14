@@ -1,4 +1,5 @@
 import "server-only";
+import { recordAuditEvent } from "@/server/audit/service";
 import { Prisma } from "@prisma/client";
 import { musicPreferencesSchema } from "@/features/music/preferences";
 
@@ -10,13 +11,35 @@ import { serializeSettings } from "@/server/api";
 import { prisma } from "@/server/db";
 
 export async function PATCH(request: Request) {
+  let actorId: string | undefined;
+  let passwordAttempt = false;
+  let aiAttempt = false;
   try {
     const user = await requireUser(request);
+    actorId = user.id;
     const body = await request.json();
     if (!body || typeof body !== "object" || Array.isArray(body))
       return jsonError("Provide a settings object.", 400);
-    if ("aiConsent" in body && typeof body.aiConsent !== "boolean")
+    passwordAttempt = typeof body.newPassword === "string" && Boolean(body.newPassword);
+    aiAttempt = "aiConsent" in body;
+    if (passwordAttempt && (typeof body.currentPassword !== "string" || !body.currentPassword)) {
+      await recordAuditEvent({
+        event: "password.change",
+        outcome: "denied",
+        userId: actorId,
+        reason: "reauth_required",
+      });
+      return jsonError("Enter your current password.", 401);
+    }
+    if (aiAttempt && typeof body.aiConsent !== "boolean") {
+      await recordAuditEvent({
+        event: "ai.preference",
+        outcome: "denied",
+        userId: actorId,
+        reason: "invalid_input",
+      });
       return jsonError("AI analysis preference must be true or false.", 400);
+    }
     const preferences =
       "musicPreferences" in body
         ? musicPreferencesSchema.safeParse(body.musicPreferences)
@@ -45,13 +68,31 @@ export async function PATCH(request: Request) {
     ) {
       const existingUser = await prisma.user.findUnique({ where: { id: user.id } });
       if (!existingUser?.passwordHash) {
+        await recordAuditEvent({
+          event: "password.change",
+          outcome: "denied",
+          userId: actorId,
+          reason: "reauth_required",
+        });
         return jsonError("Password changes are only available for password-based accounts.", 400);
       }
 
       if (!(await verifyPassword(body.currentPassword, existingUser.passwordHash))) {
+        await recordAuditEvent({
+          event: "password.change",
+          outcome: "denied",
+          userId: actorId,
+          reason: "invalid_credentials",
+        });
         return jsonError("Current password is incorrect.", 401);
       }
       if (!credentialsSchema.shape.password.safeParse(body.newPassword).success) {
+        await recordAuditEvent({
+          event: "password.change",
+          outcome: "denied",
+          userId: actorId,
+          reason: "invalid_input",
+        });
         return jsonError("New password must be between 8 and 128 characters.");
       }
       userUpdates.passwordHash = await hashPassword(body.newPassword);
@@ -85,6 +126,15 @@ export async function PATCH(request: Request) {
       },
     });
 
+    if (aiAttempt) {
+      await recordAuditEvent({
+        event: "ai.preference",
+        outcome: "succeeded",
+        userId: actorId,
+        enabled: settings.aiConsent,
+      });
+      aiAttempt = false;
+    }
     const updatedUser = Object.keys(userUpdates).length
       ? await prisma.user.update({
           where: { id: user.id },
@@ -94,6 +144,8 @@ export async function PATCH(request: Request) {
       : user;
 
     if (userUpdates.passwordHash) {
+      await recordAuditEvent({ event: "password.change", outcome: "succeeded", userId: actorId });
+      passwordAttempt = false;
       await prisma.session.deleteMany({ where: { userId: user.id } });
     }
 
@@ -102,6 +154,20 @@ export async function PATCH(request: Request) {
       settings: serializeSettings(settings),
     });
   } catch (error) {
+    if (passwordAttempt)
+      await recordAuditEvent({
+        event: "password.change",
+        outcome: "failed",
+        userId: actorId,
+        reason: "unavailable",
+      });
+    if (aiAttempt)
+      await recordAuditEvent({
+        event: "ai.preference",
+        outcome: "failed",
+        userId: actorId,
+        reason: "unavailable",
+      });
     if (error instanceof Error && error.message === "UNAUTHORIZED")
       return jsonError("Please log in to update settings.", 401);
     if (error instanceof Error && error.message === "Invalid request origin.")

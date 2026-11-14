@@ -1,4 +1,5 @@
 import "server-only";
+import { recordAuditEvent } from "../audit/service";
 import { z } from "zod";
 import { prisma } from "../db";
 import { verifyPassword } from "../auth/password";
@@ -79,6 +80,7 @@ export async function deleteOwnAccount(userId: string, input: unknown, challenge
     // FK cascades atomically delete journals, analyses, tag links/tags, settings,
     // playlist runs, legacy moods, sessions, reset tokens, receipts, keys and challenges.
   });
+  await recordAuditEvent({ event: "account.delete", outcome: "succeeded" });
   // Wrapped keys no longer exist: other processes cannot resolve cached plaintext keys.
   clearKeyCache();
   await invalidateAnalytics(userId);
