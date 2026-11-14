@@ -112,9 +112,23 @@ export async function readDraft(key: string, userId: string) {
     return null;
   return { ...row, values: parsed.data };
 }
+export const deletedLocalAccounts = new Set<string>();
+
 export function writeDraft(draft: JournalDraft) {
+  if (deletedLocalAccounts.has(draft.userId)) return Promise.resolve(draft.key);
   return journalLocalDb().drafts.put(draft);
 }
 export function removeDraft(key: string) {
   return journalLocalDb().drafts.delete(key);
+}
+
+// Transactional and owner-scoped: preserve other accounts using this browser.
+export async function clearLocalAccountData(userId: string) {
+  deletedLocalAccounts.add(userId);
+  const db = journalLocalDb();
+  await db.transaction("rw", db.drafts, db.localEntries, db.mutations, async () => {
+    await db.drafts.where("userId").equals(userId).delete();
+    await db.localEntries.where("userId").equals(userId).delete();
+    await db.mutations.where("userId").equals(userId).delete();
+  });
 }

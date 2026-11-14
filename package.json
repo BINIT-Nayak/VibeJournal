@@ -40,7 +40,8 @@
     "test:analytics-cache": "node --conditions=react-server scripts/test-analytics-cache.mjs",
     "encryption:backfill": "node --conditions=react-server scripts/encrypt-existing-journals.mjs",
     "test:encryption": "node --conditions=react-server scripts/test-encryption.mjs",
-    "test:data-export": "node --conditions=react-server scripts/test-data-export.mjs"
+    "test:data-export": "node --conditions=react-server scripts/test-data-export.mjs",
+    "test:account-deletion": "node --conditions=react-server scripts/test-account-deletion.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.1169.0",

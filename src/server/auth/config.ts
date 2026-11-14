@@ -1,4 +1,8 @@
 import "server-only";
+import {
+  checkGoogleDeletionIdentity,
+  completeGoogleDeletionReauth,
+} from "../account-deletion/reauth";
 
 import { randomBytes } from "node:crypto";
 import NextAuth, { CredentialsSignin } from "next-auth";
@@ -59,6 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             async profile(profile) {
               if (!profile.email_verified || !profile.email || !profile.sub)
                 throw new Error("Unverified Google identity");
+              await checkGoogleDeletionIdentity(profile.sub);
               const email = normalizeEmail(profile.email);
               let user = await prisma.user.findUnique({ where: { googleSubject: profile.sub } });
               if (!user) {
@@ -82,7 +87,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       : []),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         if (!user.id) throw new CredentialsSignin();
         const current = await prisma.user.findUnique({ where: { id: user.id } });
@@ -98,6 +103,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             expiresAt: new Date(Date.now() + sessionMaxAge * 1000),
           },
         });
+        if (account?.provider === "google") await completeGoogleDeletionReauth(current.id);
         token.sub = current.id;
         token.sid = sid;
         token.credentialVersion = version;

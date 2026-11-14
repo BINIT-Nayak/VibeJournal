@@ -251,32 +251,6 @@ export function VibeJournalApp() {
     }
   }
 
-  async function deleteAccount() {
-    const firstConfirmation = window.confirm(
-      "Delete your VibeJournal account, settings, sessions, and all entries? This cannot be undone."
-    );
-
-    if (!firstConfirmation) {
-      return;
-    }
-
-    const typedConfirmation = window.prompt('Type "DELETE" to permanently delete your account.');
-    if (typedConfirmation !== "DELETE") {
-      setStatusMessage("Account deletion cancelled.");
-      return;
-    }
-
-    try {
-      await apiFetch("/api/account", { method: "DELETE" });
-      setUser(null);
-      setEntries([]);
-      setSettings(defaultSettings);
-      setStatusMessage("");
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "Could not delete account.");
-    }
-  }
-
   async function updateSettings(
     nextSettings: Partial<ClientSettings> & {
       currentPassword?: string;
@@ -449,7 +423,6 @@ export function VibeJournalApp() {
           user={user}
           onAccountUpdate={updateAccount}
           onAiConsent={updateAiConsent}
-          onDeleteAccount={deleteAccount}
           onDeleteEntries={deleteAllEntries}
           onExportEntries={exportEntries}
           exporting={exporting}

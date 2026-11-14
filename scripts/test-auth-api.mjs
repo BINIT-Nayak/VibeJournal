@@ -179,7 +179,11 @@ try {
   a.password = finalPassword;
   await login(a);
   const revoked = { cookie: a.cookie };
-  await call(a, "/api/account", { method: "DELETE", body: { userId: b.id } });
+  await call(a, "/api/account", { method: "DELETE", body: { userId: b.id }, expected: 400 });
+  await call(a, "/api/account", {
+    method: "DELETE",
+    body: { confirmation: "DELETE", password: a.password },
+  });
   assert.equal(await db.user.count({ where: { id: b.id } }), 1);
   await call(revoked, "/api/entries", { expected: 401 });
   // Prove pre-Auth.js password hashes still work and are upgraded on login.

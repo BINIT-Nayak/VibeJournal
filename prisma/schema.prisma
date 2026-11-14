@@ -8,14 +8,14 @@ datasource db {
 }
 
 model User {
-  id                  String                   @id @default(cuid())
-  authProvider        String                   @default("password")
-  email               String                   @unique
-  googleSubject       String?                  @unique
+  id                  String                     @id @default(cuid())
+  authProvider        String                     @default("password")
+  email               String                     @unique
+  googleSubject       String?                    @unique
   passwordHash        String?
   name                String?
-  createdAt           DateTime                 @default(now())
-  updatedAt           DateTime                 @updatedAt
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
   sessions            Session[]
   moodEntries         MoodEntry[]
   journalEntries      JournalEntry[]
@@ -25,6 +25,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   journalMutations    JournalMutationReceipt[]
   contentKeys         UserContentKey[]
+  deletionChallenges  AccountDeletionChallenge[]
 }
 
 model Session {
@@ -222,4 +223,15 @@ model UserContentKey {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, purpose, version])
+}
+
+model AccountDeletionChallenge {
+  tokenHash  String    @id
+  userId     String
+  expiresAt  DateTime
+  verifiedAt DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }

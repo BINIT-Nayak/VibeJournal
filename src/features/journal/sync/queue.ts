@@ -1,5 +1,10 @@
 "use client";
-import { journalLocalDb, type SyncMutationRecord, type LocalJournalEntry } from "../drafts/storage";
+import {
+  deletedLocalAccounts,
+  journalLocalDb,
+  type SyncMutationRecord,
+  type LocalJournalEntry,
+} from "../drafts/storage";
 import { journalCreateSchema, type JournalCreateInput } from "../schemas";
 import { journalMutationSchema, mutationResultSchema, type MutationResult } from "./schemas";
 
@@ -21,6 +26,7 @@ export async function enqueueMutation(
   values: JournalCreateInput,
   expectedUpdatedAt?: string
 ) {
+  if (deletedLocalAccounts.has(userId)) throw new Error("This account has been deleted.");
   const db = journalLocalDb();
   const valid = journalCreateSchema.parse(values);
   const key = crypto.randomUUID();
@@ -72,6 +78,7 @@ export async function enqueueMutation(
 }
 
 async function claim(userId: string, entryId?: string, retry = false) {
+  if (deletedLocalAccounts.has(userId)) return;
   const db = journalLocalDb();
   return db.transaction("rw", db.mutations, db.localEntries, async () => {
     const rows = await db.mutations.where("userId").equals(userId).sortBy("seq");

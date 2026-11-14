@@ -1,3 +1,4 @@
+import { DeleteAccount } from "@/features/auth/components/DeleteAccount";
 import { MusicPreferencesForm } from "@/features/music/MusicPreferencesForm";
 import { type FormEvent, useState } from "react";
 import {
@@ -39,7 +40,6 @@ type ProfileScreenProps = EntriesProps & {
     newPassword?: string;
   }) => void;
   onAiConsent: (value: boolean) => void;
-  onDeleteAccount: () => void;
   onDeleteEntries: () => void;
   onExportEntries: () => void;
   exporting: boolean;
@@ -66,7 +66,6 @@ export function ProfileScreen({
   isReminderEnabled,
   onAccountUpdate,
   onAiConsent,
-  onDeleteAccount,
   onDeleteEntries,
   onExportEntries,
   exporting,
@@ -501,14 +500,7 @@ export function ProfileScreen({
             <span>Log out</span>
             <LogOut size={17} />
           </button>
-          <button
-            className={`${styles.settingButton} ${styles.dangerButton}`}
-            onClick={onDeleteAccount}
-            type="button"
-          >
-            <span>Delete account permanently</span>
-            <Trash2 size={17} />
-          </button>
+          <DeleteAccount userId={user.id} />
         </div>
 
         {statusMessage ? (
