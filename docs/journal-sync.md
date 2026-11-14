@@ -21,10 +21,10 @@ last-write-wins overwrite.
 
 Transient network/408/429/5xx failures retry with exponential backoff (capped at
 five minutes), respecting Retry-After. Authentication, authorization, invalid
-payloads, missing entries and conflicts remain failed for user review/manual
-retry. The UI retains local content, exposes status and review links, and clearly
-marks queued deletion. Conflict merging/rebasing is not automated. Subsequent
-operations on a conflicted entry stay blocked.
+payloads remain failed for user review/manual retry. Version mismatches and
+missing entries use a dedicated conflict state; see [conflict resolution](journal-conflicts.md). The UI retains local content, exposes status and review links, and clearly
+marks queued deletion. Conflict resolution requires an explicit choice after reviewing both versions.
+Subsequent operations on a conflicted entry stay blocked until that choice.
 
 ## Server protocol
 

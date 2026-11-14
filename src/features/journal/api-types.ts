@@ -19,6 +19,7 @@ export type JournalApiErrorCode =
   | "INVALID_CURSOR"
   | "NOT_FOUND"
   | "CONFLICT"
+  | "VERSION_CONFLICT"
   | "INTERNAL_ERROR";
 export type JournalApiError = {
   error: {

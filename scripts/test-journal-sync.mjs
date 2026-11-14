@@ -174,9 +174,9 @@ try {
     data: { content: "Newer remote content", updatedAt: new Date(Date.now() + 1000) },
   });
   await context.setOffline(false);
-  await page.getByText("Failed to sync", { exact: false }).waitFor();
+  await page.getByText("Conflict — review required before syncing.", { exact: true }).waitFor();
   const conflict = (await records()).find((row) => row.entryId === create.entryId);
-  assert.equal(conflict.status, "failed");
+  assert.equal(conflict.status, "conflict");
   assert.equal(conflict.retryable, false);
   assert.equal(conflict.values.content, "Preserved queued conflict");
   assert.equal(

@@ -44,8 +44,8 @@ export function DeleteJournalEntry({ entry, userId }: { entry: JournalEntryDto; 
     if (!queued) return;
     const subscription = liveQuery(() => journalLocalDb().localEntries.get(entry.id)).subscribe(
       (row) => {
-        if (row?.userId === userId && row.deleted && row.status === "synced")
-          window.location.replace("/journal?deleted=1");
+        if (row?.userId === userId && row.status === "synced")
+          window.location.replace(row.deleted ? "/journal?deleted=1" : `/journal/${entry.id}`);
       }
     );
     return () => subscription.unsubscribe();

@@ -28,7 +28,7 @@ export type LocalJournalEntry = {
   userId: string;
   values: JournalCreateInput;
   createdAt: string;
-  status: "pending" | "syncing" | "synced" | "failed";
+  status: "pending" | "syncing" | "synced" | "failed" | "conflict";
   deleted?: boolean;
   serverUpdatedAt?: string;
   attempt?: string;
@@ -46,7 +46,8 @@ export type SyncMutationRecord = {
   dependsOn?: string;
   payload?: JournalMutation;
   result?: MutationResult;
-  status: "pending" | "syncing" | "synced" | "failed";
+  status: "pending" | "syncing" | "synced" | "failed" | "conflict" | "discarded";
+  conflictReason?: "changed" | "missing";
   attempts: number;
   retryable: boolean;
   nextAttemptAt: number;

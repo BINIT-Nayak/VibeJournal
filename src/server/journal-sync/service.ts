@@ -11,6 +11,8 @@ import { JournalConflictError, JournalNotFoundError } from "../journal/service";
 import { invalidateAnalytics } from "../analytics/cache";
 import { analyzeCreatedEntry } from "../journal-analysis/after-create";
 
+export class JournalVersionConflictError extends JournalConflictError {}
+
 export async function replayMutation(userId: string, input: unknown) {
   if (!userId) throw new Error("UNAUTHORIZED");
   const mutation = journalMutationSchema.parse(input);
@@ -52,7 +54,7 @@ export async function replayMutation(userId: string, input: unknown) {
       } else {
         if (!existing) throw new JournalNotFoundError();
         const expected = new Date(mutation.expectedUpdatedAt);
-        if (+existing.updatedAt !== +expected) throw new JournalConflictError();
+        if (+existing.updatedAt !== +expected) throw new JournalVersionConflictError();
         if (mutation.kind === "update") {
           const { tags = [], ...fields } = mutation.values;
           const row = await journal.updateByOwner(
@@ -67,11 +69,11 @@ export async function replayMutation(userId: string, input: unknown) {
             tags,
             tx
           );
-          if (!row) throw new JournalConflictError();
+          if (!row) throw new JournalVersionConflictError();
           result = { entryId: row.id, updatedAt: row.updatedAt.toISOString(), deleted: false };
         } else {
           const deleted = await journal.deleteVersion(userId, mutation.entryId, expected, tx);
-          if (!deleted.count) throw new JournalConflictError();
+          if (!deleted.count) throw new JournalVersionConflictError();
           result = { entryId: mutation.entryId, updatedAt: null, deleted: true };
         }
       }

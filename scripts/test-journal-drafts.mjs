@@ -69,7 +69,7 @@ try {
   await page.reload();
   await page.getByText("The saved entry has changed", { exact: false }).waitFor();
   await page.getByRole("button", { name: "Save changes", exact: true }).click();
-  await page.getByText("Failed to sync", { exact: false }).waitFor();
+  await page.getByText("Conflict — review required before syncing.", { exact: true }).waitFor();
   assert.equal(
     (await db.journalEntry.findUnique({ where: { id: entryId } })).content,
     "Concurrent server change"

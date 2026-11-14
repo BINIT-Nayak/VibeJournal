@@ -1,6 +1,6 @@
 import { requireUser } from "@/server/auth/session";
 import { JournalConflictError } from "@/server/journal/service";
-import { replayMutation } from "@/server/journal-sync/service";
+import { replayMutation, JournalVersionConflictError } from "@/server/journal-sync/service";
 import { journalJson, journalRestError } from "@/server/journal/rest-http";
 
 export async function POST(request: Request) {
@@ -16,6 +16,17 @@ export async function POST(request: Request) {
     }
     return journalJson({ result: await replayMutation(user.id, await request.json()) });
   } catch (error) {
+    if (error instanceof JournalVersionConflictError)
+      return journalJson(
+        {
+          error: {
+            code: "VERSION_CONFLICT",
+            message:
+              "This entry changed on the server while you were editing. Review both versions before syncing.",
+          },
+        },
+        409
+      );
     if (error instanceof Error && "code" in error && error.code === "P2002")
       return journalRestError(new JournalConflictError());
     return journalRestError(error);

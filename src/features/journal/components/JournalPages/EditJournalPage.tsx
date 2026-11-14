@@ -15,8 +15,8 @@ export function EditJournalPage({ entry, userId }: { entry: JournalEntryDto; use
     if (!queued) return;
     const subscription = liveQuery(() => journalLocalDb().localEntries.get(entry.id)).subscribe(
       (row) => {
-        if (row?.userId === userId && !row.deleted && row.status === "synced")
-          window.location.replace(`/journal/${entry.id}`);
+        if (row?.userId === userId && row.status === "synced")
+          window.location.replace(row.deleted ? "/journal?deleted=1" : `/journal/${entry.id}`);
       }
     );
     return () => subscription.unsubscribe();

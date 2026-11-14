@@ -1,5 +1,6 @@
 "use client";
 
+import { ConflictResolver } from "../sync/ConflictResolver";
 import { JournalEditor } from "../components/JournalEditor/JournalEditor";
 import { enqueueMutation } from "../sync/queue";
 import styles from "./LocalEntries.module.css";
@@ -83,9 +84,11 @@ export function LocalEntries({ userId }: { userId: string }) {
                   : "Synced — saved to your journal."
                 : entry.status === "syncing"
                   ? "Syncing — local copy retained until confirmed."
-                  : entry.status === "failed"
-                    ? "Failed to sync — saved on this device only."
-                    : "Pending — saved on this device only."}
+                  : entry.status === "conflict"
+                    ? "Conflict — review required before syncing."
+                    : entry.status === "failed"
+                      ? "Failed to sync — saved on this device only."
+                      : "Pending — saved on this device only."}
             </p>
             <details>
               <summary>Read local entry</summary>
@@ -96,7 +99,10 @@ export function LocalEntries({ userId }: { userId: string }) {
             {entry.error && entry.serverUpdatedAt && (
               <a href={`/journal/${entry.id}`}>Review server entry</a>
             )}
-            {!entry.deleted && (
+            {entry.status === "conflict" && (
+              <ConflictResolver key={entry.id} userId={userId} entryId={entry.id} />
+            )}
+            {!entry.deleted && entry.status !== "conflict" && (
               <div>
                 <button type="button" onClick={() => setEditing(entry)}>
                   Edit local entry
@@ -127,7 +133,7 @@ export function LocalEntries({ userId }: { userId: string }) {
             )}
             {entry.status === "synced" && !entry.deleted ? (
               <a href={`/journal/${entry.id}`}>View saved entry</a>
-            ) : entry.status !== "synced" ? (
+            ) : entry.status !== "synced" && entry.status !== "conflict" ? (
               <button
                 type="button"
                 disabled={

@@ -6,9 +6,9 @@ import { journalMutationSchema, mutationResultSchema, type MutationResult } from
 async function refreshStatus(userId: string, entryId: string) {
   const db = journalLocalDb();
   const rows = await db.mutations.where("[userId+entryId]").equals([userId, entryId]).sortBy("seq");
-  const head = rows.find((row) => row.status !== "synced");
+  const head = rows.find((row) => row.status !== "synced" && row.status !== "discarded");
   await db.localEntries.update(entryId, {
-    status: head?.status ?? "synced",
+    status: head && head.status !== "discarded" ? head.status : "synced",
     error: head?.error,
     leaseUntil: head?.leaseUntil,
   });
@@ -32,7 +32,9 @@ export async function enqueueMutation(
       .where("[userId+entryId]")
       .equals([userId, entryId])
       .sortBy("seq");
-    const previous = rows.at(-1);
+    if (rows.some((row) => row.status === "conflict"))
+      throw new Error("Resolve the conflict before making more changes to this entry.");
+    const previous = rows.filter((row) => row.status !== "discarded").at(-1);
     if (previous?.kind === "delete") throw new Error("Deletion is already queued for this entry.");
     const dependsOn = previous && previous.status !== "synced" ? previous.key : undefined;
     if (kind !== "create" && !dependsOn && !expectedUpdatedAt && !existing?.serverUpdatedAt)
@@ -75,9 +77,15 @@ async function claim(userId: string, entryId?: string, retry = false) {
     const rows = await db.mutations.where("userId").equals(userId).sortBy("seq");
     const seen = new Set<string>();
     for (const row of rows) {
-      if (row.status === "synced" || (entryId && row.entryId !== entryId) || seen.has(row.entryId))
+      if (
+        row.status === "synced" ||
+        row.status === "discarded" ||
+        (entryId && row.entryId !== entryId) ||
+        seen.has(row.entryId)
+      )
         continue;
       seen.add(row.entryId);
+      if (row.status === "conflict") continue;
       if (row.status === "syncing" && (row.leaseUntil ?? 0) > Date.now()) continue;
       if (!retry && ((!row.retryable && row.status === "failed") || row.nextAttemptAt > Date.now()))
         continue;
@@ -134,6 +142,7 @@ export async function replayQueue(
     let result: MutationResult | undefined;
     let error: string | undefined;
     let retryable = true;
+    let conflictReason: "changed" | "missing" | undefined;
     let retryDelay = Math.min(300_000, 1000 * 2 ** Math.min(row.attempts, 8));
     try {
       const response = await fetch("/api/journal/sync", {
@@ -144,6 +153,9 @@ export async function replayQueue(
       });
       const body = await response.json().catch(() => null);
       if (!response.ok) {
+        if (response.status === 409 && body?.error?.code === "VERSION_CONFLICT")
+          conflictReason = "changed";
+        if (response.status === 404 && row.kind !== "create") conflictReason = "missing";
         retryable = response.status >= 500 || response.status === 429 || response.status === 408;
         if (response.status === 429)
           retryDelay = Math.max(
@@ -169,7 +181,8 @@ export async function replayQueue(
         result && !error
           ? { status: "synced", result, error: undefined, leaseUntil: undefined }
           : {
-              status: navigator.onLine ? "failed" : "pending",
+              status: conflictReason ? "conflict" : navigator.onLine ? "failed" : "pending",
+              conflictReason,
               error,
               retryable,
               nextAttemptAt: Date.now() + (Number.isFinite(retryDelay) ? retryDelay : 300_000),
