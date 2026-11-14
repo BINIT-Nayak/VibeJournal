@@ -5,7 +5,7 @@ import type { JournalEntryDto } from "../../api-types";
 import { updateJournalEntry, JournalSaveError } from "../../api-client";
 import { JournalEditor } from "../JournalEditor/JournalEditor";
 
-export function EditJournalPage({ entry }: { entry: JournalEntryDto }) {
+export function EditJournalPage({ entry, userId }: { entry: JournalEntryDto; userId: string }) {
   const router = useRouter();
   const [conflict, setConflict] = useState(false);
   const [pending, setPending] = useState(false);
@@ -18,19 +18,19 @@ export function EditJournalPage({ entry }: { entry: JournalEntryDto }) {
             View latest entry in a new tab
           </a>
           <p>
-            <button
-              type="button"
-              onClick={() => {
-                if (window.confirm("Discard this draft and load the latest saved version?"))
-                  window.location.reload();
-              }}
-            >
-              Discard draft and reload latest
-            </button>
+            Use “Discard local draft” below to discard your changes and reload the latest entry.
           </p>
         </section>
       )}
       <JournalEditor
+        key={`${userId}:${entry.id}`}
+        userId={userId}
+        entryId={entry.id}
+        baseUpdatedAt={entry.updatedAt}
+        onDiscard={() => {
+          if (conflict) window.location.reload();
+        }}
+        onSaved={() => window.location.replace(`/journal/${encodeURIComponent(entry.id)}`)}
         mode="edit"
         pending={pending}
         initialValues={{
@@ -45,16 +45,15 @@ export function EditJournalPage({ entry }: { entry: JournalEntryDto }) {
           tags: entry.tags,
         }}
         onCancel={() => router.push("/journal")}
-        onSave={async (values) => {
+        onSave={async (values, baseVersion) => {
           try {
-            await updateJournalEntry(entry.id, values, entry.updatedAt);
+            await updateJournalEntry(entry.id, values, baseVersion ?? entry.updatedAt);
           } catch (error) {
             if (error instanceof JournalSaveError && error.code === "CONFLICT") setConflict(true);
             throw error;
           }
           setPending(true);
           // A fresh server request avoids reopening a cached detail from before the edit.
-          window.location.replace(`/journal/${encodeURIComponent(entry.id)}`);
         }}
       />
     </>

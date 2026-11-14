@@ -4,6 +4,7 @@ import { NewJournalPage } from "@/features/journal/components/JournalPages/NewJo
 
 export const metadata = { title: "New entry · VibeJournal" };
 export default async function NewEntryPage() {
-  if (!(await getCurrentUser())) redirect("/login");
-  return <NewJournalPage />;
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  return <NewJournalPage userId={user.id} />;
 }

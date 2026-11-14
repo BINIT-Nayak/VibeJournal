@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LocalEntries } from "../../offline/LocalEntries";
 import { useRef, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { JournalHistoryResponse } from "../../api-types";
@@ -49,6 +50,7 @@ export function JournalHistory({ userId, deleted = false }: { userId: string; de
           Write an entry
         </Link>
       </header>
+      <LocalEntries userId={userId} />
       {isPending ? (
         <div className={styles.state} role="status">
           Loading your reflections…

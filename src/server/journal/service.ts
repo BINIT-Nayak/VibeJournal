@@ -2,7 +2,7 @@ import "server-only";
 
 import type { ClientUser } from "@/features/auth/types";
 import {
-  journalCreateSchema,
+  journalCreateRequestSchema,
   journalUpdateSchema,
   normalizeJournalInput,
 } from "@/features/journal/schemas";
@@ -36,8 +36,39 @@ function ownerId(actor: Actor) {
 
 export async function createEntry(actor: Actor, input: unknown, canonical = false) {
   const userId = ownerId(actor);
-  const { tags = [], ...fields } = journalCreateSchema.parse(normalizeJournalInput(input));
-  const entry = await repository.create(userId, { ...fields, legacyTags: tags }, tags);
+  const {
+    tags = [],
+    clientEntryId,
+    ...fields
+  } = journalCreateRequestSchema.parse(normalizeJournalInput(input));
+  if (clientEntryId) {
+    const existing = await repository.findByOwner(userId, clientEntryId);
+    if (existing)
+      return {
+        ...(canonical ? toJournalDto(existing) : serializeEntry(existing)),
+        analysisStatus: "skipped",
+      };
+  }
+  let entry;
+  try {
+    entry = await repository.create(
+      userId,
+      { ...fields, ...(clientEntryId ? { id: clientEntryId } : {}), legacyTags: tags },
+      tags
+    );
+  } catch (error) {
+    if (clientEntryId && error instanceof Error && "code" in error && error.code === "P2002") {
+      const existing = await repository.findByOwner(userId, clientEntryId);
+      if (existing)
+        return {
+          ...(canonical ? toJournalDto(existing) : serializeEntry(existing)),
+          analysisStatus: "skipped",
+        };
+      // Never return or modify an entry belonging to a different account.
+      throw new JournalConflictError();
+    }
+    throw error;
+  }
   await invalidateAnalytics(userId);
   const analysisStatus = await analyzeCreatedEntry(userId, entry.id);
   return { ...(canonical ? toJournalDto(entry) : serializeEntry(entry)), analysisStatus };

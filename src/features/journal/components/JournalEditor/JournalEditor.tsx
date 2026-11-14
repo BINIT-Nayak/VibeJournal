@@ -4,21 +4,32 @@ import { useId, useRef, type FormEvent } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { journalCreateSchema, type JournalCreateInput } from "../../schemas";
+import { useJournalDraft } from "../../drafts/useJournalDraft";
 import { JournalSaveError } from "../../api-client";
 import { MoodSelector } from "../MoodSelector/MoodSelector";
 import { moods } from "../../mood";
 import styles from "./JournalEditor.module.css";
 
 export type JournalEditorProps = {
+  userId: string;
+  entryId?: string;
+  baseUpdatedAt?: string;
+  onSaved?: () => void;
+  onDiscard?: () => void;
   mode?: "create" | "edit";
   initialValues?: Partial<JournalCreateInput>;
-  onSave: (values: JournalCreateInput) => Promise<void>;
+  onSave: (values: JournalCreateInput, baseUpdatedAt?: string) => Promise<void>;
   onCancel?: () => void;
   pending?: boolean;
 };
 
 // Mount with a new key when switching entries; form state stays local to this editor.
 export function JournalEditor({
+  userId,
+  entryId,
+  baseUpdatedAt,
+  onSaved,
+  onDiscard,
   mode = "create",
   initialValues,
   onSave,
@@ -27,14 +38,7 @@ export function JournalEditor({
 }: JournalEditorProps) {
   const id = useId();
   const lock = useRef(false);
-  const {
-    register,
-    control,
-    handleSubmit,
-    setError,
-    clearErrors,
-    formState: { errors, isSubmitting, isDirty },
-  } = useForm<JournalCreateInput>({
+  const form = useForm<JournalCreateInput>({
     resolver: zodResolver(journalCreateSchema),
     mode: "onBlur",
     reValidateMode: "onChange",
@@ -51,13 +55,24 @@ export function JournalEditor({
       ...initialValues,
     },
   });
-  const busy = isSubmitting || pending;
+  const {
+    register,
+    control,
+    handleSubmit,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting, isDirty },
+  } = form;
+  const draft = useJournalDraft(form, userId, entryId, baseUpdatedAt);
+  const busy = isSubmitting || pending || !draft.ready;
   const validatedSubmit = handleSubmit(async (values) => {
-    if (lock.current || pending) return;
+    if (lock.current || pending || !draft.ready) return;
     lock.current = true;
     clearErrors("root");
     try {
-      await onSave(values);
+      await onSave(values, draft.version.current);
+      await draft.clear();
+      onSaved?.();
     } catch (error) {
       if (error instanceof JournalSaveError) {
         let focused = false;
@@ -82,7 +97,7 @@ export function JournalEditor({
     }
   });
   function submit(event?: FormEvent<HTMLFormElement>) {
-    if (lock.current || pending) {
+    if (lock.current || pending || !draft.ready) {
       event?.preventDefault();
       return;
     }
@@ -113,6 +128,23 @@ export function JournalEditor({
         </h1>
         <p>A few words are enough. The rest is optional.</p>
       </header>
+      <p className={styles.hint} role="status">
+        {draft.message}
+      </p>
+      <p className={styles.hint}>
+        Local drafts remain on this browser until saved or discarded. Avoid shared devices.
+      </p>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={async () => {
+          if (window.confirm("Discard this local draft and reset the editor?")) {
+            if (await draft.discard()) onDiscard?.();
+          }
+        }}
+      >
+        Discard local draft
+      </button>
       <form
         noValidate
         onSubmit={submit}
@@ -272,7 +304,8 @@ export function JournalEditor({
                 </label>
                 <input
                   id={`${id}-tags`}
-                  defaultValue={field.value?.join(", ")}
+                  key={draft.revision}
+                  defaultValue={field.value?.join(", ") ?? ""}
                   ref={field.ref}
                   onChange={(event) =>
                     field.onChange(
@@ -307,8 +340,10 @@ export function JournalEditor({
             <button
               type="button"
               disabled={busy}
-              onClick={() => {
-                if (!isDirty || window.confirm("Discard your unsaved changes?")) onCancel();
+              onClick={async () => {
+                if (!isDirty || window.confirm("Discard your unsaved changes?")) {
+                  if (await draft.discard()) onCancel();
+                }
               }}
             >
               Cancel

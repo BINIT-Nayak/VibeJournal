@@ -28,6 +28,9 @@ export const journalEntrySchema = z.object({
 });
 
 export const journalCreateSchema = journalEntrySchema;
+export const journalCreateRequestSchema = journalCreateSchema.extend({
+  clientEntryId: z.uuid().optional(),
+});
 export const journalUpdateSchema = journalEntrySchema
   .partial()
   .extend({ archived: z.boolean().optional(), expectedUpdatedAt: z.iso.datetime() })

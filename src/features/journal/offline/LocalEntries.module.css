@@ -1,0 +1,31 @@
+.panel {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #ddd);
+  border-radius: 16px;
+  margin: 20px auto;
+  max-width: 780px;
+  overflow-wrap: anywhere;
+  padding: 20px;
+}
+
+.panel article {
+  border-top: 1px solid var(--border, #ddd);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.panel p {
+  line-height: 1.6;
+}
+
+.panel summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.panel button,
+.panel a {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 14px;
+}

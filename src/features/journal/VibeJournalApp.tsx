@@ -1,5 +1,6 @@
 "use client";
 
+import { NewJournalPage } from "./components/JournalPages/NewJournalPage";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -148,14 +149,14 @@ export function VibeJournalApp() {
     window.location.assign("/journal/new");
   }
 
-  async function saveEntry(values: JournalCreateInput) {
+  async function saveEntry(values: JournalCreateInput, baseVersion?: string) {
     const response = await apiFetch<{ entry: JournalEntryDto }>(
       editingEntry ? `/api/journal/${editingEntry.id}` : "/api/journal",
       {
         method: editingEntry ? "PATCH" : "POST",
         body: JSON.stringify({
           ...values,
-          ...(editingEntry ? { expectedUpdatedAt: editingEntry.updatedAt } : {}),
+          ...(editingEntry ? { expectedUpdatedAt: baseVersion ?? editingEntry.updatedAt } : {}),
         }),
       }
     );
@@ -369,9 +370,13 @@ export function VibeJournalApp() {
     >
       {activeScreen === "home" && dashboard ? <DashboardScreen data={dashboard} /> : null}
 
-      {activeScreen === "new" ? (
+      {activeScreen === "new" && !editingEntry ? <NewJournalPage userId={user!.id} /> : null}
+      {activeScreen === "new" && editingEntry ? (
         <JournalEditor
-          key={editingEntry?.id ?? "create"}
+          userId={user!.id}
+          entryId={editingEntry?.id}
+          baseUpdatedAt={editingEntry?.updatedAt}
+          key={`${user!.id}:${editingEntry?.id ?? "create"}`}
           mode={editingEntry ? "edit" : "create"}
           initialValues={
             editingEntry

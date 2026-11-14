@@ -7,7 +7,9 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   try {
-    return <EditJournalPage entry={await getEntry(user, (await params).id, true)} />;
+    return (
+      <EditJournalPage userId={user.id} entry={await getEntry(user, (await params).id, true)} />
+    );
   } catch (error) {
     if (error instanceof JournalNotFoundError) notFound();
     throw error;
