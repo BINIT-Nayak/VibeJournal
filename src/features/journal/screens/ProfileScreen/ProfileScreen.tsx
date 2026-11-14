@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { DeleteAccount } from "@/features/auth/components/DeleteAccount";
 import { MusicPreferencesForm } from "@/features/music/MusicPreferencesForm";
 import { type FormEvent, useState } from "react";
@@ -131,9 +132,7 @@ export function ProfileScreen({
         </strong>
         <button
           aria-label="Settings"
-          onClick={() =>
-            document.getElementById("profile-settings")?.scrollIntoView({ behavior: "smooth" })
-          }
+          onClick={() => document.getElementById("profile-settings")?.focus()}
           type="button"
         >
           <span>Settings</span>
@@ -143,16 +142,15 @@ export function ProfileScreen({
 
       <section className={styles.heroSection}>
         <div className={styles.heroIdentity}>
-          <button className={styles.avatarButton} type="button" aria-label="Change avatar">
+          <div className={styles.avatarButton} aria-hidden="true">
             <span>{getInitials(displayName || email)}</span>
-          </button>
-          <span className={styles.avatarHint}>Tap to change</span>
+          </div>
           <h1>{displayName}</h1>
           <p>{handle} • Joined May 2025</p>
         </div>
 
         <div className={styles.moodOrbit} aria-label="Current mood score">
-          <span>Feeling Good today</span>
+          <span>Monthly average mood</span>
           <strong>{monthlyAverage}</strong>
           <small>/10 month vibe</small>
           <div className={styles.moodMeter}>
@@ -201,7 +199,11 @@ export function ProfileScreen({
             <h2>Mood Overview</h2>
           </header>
           <div className={styles.chartBox}>
-            <svg viewBox="0 0 300 90" role="img" aria-label="Mood trend for the last 30 days">
+            <svg
+              viewBox="0 0 300 90"
+              role="img"
+              aria-label="Mood scores for the most recent 30 entries; values are listed below"
+            >
               <polyline
                 points={sparkline}
                 fill="none"
@@ -218,16 +220,44 @@ export function ProfileScreen({
               </defs>
             </svg>
           </div>
+          <details>
+            <summary>View recent mood values</summary>
+            {entries.length ? (
+              <table>
+                <caption>Mood scores for the most recent 30 entries</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Mood score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entries
+                    .slice()
+                    .reverse()
+                    .slice(-30)
+                    .map((entry) => (
+                      <tr key={entry.id}>
+                        <th scope="row">{new Date(entry.createdAt).toLocaleString()}</th>
+                        <td>{entry.valence}/10</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No mood entries recorded yet.</p>
+            )}
+          </details>
           <div className={styles.detailGrid}>
             <span>Best Month: {bestMonth}</span>
             <span>
               Favorite Tag: &quot;{favoriteTag.tag}&quot; ({favoriteTag.count} times)
             </span>
           </div>
-          <button className={styles.pillButton} type="button">
+          <Link className={styles.pillButton} href="/analytics">
             <span>View Full Statistics</span>
-            <ArrowRight size={17} />
-          </button>
+            <ArrowRight size={17} aria-hidden="true" />
+          </Link>
         </article>
 
         <article className={`${styles.panel} ${styles.musicPanel}`}>
@@ -264,10 +294,10 @@ export function ProfileScreen({
                 : "AI insights are off until you consent"}
             </li>
           </ul>
-          <button className={styles.pillButton} type="button">
+          <Link className={styles.pillButton} href="/analytics">
             <span>View All Insights</span>
-            <ArrowRight size={17} />
-          </button>
+            <ArrowRight size={17} aria-hidden="true" />
+          </Link>
         </article>
       </section>
 
@@ -276,6 +306,8 @@ export function ProfileScreen({
       <form
         className={`${styles.panel} ${styles.settingsPanel}`}
         id="profile-settings"
+        tabIndex={-1}
+        aria-label="Personal controls"
         onSubmit={handleAccountSubmit}
       >
         <header>
@@ -308,7 +340,9 @@ export function ProfileScreen({
             />
             Daily reminder at
           </label>
+          <label htmlFor="reminder-time">Reminder time</label>
           <input
+            id="reminder-time"
             disabled={!isReminderEnabled}
             onChange={(event) => onReminderTime(event.target.value)}
             type="time"
@@ -598,16 +632,7 @@ function getMostReflectiveDay(entries: EntriesProps["entries"]) {
 
 function getSparklinePoints(entries: EntriesProps["entries"]) {
   const recent = entries.slice().reverse().slice(-30);
-  const source = recent.length
-    ? recent
-    : [
-        { valence: 5 },
-        { valence: 6 },
-        { valence: 5.5 },
-        { valence: 7 },
-        { valence: 6.9 },
-        { valence: 7.8 },
-      ];
+  const source = recent;
   return source
     .map((entry, index) => {
       const x = source.length === 1 ? 150 : (300 / (source.length - 1)) * index;

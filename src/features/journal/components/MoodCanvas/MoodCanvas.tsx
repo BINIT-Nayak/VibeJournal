@@ -118,5 +118,36 @@ export function MoodCanvas({ entries, compact = false, showEnergy = false }: Moo
     }
   }, [compact, entries, showEnergy]);
 
-  return <canvas ref={canvasRef} aria-label="Mood valence trend chart" />;
+  return (
+    <div>
+      <canvas ref={canvasRef} role="img" aria-label="Recent mood trend; exact values follow" />
+      <details>
+        <summary>View mood and energy values</summary>
+        <table>
+          <caption>Most recent 14 entries</caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Mood</th>
+              <th scope="col">Energy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries
+              .slice()
+              .reverse()
+              .slice(-14)
+              .map((entry) => (
+                <tr key={entry.id}>
+                  <th scope="row">{new Date(entry.createdAt).toLocaleString()}</th>
+                  <td>{entry.valence}/10</td>
+                  <td>{entry.energy}/10</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+        {!entries.length && <p>No entries recorded.</p>}
+      </details>
+    </div>
+  );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { journalCreateSchema, type JournalCreateInput } from "../../schemas";
@@ -38,6 +38,7 @@ export function JournalEditor({
 }: JournalEditorProps) {
   const id = useId();
   const lock = useRef(false);
+  const pendingErrorFocus = useRef<keyof JournalCreateInput | null>(null);
   const form = useForm<JournalCreateInput>({
     resolver: zodResolver(journalCreateSchema),
     mode: "onBlur",
@@ -64,38 +65,61 @@ export function JournalEditor({
     formState: { errors, isSubmitting, isDirty },
   } = form;
   const draft = useJournalDraft(form, userId, entryId, baseUpdatedAt);
+  const [draftAnnouncement, setDraftAnnouncement] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => setDraftAnnouncement(draft.message), 700);
+    return () => clearTimeout(timer);
+  }, [draft.message]);
   const busy = isSubmitting || pending || !draft.ready;
-  const validatedSubmit = handleSubmit(async (values) => {
-    if (lock.current || pending || !draft.ready) return;
-    lock.current = true;
-    clearErrors("root");
-    try {
-      await onSave(values, draft.version.current);
-      await draft.clear();
-      onSaved?.();
-    } catch (error) {
-      if (error instanceof JournalSaveError) {
-        let focused = false;
-        for (const issue of error.issues) {
-          const field = issue.path.split(".")[0];
-          if (Object.prototype.hasOwnProperty.call(journalCreateSchema.shape, field)) {
-            setError(
-              field as keyof JournalCreateInput,
-              { type: "server", message: issue.message },
-              { shouldFocus: !focused }
-            );
-            focused = true;
+  useEffect(() => {
+    if (busy || !pendingErrorFocus.current) return;
+    const field = pendingErrorFocus.current;
+    const frame = requestAnimationFrame(() => {
+      form.setFocus(field);
+      pendingErrorFocus.current = null;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [busy, errors, form]);
+  const validatedSubmit = handleSubmit(
+    async (values) => {
+      if (lock.current || pending || !draft.ready) return;
+      lock.current = true;
+      clearErrors("root");
+      try {
+        await onSave(values, draft.version.current);
+        await draft.clear();
+        onSaved?.();
+      } catch (error) {
+        if (error instanceof JournalSaveError) {
+          let focused = false;
+          for (const issue of error.issues) {
+            const field = issue.path.split(".")[0];
+            if (Object.prototype.hasOwnProperty.call(journalCreateSchema.shape, field)) {
+              if (!focused) pendingErrorFocus.current = field as keyof JournalCreateInput;
+              setError(
+                field as keyof JournalCreateInput,
+                { type: "server", message: issue.message },
+                { shouldFocus: !focused }
+              );
+              focused = true;
+            }
           }
         }
+        setError("root.server", {
+          message:
+            error instanceof Error ? error.message : "Could not save your entry. Please try again.",
+        });
+      } finally {
+        lock.current = false;
       }
-      setError("root.server", {
-        message:
-          error instanceof Error ? error.message : "Could not save your entry. Please try again.",
-      });
-    } finally {
-      lock.current = false;
+    },
+    (invalid) => {
+      const first = Object.keys(invalid).find((field) =>
+        Object.prototype.hasOwnProperty.call(journalCreateSchema.shape, field)
+      );
+      if (first) pendingErrorFocus.current = first as keyof JournalCreateInput;
     }
-  });
+  );
   function submit(event?: FormEvent<HTMLFormElement>) {
     if (lock.current || pending || !draft.ready) {
       event?.preventDefault();
@@ -128,8 +152,9 @@ export function JournalEditor({
         </h1>
         <p>A few words are enough. The rest is optional.</p>
       </header>
-      <p className={styles.hint} role="status">
-        {draft.message}
+      <p className={styles.hint}>{draft.message}</p>
+      <p className={styles.srOnly} role="status" aria-atomic="true">
+        {draftAnnouncement}
       </p>
       <p className={styles.hint}>
         Local drafts remain on this browser until saved or discarded. Avoid shared devices.
@@ -180,7 +205,7 @@ export function JournalEditor({
           <div className={styles.row}>
             <div>
               <label htmlFor={`${id}-mood`}>How are you feeling?</label>
-              <select id={`${id}-mood`} {...register("mood")}>
+              <select id={`${id}-mood`} {...register("mood")} {...accessibility("mood")}>
                 {moods.map((mood) => (
                   <option key={mood.key} value={mood.key}>
                     {mood.symbol} {mood.label}
@@ -220,6 +245,12 @@ export function JournalEditor({
                       onChange={(event) => field.onChange(Number(event.target.value))}
                       onBlur={field.onBlur}
                       aria-label="Energy slider"
+                      aria-valuetext={
+                        field.value == null
+                          ? "Not recorded; use arrow keys to choose a score from 1 to 10"
+                          : `${field.value} out of 10`
+                      }
+                      {...accessibility("energyScore")}
                     />
                     <input
                       type="number"

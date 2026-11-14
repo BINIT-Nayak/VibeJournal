@@ -122,7 +122,7 @@ export function DashboardScreen({ data }: { data: DashboardResponse }) {
                 </>
               )}
             </dd>
-            <p>{note}</p>
+            <dd className={styles.statNote}>{note}</dd>
           </div>
         ))}
       </dl>

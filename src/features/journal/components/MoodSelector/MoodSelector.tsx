@@ -57,7 +57,7 @@ export const MoodSelector = forwardRef<HTMLInputElement, MoodSelectorProps>(func
               onChange={() => onChange(state.value)}
               onBlur={onBlur}
               aria-label={`${state.value} out of 10 — ${state.label}`}
-              aria-describedby={error ? `${id}-error` : undefined}
+              aria-describedby={description}
             />
             <span className={styles.emoji} aria-hidden="true">
               {state.emoji}

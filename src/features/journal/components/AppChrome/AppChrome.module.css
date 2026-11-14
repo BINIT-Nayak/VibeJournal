@@ -14,6 +14,7 @@
 }
 
 .darkShell {
+  --danger: #ffb3ba;
   --background: #17221d;
   --surface: #233129;
   --surface-strong: #29392f;
@@ -24,7 +25,7 @@
   --accent-strong: #c3ddbf;
 }
 
-.shell :is(a, button, input, select, textarea):focus-visible {
+.shell :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 3px solid var(--accent-strong);
   outline-offset: 4px;
 }

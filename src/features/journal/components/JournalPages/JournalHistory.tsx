@@ -32,8 +32,10 @@ export function JournalHistory({ userId, deleted = false }: { userId: string; de
     staleTime: 0,
     refetchOnWindowFocus: false,
   });
+  const previousPage = useRef(page);
   useEffect(() => {
-    if (page > 0) heading.current?.focus();
+    if (previousPage.current !== page) heading.current?.focus();
+    previousPage.current = page;
   }, [page]);
   return (
     <section className={styles.history}>

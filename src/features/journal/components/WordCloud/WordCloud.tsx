@@ -13,7 +13,7 @@ export function WordCloud({ entries }: { entries: MoodEntry[] }) {
     <div className={styles.wordCloud}>
       {Object.entries(counts).map(([tag, count]) => (
         <span key={tag} style={{ fontSize: `${0.9 + count * 0.22}rem` }}>
-          {tag}
+          {tag} <span style={{ fontSize: "0.875rem" }}>({count})</span>
         </span>
       ))}
     </div>

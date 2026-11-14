@@ -73,7 +73,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--ink);
-  outline: none;
+  outline-offset: 3px;
   padding: 13px 14px;
   width: 100%;
 }

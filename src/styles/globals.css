@@ -24,7 +24,7 @@
   --surface-subtle-dark: #334155;
   --text-primary-light: #0f172a;
   --text-primary-dark: #f1f5f9;
-  --text-secondary-light: #64748b;
+  --text-secondary-light: #526176;
   --text-secondary-dark: #94a3b8;
   --text-muted: #cbd5e1;
   --border-light: #e2e8f0;
@@ -106,18 +106,17 @@ button {
 button:hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--accent), transparent 36%);
   box-shadow: var(--glass-shadow-hover);
-  opacity: 0.8;
+  opacity: 1;
 }
 
 button:active:not(:disabled) {
   border-color: color-mix(in srgb, var(--accent), transparent 22%);
   box-shadow: var(--glass-shadow-active);
-  opacity: 0.9;
+  opacity: 1;
 }
 
-button:focus-visible,
-a:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--brand-teal), transparent 38%);
+:is(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--accent-strong);
   outline-offset: 3px;
 }
 
@@ -127,4 +126,26 @@ button:disabled {
 
 ::selection {
   background: rgba(167, 139, 250, 0.32);
+}
+
+/* Keep focus targets clear of the fixed mobile navigation and browser edges. */
+:where(button, a, input, select, textarea, summary, [tabindex]) {
+  scroll-margin-block: 100px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :is(button, input, select, textarea) {
+    border: 1px solid ButtonText;
+  }
 }

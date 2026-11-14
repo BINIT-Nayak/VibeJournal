@@ -67,6 +67,7 @@ export function NewEntryScreen({
           {moods.map((item) => (
             <button
               className={mood === item.key ? styles.selectedEmoji : ""}
+              aria-pressed={mood === item.key}
               key={item.key}
               onClick={() => onMood(item.key)}
               style={{ "--mood-color": item.color } as CSSProperties}

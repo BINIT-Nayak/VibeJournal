@@ -36,11 +36,13 @@ export function JournalScreen({
       <Heatmap entries={entries} />
       <div className={styles.filters}>
         <input
+          aria-label="Search journal entries"
           value={query}
           onChange={(event) => onQuery(event.target.value)}
           placeholder="Search entries"
         />
         <select
+          aria-label="Filter by mood"
           value={moodFilter}
           onChange={(event) => onMoodFilter(event.target.value as "all" | MoodKey)}
         >
@@ -51,7 +53,11 @@ export function JournalScreen({
             </option>
           ))}
         </select>
-        <select value={tagFilter} onChange={(event) => onTagFilter(event.target.value)}>
+        <select
+          aria-label="Filter by tag"
+          value={tagFilter}
+          onChange={(event) => onTagFilter(event.target.value)}
+        >
           <option value="all">All tags</option>
           {journalTags.map((tag) => (
             <option key={tag} value={tag}>

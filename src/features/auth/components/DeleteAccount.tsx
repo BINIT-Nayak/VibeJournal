@@ -1,4 +1,5 @@
 "use client";
+import { containDialogFocus } from "@/components/ui/dialog-focus";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { clearLocalAccountData } from "@/features/journal/drafts/storage";
@@ -122,7 +123,9 @@ export function DeleteAccount({ userId }: { userId: string }) {
         Delete account permanently
       </button>
       <dialog
+        onKeyDown={containDialogFocus}
         ref={dialog}
+        tabIndex={-1}
         className={styles.confirmDialog}
         aria-labelledby="delete-account-title"
         aria-describedby="delete-account-description"

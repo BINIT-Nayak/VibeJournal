@@ -1,4 +1,5 @@
 "use client";
+import { containDialogFocus } from "@/components/ui/dialog-focus";
 
 import { useEffect, useId, useRef, useState } from "react";
 import { liveQuery } from "dexie";
@@ -82,6 +83,7 @@ export function DeleteJournalEntry({ entry, userId }: { entry: JournalEntryDto; 
         Delete entry
       </button>
       <dialog
+        onKeyDown={containDialogFocus}
         ref={dialog}
         className={styles.confirmDialog}
         aria-labelledby={`${labelId}-title`}

@@ -44,7 +44,8 @@
     "test:account-deletion": "node --conditions=react-server scripts/test-account-deletion.mjs",
     "test:audit": "node --conditions=react-server scripts/test-audit-logger.mjs",
     "test:audit-events": "node --conditions=react-server scripts/test-audit-events.mjs",
-    "audit:prune": "node --conditions=react-server scripts/prune-security-audit.mjs"
+    "audit:prune": "node --conditions=react-server scripts/prune-security-audit.mjs",
+    "test:a11y": "node scripts/test-accessibility.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.1169.0",
@@ -70,6 +71,7 @@
     "@types/node": "^22.15.21",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
+    "axe-core": "^4.11.4",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
     "eslint-config-prettier": "^10.1.8",

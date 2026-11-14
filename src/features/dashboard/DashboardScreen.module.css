@@ -170,7 +170,7 @@
   font-size: 18px;
 }
 
-.stats p {
+.stats .statNote {
   font-size: 11px;
   margin-bottom: 0;
 }

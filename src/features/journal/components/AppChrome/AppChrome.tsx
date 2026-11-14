@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type MouseEvent } from "react";
+import { usePathname } from "next/navigation";
 import { Leaf, Plus, LockKeyhole } from "lucide-react";
 import type { Screen } from "@/features/journal/types";
 import { navSymbol } from "@/features/journal/utils";
@@ -30,7 +31,8 @@ export function AppChrome({
   onScreenChange,
 }: AppChromeProps) {
   const main = useRef<HTMLElement>(null);
-  const previous = useRef(activeScreen);
+  const pathname = usePathname();
+  const previous = useRef({ activeScreen, pathname });
   const title =
     activeScreen === "new"
       ? "New entry"
@@ -38,12 +40,12 @@ export function AppChrome({
 
   useEffect(() => {
     document.title = `${title} · VibeJournal`;
-    if (previous.current !== activeScreen) {
+    if (previous.current.activeScreen !== activeScreen || previous.current.pathname !== pathname) {
       main.current?.focus({ preventScroll: true });
       window.scrollTo({ top: 0, behavior: "instant" });
-      previous.current = activeScreen;
+      previous.current = { activeScreen, pathname };
     }
-  }, [activeScreen, title]);
+  }, [activeScreen, pathname, title]);
 
   function navigate(event: MouseEvent<HTMLAnchorElement>, screen: Screen) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)

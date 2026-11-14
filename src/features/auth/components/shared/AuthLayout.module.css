@@ -65,7 +65,7 @@
 }
 
 .eyebrow {
-  color: #5f786a;
+  color: #52644f;
   font-size: 0.64rem;
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -135,7 +135,7 @@
 }
 
 .note > span {
-  color: #7b8876;
+  color: #52644f;
   font-size: 0.6rem;
   letter-spacing: 0.06em;
 }
@@ -190,7 +190,7 @@
 }
 
 .reassurance span {
-  color: #788276;
+  color: #52644f;
   font-size: 0.76rem;
 }
 
@@ -215,7 +215,7 @@
 }
 
 .cardHeading p {
-  color: #728074;
+  color: #52644f;
   font-size: 0.85rem;
   line-height: 1.5;
   margin: 0;
@@ -252,7 +252,7 @@
 }
 
 .field input::placeholder {
-  color: #839080;
+  color: #52644f;
   font-size: 0.83rem;
 }
 
@@ -281,7 +281,7 @@
   border: 0;
   border-radius: 6px;
   box-shadow: none;
-  color: #70816e;
+  color: #52644f;
   cursor: pointer;
   display: flex;
   height: 44px;
@@ -298,7 +298,7 @@
 }
 
 .hint {
-  color: #72806d;
+  color: #52644f;
   font-size: 0.7rem;
   line-height: 1.55;
   margin: 7px 0 0;
@@ -361,7 +361,7 @@
 }
 
 .status {
-  color: #72806d;
+  color: #52644f;
   font-size: 0.69rem;
   line-height: 1.6;
   margin: 13px 0 0;
@@ -371,7 +371,7 @@
 
 .cardFooter {
   border-top: 1px solid #e8ebe2;
-  color: #71806f;
+  color: #52644f;
   font-size: 0.76rem;
   line-height: 1.6;
   margin-top: 24px;
@@ -387,7 +387,7 @@
 }
 
 .footer {
-  color: #7a8575;
+  color: #52644f;
   font-size: 0.7rem;
   line-height: 1.6;
   padding: 26px 0 30px;
@@ -482,13 +482,16 @@
 }
 
 .recoveryLink a {
+  align-items: center;
   color: #42674f;
+  display: inline-flex;
+  min-height: 32px;
   text-underline-offset: 3px;
 }
 
 .divider {
   align-items: center;
-  color: #72806d;
+  color: #52644f;
   display: flex;
   font-size: 0.75rem;
   gap: 14px;

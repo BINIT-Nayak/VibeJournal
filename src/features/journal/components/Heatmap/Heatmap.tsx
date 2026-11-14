@@ -13,19 +13,42 @@ export function Heatmap({ entries }: { entries: MoodEntry[] }) {
   });
 
   return (
-    <div className={styles.heatmap}>
-      {cells.map(({ date, entry }) => {
-        const moodMeta = moods.find((item) => item.key === entry?.mood);
+    <>
+      <div className={styles.heatmap} role="list" aria-label="Mood by day">
+        {cells.map(({ date, entry }) => {
+          const moodMeta = moods.find((item) => item.key === entry?.mood);
 
-        return (
-          <span
-            aria-label={date.toDateString()}
-            key={date.toISOString()}
-            style={{ "--mood-color": moodMeta?.color ?? "rgba(30,37,40,0.08)" } as CSSProperties}
-            title={date.toDateString()}
-          />
-        );
-      })}
-    </div>
+          return (
+            <span
+              role="listitem"
+              aria-label={`${date.toDateString()}: ${entry ? moodMeta?.label + ", " + entry.valence + " out of 10" : "Not recorded"}`}
+              key={date.toISOString()}
+              style={{ "--mood-color": moodMeta?.color ?? "rgba(30,37,40,0.08)" } as CSSProperties}
+              title={`${date.toDateString()}: ${entry ? moodMeta?.label + ", " + entry.valence + "/10" : "Not recorded"}`}
+            />
+          );
+        })}
+      </div>
+      <details>
+        <summary>View daily mood values</summary>
+        <table>
+          <caption>Recorded mood for the last 35 days</caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Mood</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cells.map(({ date, entry }) => (
+              <tr key={date.toISOString()}>
+                <th scope="row">{date.toLocaleDateString()}</th>
+                <td>{entry ? `${entry.mood}, ${entry.valence}/10` : "Not recorded"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
+    </>
   );
 }

@@ -11,6 +11,8 @@ export function Slider({ label, onChange, value }: SliderProps) {
     <label className={styles.sliderRow}>
       <span>{label}</span>
       <input
+        aria-label={label}
+        aria-valuetext={`${value} out of 10`}
         min="1"
         max="10"
         value={value}
