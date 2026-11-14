@@ -42,6 +42,7 @@ type ProfileScreenProps = EntriesProps & {
   onDeleteAccount: () => void;
   onDeleteEntries: () => void;
   onExportEntries: () => void;
+  exporting: boolean;
   onLogout: () => void;
   onPrivacyAcknowledged: () => void;
   onReminderEnabled: (value: boolean) => void;
@@ -68,6 +69,7 @@ export function ProfileScreen({
   onDeleteAccount,
   onDeleteEntries,
   onExportEntries,
+  exporting,
   onLogout,
   onPrivacyAcknowledged,
   onReminderEnabled,
@@ -346,8 +348,14 @@ export function ProfileScreen({
             </span>
             <ShieldCheck size={17} />
           </button>
-          <button className={styles.settingButton} onClick={onExportEntries} type="button">
-            <span>Export all my data (JSON + PDF)</span>
+          <button
+            className={styles.settingButton}
+            onClick={onExportEntries}
+            disabled={exporting}
+            aria-busy={exporting}
+            type="button"
+          >
+            <span>{exporting ? "Preparing download…" : "Download my data (JSON)"}</span>
             <Download size={17} />
           </button>
           <button
@@ -359,8 +367,9 @@ export function ProfileScreen({
             <Trash2 size={17} />
           </button>
           <span>
-            Data export includes profile, settings, and entries. Delete all entries keeps your
-            account; account deletion is below.
+            Download includes all server-saved journals, tracking, AI analyses, music preferences,
+            and account details. Unsynced drafts stay on this device. The downloaded file contains
+            readable private text.
           </span>
         </div>
 

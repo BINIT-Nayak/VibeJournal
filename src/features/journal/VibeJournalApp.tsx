@@ -46,6 +46,7 @@ export function VibeJournalApp() {
   const [activeScreen, setActiveScreen] = useState<Screen>("home");
   const [entries, setEntries] = useState<MoodEntry[]>([]);
   const [user, setUser] = useState<ClientUser | null>(null);
+  const [exporting, setExporting] = useState(false);
   const [settings, setSettings] = useState<ClientSettings>(defaultSettings);
   const [editingEntry, setEditingEntry] = useState<JournalEntryDto | null>(null);
   const [query, setQuery] = useState("");
@@ -204,28 +205,32 @@ export function VibeJournalApp() {
     setSelectedEntryId((current) => (current === entryId ? null : current));
   }
 
-  function exportEntries() {
+  async function exportEntries() {
     if (!user) {
       return;
     }
 
-    const payload = {
-      exportedAt: new Date().toISOString(),
-      profile: user,
-      settings,
-      version: 1,
-      entries,
-    };
-    const date = new Date().toISOString().slice(0, 10);
-
-    downloadBlob(
-      new Blob([JSON.stringify(payload, null, 2)], {
-        type: "application/json",
-      }),
-      `vibejournal-export-${date}.json`
-    );
-    downloadBlob(createExportPdf(payload), `vibejournal-export-${date}.pdf`);
-    setStatusMessage("Export downloaded as JSON and PDF.");
+    if (exporting) return;
+    setExporting(true);
+    setStatusMessage("Preparing your data download…");
+    try {
+      const response = await fetch("/api/account/export", { cache: "no-store" });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error?.message ?? "Your data export could not be downloaded.");
+      }
+      const blob = await response.blob();
+      downloadBlob(blob, `vibejournal-data-${new Date().toISOString().slice(0, 10)}.json`);
+      setStatusMessage(
+        "Your data download is ready. Keep this file private; it contains your journal text."
+      );
+    } catch (error) {
+      setStatusMessage(
+        error instanceof Error ? error.message : "Download failed. Please try again."
+      );
+    } finally {
+      setExporting(false);
+    }
   }
 
   async function deleteAllEntries() {
@@ -447,6 +452,7 @@ export function VibeJournalApp() {
           onDeleteAccount={deleteAccount}
           onDeleteEntries={deleteAllEntries}
           onExportEntries={exportEntries}
+          exporting={exporting}
           onLogout={logout}
           onPrivacyAcknowledged={() =>
             updateProfileSetting(
@@ -497,65 +503,11 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
-function createExportPdf(payload: {
-  entries: MoodEntry[];
-  exportedAt: string;
-  profile: ClientUser;
-  settings: ClientSettings;
-  version: number;
-}) {
-  const lines = [
-    "VibeJournal Data Export",
-    `Exported: ${payload.exportedAt}`,
-    `Account: ${payload.profile.email}`,
-    `Entries: ${payload.entries.length}`,
-    `AI consent: ${payload.settings.aiConsent ? "On" : "Off"}`,
-    `Privacy acknowledged: ${payload.settings.privacyAcknowledged ? "Yes" : "No"}`,
-    "",
-    "This export is for personal review. VibeJournal is not a medical device and does not diagnose, treat, or replace professional care.",
-    "",
-    ...payload.entries
-      .slice(0, 24)
-      .flatMap((entry, index) => [
-        `${index + 1}. ${new Date(entry.createdAt).toLocaleString()} - ${entry.mood} - ${entry.valence}/10`,
-        `Tags: ${entry.tags.join(", ") || "none"}`,
-        `Note: ${entry.note.slice(0, 180)}`,
-        "",
-      ]),
-  ];
-  const pageText = lines
-    .map((line, index) => `BT /F1 10 Tf 48 ${760 - index * 16} Td (${escapePdfText(line)}) Tj ET`)
-    .join("\n");
-  const objects = [
-    "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
-    "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj",
-    "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj",
-    "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj",
-    `5 0 obj << /Length ${pageText.length} >> stream\n${pageText}\nendstream endobj`,
-  ];
-  let pdf = "%PDF-1.4\n";
-  const offsets = objects.map((object) => {
-    const offset = pdf.length;
-    pdf += `${object}\n`;
-    return offset;
-  });
-  const xrefOffset = pdf.length;
-  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-  pdf += offsets.map((offset) => `${String(offset).padStart(10, "0")} 00000 n \n`).join("");
-  pdf += `trailer << /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
-
-  return new Blob([pdf], { type: "application/pdf" });
-}
-
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;
   link.click();
-  URL.revokeObjectURL(url);
-}
-
-function escapePdfText(value: string) {
-  return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

@@ -39,7 +39,8 @@
     "test:rate-limits": "node --conditions=react-server scripts/test-rate-limits.mjs",
     "test:analytics-cache": "node --conditions=react-server scripts/test-analytics-cache.mjs",
     "encryption:backfill": "node --conditions=react-server scripts/encrypt-existing-journals.mjs",
-    "test:encryption": "node --conditions=react-server scripts/test-encryption.mjs"
+    "test:encryption": "node --conditions=react-server scripts/test-encryption.mjs",
+    "test:data-export": "node --conditions=react-server scripts/test-data-export.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.1169.0",
