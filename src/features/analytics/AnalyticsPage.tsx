@@ -9,7 +9,6 @@ export function AnalyticsPage({ userId }: { userId: string }) {
   return (
     <AppChrome
       activeScreen="insights"
-      darkMode={false}
       onNewEntry={() => router.push("/journal/new")}
       onScreenChange={(screen) =>
         router.push(

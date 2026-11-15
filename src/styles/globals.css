@@ -57,6 +57,42 @@
   --glass-shadow-active: 0 8px 22px rgba(15, 23, 42, 0.08), inset 0 2px 10px rgba(15, 23, 42, 0.1);
 }
 
+/* One palette shared by every route, portal and native form control. */
+html[data-theme="light"] {
+  --background: #f8f8f3;
+  --surface: #eff2eb;
+  --surface-strong: #fffffc;
+  --ink: #263e33;
+  --muted: #5b6c60;
+  --line: #dce3d8;
+  --accent: #64866a;
+  --accent-strong: #3e624c;
+  --danger: #b42335;
+
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  --background: #17221d;
+  --surface: #233129;
+  --surface-strong: #29392f;
+  --ink: #edf2eb;
+  --muted: #bac8bb;
+  --line: #425548;
+  --accent: #a4c3a5;
+  --accent-strong: #c3ddbf;
+  --danger: #ffb3ba;
+  --glass-bg: #233129;
+  --glass-bg-hover: #29392f;
+  --glass-bg-active: #29392f;
+  --glass-border: #425548;
+  --glass-shadow: none;
+  --glass-shadow-hover: none;
+  --glass-shadow-active: none;
+
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -66,10 +102,7 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, rgba(167, 139, 250, 0.18), transparent 34%),
-    linear-gradient(135deg, rgba(103, 232, 249, 0.14), transparent 30%),
-    linear-gradient(315deg, rgba(249, 168, 212, 0.18), transparent 36%), var(--background);
+  background: var(--background);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;

@@ -9,7 +9,6 @@ export function JournalRouteShell({ children }: { children: React.ReactNode }) {
   return (
     <AppChrome
       activeScreen={pathname === "/journal/new" ? "new" : "journal"}
-      darkMode={false}
       onNewEntry={() => router.push("/journal/new")}
       onScreenChange={(screen) =>
         router.push(

@@ -9,7 +9,6 @@ export function MusicPage({ userId }: { userId: string }) {
   return (
     <AppChrome
       activeScreen="music"
-      darkMode={false}
       onNewEntry={() => router.push("/journal/new")}
       onScreenChange={(screen) =>
         router.push(

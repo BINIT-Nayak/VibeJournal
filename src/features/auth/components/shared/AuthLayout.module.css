@@ -524,3 +524,52 @@
   box-shadow: none;
   opacity: 1;
 }
+
+:global(html[data-theme="dark"]) .page {
+  background: var(--background);
+  color: var(--ink);
+}
+
+:global(html[data-theme="dark"]) .page :is(h1, h2, label),
+:global(html[data-theme="dark"]) .brand {
+  color: var(--ink);
+}
+
+:global(html[data-theme="dark"]) .page :is(p, small, footer),
+:global(html[data-theme="dark"])
+  .page
+  :is(.eyebrow, .hint, .status, .divider, .cardFooter, .note > span, .reassurance span) {
+  color: var(--muted);
+}
+
+:global(html[data-theme="dark"]) .page :is(a, h1 em, .reveal) {
+  color: var(--accent-strong);
+}
+
+:global(html[data-theme="dark"]) .page :is(.card, .note, .field input) {
+  background: var(--surface-strong);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+:global(html[data-theme="dark"]) .page :is(.brandMark, .noteLine, .secondaryButton, .reveal:hover) {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+:global(html[data-theme="dark"]) .field input::placeholder {
+  color: var(--muted);
+}
+
+:global(html[data-theme="dark"]) .page .submit {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--background);
+}
+
+:global(html[data-theme="dark"]) .page :is(.fieldError, .serverError) {
+  background: var(--surface);
+  border-color: var(--danger);
+  color: var(--danger);
+}

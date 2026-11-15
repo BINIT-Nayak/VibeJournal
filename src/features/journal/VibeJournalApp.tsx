@@ -1,4 +1,5 @@
 "use client";
+import { useTheme } from "@/components/theme-provider";
 
 import { NewJournalPage } from "./components/JournalPages/NewJournalPage";
 import { useRouter } from "next/navigation";
@@ -41,6 +42,7 @@ const defaultSettings: ClientSettings = {
 
 export function VibeJournalApp() {
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [fullHistoryLoaded, setFullHistoryLoaded] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>("home");
@@ -268,6 +270,8 @@ export function VibeJournalApp() {
     });
     setUser(response.user);
     setSettings(response.settings);
+    if (typeof nextSettings.darkMode === "boolean")
+      setTheme(response.settings.darkMode ? "dark" : "light");
   }
 
   async function updateProfileSetting(nextSettings: Partial<ClientSettings>, message: string) {
@@ -343,7 +347,6 @@ export function VibeJournalApp() {
   return (
     <AppChrome
       activeScreen={activeScreen}
-      darkMode={settings.darkMode}
       onNewEntry={startEntry}
       onScreenChange={navigateToScreen}
     >
@@ -412,7 +415,7 @@ export function VibeJournalApp() {
           averageMood={averageMood}
           aiConsent={settings.aiConsent}
           aiConsentSaving={aiConsentSaving}
-          darkMode={settings.darkMode}
+          darkMode={theme === "dark"}
           entries={entries}
           isReminderEnabled={settings.reminderEnabled}
           privacyAcknowledged={settings.privacyAcknowledged}
@@ -443,7 +446,12 @@ export function VibeJournalApp() {
                 : "Spotify preference saved. OAuth connection can be added later."
             )
           }
-          onToggleTheme={() => updateSettings({ darkMode: !settings.darkMode })}
+          onToggleTheme={() =>
+            updateProfileSetting(
+              { darkMode: theme !== "dark" },
+              "Appearance updated across the app."
+            )
+          }
         />
       ) : null}
     </AppChrome>

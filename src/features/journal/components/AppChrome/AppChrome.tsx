@@ -10,7 +10,6 @@ import styles from "./AppChrome.module.css";
 type AppChromeProps = {
   activeScreen: Screen;
   children: React.ReactNode;
-  darkMode: boolean;
   onNewEntry: () => void;
   onScreenChange: (screen: Screen) => void;
 };
@@ -23,13 +22,7 @@ const navItems: Array<{ label: string; screen: Screen }> = [
   { label: "Settings", screen: "profile" },
 ];
 
-export function AppChrome({
-  activeScreen,
-  children,
-  darkMode,
-  onNewEntry,
-  onScreenChange,
-}: AppChromeProps) {
+export function AppChrome({ activeScreen, children, onNewEntry, onScreenChange }: AppChromeProps) {
   const main = useRef<HTMLElement>(null);
   const pathname = usePathname();
   const previous = useRef({ activeScreen, pathname });
@@ -91,7 +84,7 @@ export function AppChrome({
   }
 
   return (
-    <div className={`${styles.shell} ${darkMode ? styles.darkShell : ""}`}>
+    <div className={styles.shell}>
       <a
         className={styles.skipLink}
         href="#main-content"

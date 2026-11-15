@@ -149,7 +149,7 @@
 }
 
 .error {
-  color: #b42335;
+  color: var(--danger);
   font-size: 14px;
   margin: 0;
 }

@@ -1,28 +1,7 @@
 .shell {
-  --background: #f8f8f3;
-  --surface: #eff2eb;
-  --surface-strong: #fffffc;
-  --ink: #263e33;
-  --muted: #5b6c60;
-  --line: #dce3d8;
-  --accent: #64866a;
-  --accent-strong: #3e624c;
-
   background: var(--background);
   color: var(--ink);
   min-height: 100dvh;
-}
-
-.darkShell {
-  --danger: #ffb3ba;
-  --background: #17221d;
-  --surface: #233129;
-  --surface-strong: #29392f;
-  --ink: #edf2eb;
-  --muted: #bac8bb;
-  --line: #425548;
-  --accent: #a4c3a5;
-  --accent-strong: #c3ddbf;
 }
 
 .shell :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
