@@ -1,26 +1,63 @@
 name: Tests
-on: [push, pull_request]
+
+on: [push, pull_request, workflow_dispatch]
+
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Synthetic local configuration; no deployment secrets are needed in CI.
+  DATABASE_URL: postgresql://vibejournal_test:test_only_password@127.0.0.1:55433/vibejournal_test?schema=public
+  NEXT_TELEMETRY_DISABLED: "1"
+
 jobs:
   fast:
+    name: Static checks, unit tests, and build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
-      - run: npm ci
-      - run: npm run prisma:generate
-      - run: npm test
-      - run: npm run test:env
-      - run: npm run test:encryption
-      - run: npm run check
-      - run: npm run typecheck
-      - run: npm run build
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Validate Prisma schema
+        run: npm run prisma:validate
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+      - name: Lint TypeScript and JavaScript
+        run: npm run lint
+      - name: Lint styles
+        run: npm run lint:style
+      - name: Check formatting
+        run: npm run format:check
+      - name: Generate Next.js types for a clean checkout
+        run: npm run typegen
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm run test:unit
+      - name: UI behavior tests
+        run: npm run test:ui
+      - name: Environment validation tests
+        run: npm run test:env
+      - name: Encryption tests
+        run: npm run test:encryption
+      - name: Production build
+        run: npm run build
+
   integration-and-journeys:
+    name: PostgreSQL integration and browser tests
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      TEST_DATABASE_URL: postgresql://vibejournal_test:test_only_password@127.0.0.1:55433/vibejournal_test?schema=public
     services:
       postgres:
         image: postgres:17-alpine
@@ -39,12 +76,18 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-      - run: npm ci
-      - run: npm run prisma:generate
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:integration
-      - run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+      - name: Install Chromium and system dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Integration tests (apply migrations and test repository/API behavior)
+        run: npm run test:integration
+      - name: Critical browser journeys
+        run: npm run test:e2e
+      - name: Upload browser failure diagnostics
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-failures

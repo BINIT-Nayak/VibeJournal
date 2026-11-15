@@ -58,7 +58,7 @@ The integration command runs:
 
 The analytics fixture now creates valid encrypted entries through the public API before adjusting dates/archive status for deterministic boundary tests. It no longer inserts plaintext rows that violate the current storage constraints.
 
-## Two browser journeys
+## Six browser scenarios
 
 ```sh
 npx playwright install chromium
@@ -68,13 +68,26 @@ npm run test:e2e
 
 For an already installed local Chrome, `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e` is supported. CI installs Playwright Chromium. The runner applies migrations and supplies the same isolated environment; Playwright manages the test server with `reuseExistingServer: false`. Browser contexts are isolated, test accounts are cleaned up, and workers/retries are set to 1/0. A failed run is a failure, not silently retried into a pass.
 
-Use roles, labels, visible text, URL transitions, and observable appearance. Wait for those conditions with Playwright assertions, not `waitForTimeout`. API setup is used only in the second journey so registration UI is not tested twice. Confirmation cancellation and completion are tested in the real browser because native dialog/focus/sync behavior matters.
+Use roles, labels, visible text, URL transitions, and observable appearance. Wait for those conditions with Playwright assertions, not `waitForTimeout`. API setup is used outside the registration journey so account creation UI is not repeated in every test. Confirmation cancellation and completion are tested in the real browser because native dialog/focus/sync behavior matters.
+
+The suite covers the requested behaviors in six focused tests:
+
+| Scenario                       | Coverage                                                                                                                                                                                   |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Register and journal lifecycle | Register through the UI, create and sync, view, edit and reload, cancel deletion, confirm deletion                                                                                         |
+| Login and session              | Login through the UI, persist theme across navigation/refresh, logout and protected-route redirect                                                                                         |
+| Dashboard mood update          | Empty check-in becomes complete; creating mood 4 and editing to 8 updates the summary and accessible trend table                                                                           |
+| Analytics visibility           | Empty state, five days of real encrypted entries, insight/sleep/exercise/tag sections, 7/30/90-day tables with missing-day gaps                                                            |
+| AI-disabled privacy            | Consent defaults off; journals remain readable, automatic analysis is skipped despite a forged client flag, manual/weekly analysis is denied, and no analysis records are stored           |
+| Unauthorized access            | Other-account detail/edit pages show generic not-found; foreign API reads match nonexistent IDs, writes/deletion fail without changing the owner's entry, and anonymous access is rejected |
+
+AI privacy assertions inspect server responses and persisted outcomes, not just browser traffic. This suite runs with external AI disabled; it does not claim to observe server-to-provider network egress. Provider-call suppression is a separate service/consent contract-test responsibility.
 
 Traces and screenshots are retained only on failure in ignored `test-results/` and `playwright-report/`. They contain synthetic journal content/accounts, but should still be treated as private diagnostic artifacts. CI retains failed-run artifacts for seven days.
 
 ## CI and extended checks
 
-`.github/workflows/tests.yml` has a fast job (unit/UI, environment, encryption, lint, types, build) and a real PostgreSQL job (repository/API tests plus the two journeys). It requires no production secrets or external provider calls. Workflow execution itself must be observed in GitHub; local success is not a claim that hosted CI has run.
+`.github/workflows/tests.yml` runs on every pull request and push, and supports manual dispatch. Both jobs install locked dependencies with `npm ci` on Node.js 22. The fast job explicitly checks the Prisma schema, ESLint, styles, formatting, TypeScript, unit/UI behavior, environment validation, encryption, and the production build. Prisma client and Next.js types are generated before typechecking so fresh checkouts do not depend on local build artifacts. The PostgreSQL 17 job applies migrations to an isolated test database and runs repository/API integration tests plus the six browser scenarios. Jobs have time limits, read-only repository permissions, and cancellation of superseded runs. It requires no production secrets or external provider calls. Workflow execution itself must be observed in GitHub; local success is not a claim that hosted CI has run.
 
 Run specialized suites when their area changes rather than making every browser scenario part of the default PR gate:
 

@@ -69,7 +69,7 @@ npm test                    # Fast unit + React Testing Library tests
 npm run test:infra          # Disposable PostgreSQL, separate from development
 npm run test:integration    # Real repository + API contracts
 npx playwright install chromium
-npm run test:e2e            # Two critical user journeys
+npm run test:e2e            # Six focused browser scenarios
 ```
 
 ## Deployment
