@@ -345,7 +345,10 @@ export function VibeJournalApp() {
     setStatusMessage("");
     try {
       await updateSettings(payload);
-      if (payload.newPassword) {
+      if (
+        payload.newPassword ||
+        (payload.email && payload.email.trim().toLowerCase() !== user?.email)
+      ) {
         window.location.assign("/login");
         return;
       }

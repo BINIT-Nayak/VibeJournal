@@ -5,6 +5,7 @@ import { readRateLimitBlock, readRateLimitState, cacheRateLimitBlock } from "./r
 
 // Fixed windows use the database clock and atomic upserts across all processes.
 export const rateLimitPolicies = {
+  "account-change": { limit: 5, seconds: 900 },
   "account-delete": { limit: 5, seconds: 900 },
   login: { limit: 10, seconds: 900 },
   register: { limit: 5, seconds: 900 },

@@ -48,9 +48,9 @@ export async function replayMutation(userId: string, input: unknown) {
           { ...plaintext, ...mutation.values }
         );
   const tags =
-    mutation.kind === "delete"
-      ? []
-      : await Promise.all((mutation.values.tags ?? []).map((label) => protectTag(userId, label)));
+    mutation.kind === "delete" || mutation.values.tags === undefined
+      ? undefined
+      : await Promise.all(mutation.values.tags.map((label) => protectTag(userId, label)));
   const protectedHash = await sealValue(userId, "receipt", mutation.key, payloadHash);
   const committed = await receipts.transaction(
     userId,
@@ -80,7 +80,7 @@ export async function replayMutation(userId: string, input: unknown) {
           const row = await journal.create(
             userId,
             { ...fields, id: mutation.entryId, ...sealed! },
-            tags,
+            tags ?? [],
             tx
           );
           result = { entryId: row.id, updatedAt: row.updatedAt.toISOString(), deleted: false };

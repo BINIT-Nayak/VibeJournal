@@ -85,6 +85,7 @@ export function ProfileScreen({
   const [newPassword, setNewPassword] = useState("");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const isChangingEmail = email.trim().toLowerCase() !== user.email;
   const displayName = name || "VibeJournal user";
   const monthlyEntries = getEntriesThisMonth(entries);
   const monthlyAverage =
@@ -100,7 +101,8 @@ export function ProfileScreen({
     onAccountUpdate({
       name,
       email,
-      currentPassword: isChangingPassword ? currentPassword || undefined : undefined,
+      currentPassword:
+        isChangingPassword || isChangingEmail ? currentPassword || undefined : undefined,
       newPassword: isChangingPassword ? newPassword || undefined : undefined,
     });
     setCurrentPassword("");
@@ -340,7 +342,7 @@ export function ProfileScreen({
             <span>Change Password</span>
             <Lock size={17} />
           </button>
-          {isChangingPassword ? (
+          {isChangingPassword || isChangingEmail ? (
             <div className={styles.passwordGrid}>
               <label>
                 Current password
@@ -352,16 +354,18 @@ export function ProfileScreen({
                   value={currentPassword}
                 />
               </label>
-              <label>
-                New password
-                <input
-                  autoComplete="new-password"
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  placeholder="At least 8 characters"
-                  type="password"
-                  value={newPassword}
-                />
-              </label>
+              {isChangingPassword && (
+                <label>
+                  New password
+                  <input
+                    autoComplete="new-password"
+                    onChange={(event) => setNewPassword(event.target.value)}
+                    placeholder="At least 8 characters"
+                    type="password"
+                    value={newPassword}
+                  />
+                </label>
+              )}
             </div>
           ) : null}
           <button className={styles.settingButton} onClick={onLogout} type="button">

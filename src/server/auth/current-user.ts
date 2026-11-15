@@ -6,9 +6,9 @@ import { prisma } from "@/server/db";
 import { listEntries } from "@/server/journal/service";
 
 // Call only with an identity verified by Auth.js, never a request-body user ID.
-export async function currentUserPayload(user: ClientUser) {
+export async function currentUserPayload(user: ClientUser, includeEntries = true) {
   const [entries, settings] = await Promise.all([
-    listEntries(user),
+    includeEntries ? listEntries(user) : Promise.resolve([]),
     prisma.userSettings.upsert({
       where: { userId: user.id },
       update: {},

@@ -100,3 +100,30 @@ test("sign in, keep the selected theme across pages, then sign out of protected 
   await page.goto("/journal/new");
   await expect(page).toHaveURL(/\/login/);
 });
+
+test("email changes require re-authentication and return to login", async ({ page }) => {
+  const user = account();
+  const changedEmail = `changed-${randomUUID()}@example.invalid`;
+  emails.push(changedEmail);
+  const response = await page.request.post("/api/auth/signup", {
+    headers: { Origin: "http://127.0.0.1:3200" },
+    data: user,
+  });
+  expect(response.status()).toBe(200);
+  const denied = await page.request.patch("/api/settings", {
+    headers: { Origin: "http://127.0.0.1:3200" },
+    data: { email: changedEmail },
+  });
+  expect(denied.status()).toBe(401);
+  await page.goto("/dashboard#profile");
+  await page.getByRole("button", { name: "Edit Profile", exact: true }).click();
+  await page.getByLabel("Email address", { exact: true }).fill(changedEmail);
+  await expect(page.getByLabel("Current password", { exact: true })).toBeVisible();
+  await page.getByLabel("Current password", { exact: true }).fill(user.password);
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(page).toHaveURL(/\/login/);
+  await page.getByLabel("Email address", { exact: true }).fill(changedEmail);
+  await page.getByLabel("Password", { exact: true }).fill(user.password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard/);
+});

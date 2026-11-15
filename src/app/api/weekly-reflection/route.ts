@@ -12,6 +12,17 @@ function failure(error: unknown) {
   if (error instanceof RateLimitError) return rateLimitResponse(error);
   const unauthorized = error instanceof Error && error.message === "UNAUTHORIZED";
   const known = error instanceof WeeklyReflectionError;
+  const invalidOrigin = error instanceof Error && error.message === "Invalid request origin.";
+  if (invalidOrigin || error instanceof SyntaxError)
+    return Response.json(
+      {
+        error: {
+          code: invalidOrigin ? "FORBIDDEN" : "INVALID_REQUEST",
+          message: invalidOrigin ? "Invalid request origin." : "Send valid JSON.",
+        },
+      },
+      { status: invalidOrigin ? 403 : 400, headers }
+    );
   return Response.json(
     {
       error: {

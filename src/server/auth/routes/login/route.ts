@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       where: { id: session.user.id },
       select: { id: true, email: true, name: true },
     });
-    return Response.json(await currentUserPayload(user));
+    return Response.json(await currentUserPayload(user, false));
   } catch (error) {
     if (error instanceof CredentialsSignin && error.code === "rate_limited") {
       return rateLimitResponse(
