@@ -1,10 +1,11 @@
+import { observeRoute } from "@/server/observability/request";
 import { requireUser } from "@/server/auth/session";
 import { prisma } from "@/server/db";
 import { googleEnabled, signIn } from "@/server/auth/config";
 import { beginGoogleDeletionReauth, deletionTokenHash } from "@/server/account-deletion/reauth";
 import { enforceRateLimit, RateLimitError, rateLimitResponse } from "@/server/rate-limit";
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   try {
     const actor = await requireUser(request);
     const user = await prisma.user.findUniqueOrThrow({
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "Please sign in again." }, { status: 401 });
   }
 }
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const actor = await requireUser(request);
     await enforceRateLimit("account-delete", actor.id);
@@ -61,3 +62,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const GET = observeRoute("/api/account/reauth", handleGET);
+export const POST = observeRoute("/api/account/reauth", handlePOST);

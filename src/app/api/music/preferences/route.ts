@@ -1,6 +1,7 @@
+import { observeRoute } from "@/server/observability/request";
 import { requireUser } from "@/server/auth/session";
 import { getMusicPreferences } from "@/server/music/preferences";
-export async function GET() {
+async function handleGET() {
   const headers = { "Cache-Control": "private, no-store" };
   try {
     return Response.json(
@@ -17,3 +18,5 @@ export async function GET() {
     );
   }
 }
+
+export const GET = observeRoute("/api/music/preferences", handleGET);

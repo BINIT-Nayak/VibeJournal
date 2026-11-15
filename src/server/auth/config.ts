@@ -1,3 +1,4 @@
+import { logServer } from "@/server/observability/logger";
 import "server-only";
 import { recordAuditEvent } from "../audit/service";
 import {
@@ -24,6 +25,16 @@ export const googleEnabled = Boolean(
 );
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  debug: false,
+  logger: {
+    error() {
+      logServer({ event: "auth.error", level: "error" });
+    },
+    warn() {
+      logServer({ event: "auth.warning", level: "warn" });
+    },
+    debug() {},
+  },
   pages: { signIn: "/login", error: "/login" },
   session: { strategy: "jwt", maxAge: sessionMaxAge },
   providers: [

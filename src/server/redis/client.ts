@@ -1,3 +1,4 @@
+import { logServer } from "@/server/observability/logger";
 import "server-only";
 import { createClient } from "redis";
 
@@ -16,7 +17,7 @@ let lastWarning = 0;
 export function reportRedisFailure() {
   if (Date.now() - lastWarning > 60_000) {
     // Never log connection URLs, credentials, user identifiers or cached values.
-    console.warn("Redis unavailable; using PostgreSQL fallbacks.");
+    logServer({ event: "redis.unavailable", level: "warn" });
     lastWarning = Date.now();
   }
 }

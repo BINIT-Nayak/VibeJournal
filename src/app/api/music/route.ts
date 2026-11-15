@@ -1,3 +1,4 @@
+import { observeRoute } from "@/server/observability/request";
 import { RateLimitError, rateLimitResponse } from "@/server/rate-limit";
 import { ZodError } from "zod";
 import { requireUser } from "@/server/auth/session";
@@ -36,14 +37,14 @@ function failure(error: unknown) {
     { status, headers }
   );
 }
-export async function GET() {
+async function handleGET() {
   try {
     return Response.json({ source: await getMusicSource((await requireUser()).id) }, { headers });
   } catch (error) {
     return failure(error);
   }
 }
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const user = await requireUser(request);
     return Response.json(
@@ -60,3 +61,6 @@ export async function POST(request: Request) {
     return failure(error);
   }
 }
+
+export const GET = observeRoute("/api/music", handleGET);
+export const POST = observeRoute("/api/music", handlePOST);

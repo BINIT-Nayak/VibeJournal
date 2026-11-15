@@ -11,8 +11,8 @@ repository.pruneAuditEvents = async (before) => {
   cutoffs.push(before);
 };
 const { recordAuditEvent } = load("src/server/audit/service.ts");
-const originalWarn = console.warn;
-console.warn = (...args) => warnings.push(args);
+const originalLog = console.log;
+console.log = (...args) => warnings.push(args);
 try {
   assert.equal(
     await recordAuditEvent({
@@ -59,11 +59,13 @@ try {
     throw new Error("PRIVATE_SENTINEL");
   };
   assert.equal(await recordAuditEvent({ event: "logout", outcome: "succeeded" }), false);
-  assert.deepEqual(warnings, [["Security audit recording unavailable."]]);
+  assert.equal(warnings.length, 1);
+  assert.equal(JSON.parse(warnings[0][0]).event, "audit.unavailable");
+  assert.equal(JSON.parse(warnings[0][0]).level, "warn");
   assert.ok(!JSON.stringify({ writes, warnings }).includes("PRIVATE_SENTINEL"));
-  console.log(
+  originalLog(
     "PASS: strict audit field allowlist, bounded values, deletion anonymity, 30-day pruning, safe throttled diagnostics, fail-open storage failure."
   );
 } finally {
-  console.warn = originalWarn;
+  console.log = originalLog;
 }

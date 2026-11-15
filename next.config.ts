@@ -10,6 +10,8 @@ const nextConfig = (phase: string): NextConfig => {
     parseServerEnv(process.env);
   }
   return {
+    // Built-in development access logs include raw URLs and OAuth query values.
+    logging: false,
     // Keep production builds from overwriting a running dev server's artifacts.
     distDir:
       phase === PHASE_DEVELOPMENT_SERVER

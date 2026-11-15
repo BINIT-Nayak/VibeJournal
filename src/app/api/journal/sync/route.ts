@@ -1,9 +1,10 @@
+import { observeRoute } from "@/server/observability/request";
 import { requireUser } from "@/server/auth/session";
 import { JournalConflictError } from "@/server/journal/service";
 import { replayMutation, JournalVersionConflictError } from "@/server/journal-sync/service";
 import { journalJson, journalRestError } from "@/server/journal/rest-http";
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const user = await requireUser(request);
     if (request.headers.get("X-Local-Journal-Owner") !== user.id) {
@@ -32,3 +33,5 @@ export async function POST(request: Request) {
     return journalRestError(error);
   }
 }
+
+export const POST = observeRoute("/api/journal/sync", handlePOST);

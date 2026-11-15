@@ -1,9 +1,10 @@
+import { observeRoute } from "@/server/observability/request";
 import { requireUser } from "@/server/auth/session";
 import { getEntry, JournalNotFoundError } from "@/server/journal/service";
 import { analyzeAndStoreEntry } from "@/server/journal-analysis/after-create";
 import { RateLimitError, rateLimitResponse } from "@/server/rate-limit";
 
-export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+async function handlePOST(request: Request, context: { params: Promise<{ id: string }> }) {
   const headers = { "Cache-Control": "private, no-store" };
   try {
     const user = await requireUser(request);
@@ -46,3 +47,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     );
   }
 }
+
+export const POST = observeRoute("/api/journal/[id]/analysis", handlePOST);

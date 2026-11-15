@@ -22,8 +22,12 @@ server.stdout.on("data", (chunk) => {
   const lines = buffer.split("\n");
   buffer = lines.pop();
   for (const line of lines) {
-    const index = line.indexOf("DB_PROFILE ");
-    if (index >= 0) events.push(JSON.parse(line.slice(index + 11)));
+    try {
+      const event = JSON.parse(line);
+      if (event.event === "database.query") events.push(event);
+    } catch {
+      /* Ignore non-JSON framework startup output. */
+    }
   }
 });
 // Don't print server logs: failures can contain request details.
@@ -33,9 +37,8 @@ const report = { fixtureEntries: 90, serverRequests: [], pages: [], chart: [] };
 let browser;
 const summarize = (rows) => ({
   count: rows.length,
-  dbMs: rows.reduce((n, e) => n + e.ms, 0),
-  maxMs: Math.max(0, ...rows.map((e) => e.ms)),
-  tables: rows.reduce((o, e) => ((o[e.table] = (o[e.table] || 0) + 1), o), {}),
+  dbMs: rows.reduce((n, e) => n + e.durationMs, 0),
+  maxMs: Math.max(0, ...rows.map((e) => e.durationMs)),
 });
 try {
   for (let i = 0; i < 100; i++) {

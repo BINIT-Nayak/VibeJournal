@@ -1,10 +1,11 @@
+import { observeRoute } from "@/server/observability/request";
 import type { NextRequest } from "next/server";
 import { handlers } from "@/server/auth/config";
 import { credentialsSchema } from "@/features/auth/schemas";
 import { RateLimitError, rateLimitResponse, rateLimitRetryAfter } from "@/server/rate-limit";
 
-export const GET = handlers.GET;
-export async function POST(request: NextRequest) {
+const handleGET = handlers.GET;
+async function handlePOST(request: NextRequest) {
   const copy = request.clone();
   const response = await handlers.POST(request);
   // Auth.js normally represents credentials errors as redirects, sometimes in JSON.
@@ -31,3 +32,6 @@ export async function POST(request: NextRequest) {
   }
   return response;
 }
+
+export const POST = observeRoute("/api/auth/[...nextauth]", handlePOST);
+export const GET = observeRoute("/api/auth/[...nextauth]", handleGET);

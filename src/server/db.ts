@@ -1,3 +1,4 @@
+import { logServer } from "@/server/observability/logger";
 import "server-only";
 
 import { PrismaClient } from "@prisma/client";
@@ -13,11 +14,7 @@ function createClient() {
   if (process.env.PROFILE_DATABASE === "1") {
     client.$on("query", (event) => {
       // Deliberately omit SQL and parameters: both can contain private user data.
-      const table = event.query.match(/(?:FROM|INTO|UPDATE) "(?:public"\.")?([A-Za-z]+)"/)?.[1];
-      console.info(
-        "DB_PROFILE",
-        JSON.stringify({ table: table ?? "transaction", ms: event.duration })
-      );
+      logServer({ event: "database.query", level: "info", durationMs: event.duration });
     });
   }
   return client;

@@ -1,0 +1,15 @@
+# Server observability
+
+API route handlers use `observeRoute` from `src/server/observability/request.ts`. Each invocation gets a server-generated UUID, returned in `X-Request-ID`. Incoming IDs are deliberately ignored. AsyncLocalStorage associates nested server logs with the same request without passing user identifiers. New API routes should use this wrapper and add their static template to `observability/routes.ts`.
+
+Logs are newline-delimited JSON on standard output with UTC timestamp, event, level, and optional request ID. Request completion includes method, static route template, HTTP status, and elapsed milliseconds. A returned 4xx is a warning; a returned or unexpected 5xx is an error. Unexpected exceptions receive a generic no-store 500 response. Existing route-specific errors, response bodies, cookies, and statuses are preserved. Next.js redirect/not-found control-flow exceptions are rethrown to the framework; they do not emit completion records through this wrapper. Timing covers handler execution, not streaming body delivery. Framework-generated responses and page rendering are outside this API instrumentation.
+
+Filter `request.failed` for server errors; group completion records by route/status to calculate error rates and latency distributions. Use the response request ID when investigating a failed request. Redis fallback, audit-write failure, Auth.js errors/warnings, and optional database profiling use the same structured logger. Database profiling (`PROFILE_DATABASE=1`) includes duration only. This is basic log-based observability, not a metrics backend or distributed tracing deployment.
+
+## Privacy contract
+
+The logger accepts a runtime-validated allowlist of event names, levels, static routes, HTTP methods, numeric statuses, and durations. Unknown fields are stripped; invalid records are dropped. It never serializes error messages, stacks, causes, URLs/query strings, headers/cookies, bodies, SQL/parameters, user identifiers, journal content, passwords, tokens, encryption keys, or AI prompts/output. Next.js built-in development request/fetch logging is disabled to avoid raw URLs and OAuth query values. Auth.js debug logging is disabled and its default error logger is replaced so vendor error details cannot escape through that path. Do not add arbitrary message or metadata fields; add bounded enums for new diagnostic categories.
+
+Audit events remain in their existing dedicated database system; diagnostic logs do not duplicate their user data. Log sink failures must not fail requests. Restrict access and retention in the deployment's log collector. Configure reverse-proxy/hosting access logs independently to omit query strings, credentials, and request bodies; application logging cannot control infrastructure-generated logs. Do not enable third-party SDK debug/payload logging.
+
+`tests/unit/observability.test.ts` checks secret-bearing requests/errors, runtime field filtering, concurrent context isolation, returned error statuses, response IDs, and output failures.

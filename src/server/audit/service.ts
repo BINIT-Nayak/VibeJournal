@@ -1,3 +1,4 @@
+import { logServer } from "@/server/observability/logger";
 import "server-only";
 import { auditInputSchema, type AuditInput } from "./schema";
 import { insertAuditEvent, pruneAuditEvents } from "./repository";
@@ -8,7 +9,7 @@ let nextWarning = 0;
 function reportFailure() {
   if (Date.now() < nextWarning) return;
   nextWarning = Date.now() + 60_000;
-  console.warn("Security audit recording unavailable.");
+  logServer({ event: "audit.unavailable", level: "warn" });
 }
 // Audit failure must never turn a successful login/deletion into a false failure.
 // Runtime validation protects against accidental unsafe casts or future callers.

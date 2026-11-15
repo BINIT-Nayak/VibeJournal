@@ -1,1 +1,4 @@
-export { POST } from "@/server/auth/routes/login/route";
+import { observeRoute } from "@/server/observability/request";
+import { POST as handlePOST } from "@/server/auth/routes/login/route";
+
+export const POST = observeRoute("/api/auth/login", handlePOST);

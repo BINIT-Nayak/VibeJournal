@@ -1,3 +1,4 @@
+import { observeRoute } from "@/server/observability/request";
 import { RateLimitError, rateLimitResponse } from "@/server/rate-limit";
 import { requireUser } from "@/server/auth/session";
 import {
@@ -28,14 +29,14 @@ function failure(error: unknown) {
     }
   );
 }
-export async function GET() {
+async function handleGET() {
   try {
     return Response.json(await getWeeklyPreview((await requireUser()).id), { headers });
   } catch (error) {
     return failure(error);
   }
 }
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const user = await requireUser(request);
     // Accept no source data or user IDs from the browser.
@@ -50,3 +51,6 @@ export async function POST(request: Request) {
     return failure(error);
   }
 }
+
+export const GET = observeRoute("/api/weekly-reflection", handleGET);
+export const POST = observeRoute("/api/weekly-reflection", handlePOST);
