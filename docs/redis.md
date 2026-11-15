@@ -6,8 +6,8 @@ remain in PostgreSQL. There are no Redis queues, locks for journal writes, or
 Redis-only security counters.
 
 Set server-only `REDIS_URL` to enable both uses, for example
-`redis://127.0.0.1:6379` locally. Run `redis-server --bind 127.0.0.1` for a local
-instance. Use authenticated `rediss://` connections and a separate Redis database
+`redis://127.0.0.1:56379` with the project’s [Docker Compose setup](local-infrastructure.md).
+Run `npm run infra:up` to start it alongside PostgreSQL. Use authenticated `rediss://` connections and a separate Redis database
 per deployment in hosted environments. Leaving the URL unset is supported; no
 Redis connection is attempted. Never use a NEXT_PUBLIC variable for credentials.
 

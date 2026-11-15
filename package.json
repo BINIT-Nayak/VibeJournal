@@ -45,7 +45,11 @@
     "test:audit": "node --conditions=react-server scripts/test-audit-logger.mjs",
     "test:audit-events": "node --conditions=react-server scripts/test-audit-events.mjs",
     "audit:prune": "node --conditions=react-server scripts/prune-security-audit.mjs",
-    "test:a11y": "node scripts/test-accessibility.mjs"
+    "test:a11y": "node scripts/test-accessibility.mjs",
+    "infra:up": "docker compose up -d --wait",
+    "infra:down": "docker compose down",
+    "infra:status": "docker compose ps",
+    "infra:logs": "docker compose logs --tail=100 -f"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.1169.0",

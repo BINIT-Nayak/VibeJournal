@@ -18,26 +18,32 @@ new dependency setup, and [authentication setup](docs/authentication.md).
 
 ## Run Locally
 
+Run PostgreSQL and Redis with Docker Compose, and Next.js directly on your machine.
+See [local infrastructure setup](docs/local-infrastructure.md) for environment secrets,
+existing-database setup, port overrides, persistence, and future container deployment.
+
+For a new checkout, copy `.env.example` to `.env` and generate `AUTH_SECRET` and
+`JOURNAL_DEVELOPMENT_WRAPPING_KEY` as described in that guide. Then:
+
 ```bash
 npm install
+npm run infra:up
+npm run prisma:generate
+npm run prisma:deploy
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. PostgreSQL is exposed on `127.0.0.1:55432` and Redis on
+`127.0.0.1:56379`, avoiding conflicts with existing host services. `npm run infra:down`
+stops the infrastructure while preserving PostgreSQL data.
 
 ## Database
 
 See [the journal schema and migration notes](docs/database.md) for models,
-constraints, indexes, compatibility, and database tests.
-
-Create a free Postgres database, for example with Neon, then copy `.env.example` to `.env` and set `DATABASE_URL`.
-
-```bash
-npm run prisma:generate
-npm run prisma:migrate
-```
-
-Auth, account settings, and journal entries now use Prisma-backed API routes, so a real `DATABASE_URL` is required for login/signup and persistence.
+constraints, indexes, compatibility, and database tests. A hosted PostgreSQL database
+also works: set `DATABASE_URL` accordingly instead of using the Compose database.
+`npm run prisma:migrate` creates new migrations; `npm run prisma:deploy` applies
+committed migrations. Auth and journal persistence require PostgreSQL; Redis is optional.
 
 ## Implemented Product Features
 
@@ -58,7 +64,8 @@ This version uses dynamic API routes and Prisma, so deploy it as a Next.js web s
 
 - Build command: `npm install && npm run prisma:generate && npm run build`
 - Start command: `npm run start`
-- Environment variables: `DATABASE_URL`, `AUTH_SECRET`, and `AUTH_URL` (the public HTTPS origin)
+- Environment variables: `DATABASE_URL`, `AUTH_SECRET`, and `AUTH_URL` (the public HTTPS origin), plus production AWS KMS encryption configuration; see [deployment configuration](docs/local-infrastructure.md#later-containerized-deployment).
+- Apply committed migrations with `npm run prisma:deploy` as a release step.
 
 TODO:
 Key Features Can Build Next

@@ -1,7 +1,7 @@
 # Analytics Redis cache
 
 Set server-only `REDIS_URL` to enable caching (for local development,
-`redis://127.0.0.1:6379`). Leave it unset to compute directly from PostgreSQL.
+`redis://127.0.0.1:56379` with the [Compose infrastructure](local-infrastructure.md)). Leave it unset to compute directly from PostgreSQL.
 Use a dedicated Redis database per deployment, authentication, and `rediss://`
 for hosted TLS connections. Redis contains private aggregate mood/sleep/tag data;
 it must not be publicly accessible. No journal text or credentials are cached.
