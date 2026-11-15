@@ -49,7 +49,9 @@
     "infra:up": "docker compose up -d --wait",
     "infra:down": "docker compose down",
     "infra:status": "docker compose ps",
-    "infra:logs": "docker compose logs --tail=100 -f"
+    "infra:logs": "docker compose logs --tail=100 -f",
+    "test:env": "node --conditions=react-server scripts/test-env.mjs",
+    "test:env-startup": "node scripts/test-env-startup.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.1169.0",

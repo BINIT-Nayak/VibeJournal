@@ -37,6 +37,8 @@ Open `http://localhost:3000`. PostgreSQL is exposed on `127.0.0.1:55432` and Red
 `127.0.0.1:56379`, avoiding conflicts with existing host services. `npm run infra:down`
 stops the infrastructure while preserving PostgreSQL data.
 
+Configuration is validated before server startup; see [typed environment settings](docs/environment.md).
+
 ## Database
 
 See [the journal schema and migration notes](docs/database.md) for models,
