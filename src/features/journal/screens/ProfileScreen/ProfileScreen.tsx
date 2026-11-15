@@ -4,13 +4,11 @@ import { MusicPreferencesForm } from "@/features/music/MusicPreferencesForm";
 import { type FormEvent, useState } from "react";
 import {
   AlertTriangle,
-  ArrowLeft,
   ArrowRight,
   Bell,
   Brain,
   Download,
   Flame,
-  HeartPulse,
   Lock,
   LogOut,
   Mail,
@@ -18,9 +16,7 @@ import {
   Paintbrush,
   PenLine,
   PlugZap,
-  Settings,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
   Trash2,
 } from "lucide-react";
@@ -90,12 +86,6 @@ export function ProfileScreen({
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const displayName = name || "VibeJournal user";
-  const handle = `@${
-    email
-      .split("@")[0]
-      ?.replace(/[^a-z0-9]/gi, "")
-      .toLowerCase() || "vibejournal"
-  }`;
   const monthlyEntries = getEntriesThisMonth(entries);
   const monthlyAverage =
     getAverage(entries.filter((entry) => isThisMonth(entry.createdAt))) || averageMood;
@@ -121,187 +111,32 @@ export function ProfileScreen({
 
   return (
     <section className={styles.screen}>
-      <nav className={styles.topBar} aria-label="Profile navigation">
-        <button aria-label="Back" onClick={() => window.history.back()} type="button">
-          <ArrowLeft size={18} />
-          <span>Back</span>
-        </button>
-        <strong>
-          <Sparkles size={17} />
-          Profile
-        </strong>
-        <button
-          aria-label="Settings"
-          onClick={() => document.getElementById("profile-settings")?.focus()}
-          type="button"
-        >
-          <span>Settings</span>
-          <Settings size={18} />
-        </button>
-      </nav>
+      <header className={styles.heading}>
+        <p className={styles.eyebrow}>YOUR PERSONAL SPACE</p>
+        <h1>Settings</h1>
+        <p>Your account, your preferences, and the privacy choices that feel right for you.</p>
+      </header>
 
       <section className={styles.heroSection}>
         <div className={styles.heroIdentity}>
           <div className={styles.avatarButton} aria-hidden="true">
             <span>{getInitials(displayName || email)}</span>
           </div>
-          <h1>{displayName}</h1>
-          <p>{handle} • Joined May 2025</p>
+          <div>
+            <h2>{displayName}</h2>
+            <p>{email}</p>
+          </div>
         </div>
 
-        <div className={styles.moodOrbit} aria-label="Current mood score">
+        <div className={styles.moodOrbit} aria-label="Monthly average mood">
           <span>Monthly average mood</span>
-          <strong>{monthlyAverage}</strong>
-          <small>/10 month vibe</small>
+          <strong>{entries.length ? monthlyAverage : "—"}</strong>
+          <small>{entries.length ? "out of 10" : "No entries yet"}</small>
           <div className={styles.moodMeter}>
             <span style={{ width: `${moodPercent}%` }} />
           </div>
         </div>
-
-        <div className={styles.heroChips} aria-label="Profile highlights">
-          <span>
-            <Flame size={16} />
-            {streak} day streak
-          </span>
-          <span>
-            <TrendingUp size={16} />
-            {averageMood} avg mood
-          </span>
-          <span>
-            <HeartPulse size={16} />
-            {favoriteTag.tag}
-          </span>
-        </div>
       </section>
-
-      <section className={styles.quickStats} aria-label="Quick profile stats">
-        <article>
-          <Flame size={22} />
-          <span>Streak</span>
-          <strong>{streak} days</strong>
-        </article>
-        <article>
-          <PenLine size={22} />
-          <span>Total Entries</span>
-          <strong>{entries.length}</strong>
-        </article>
-        <article>
-          <TrendingUp size={22} />
-          <span>Avg Mood</span>
-          <strong>{averageMood}</strong>
-        </article>
-      </section>
-
-      <section className={styles.featureGrid}>
-        <article className={`${styles.panel} ${styles.progressPanel}`}>
-          <header>
-            <p>My Progress</p>
-            <h2>Mood Overview</h2>
-          </header>
-          <div className={styles.chartBox}>
-            <svg
-              viewBox="0 0 300 90"
-              role="img"
-              aria-label="Mood scores for the most recent 30 entries; values are listed below"
-            >
-              <polyline
-                points={sparkline}
-                fill="none"
-                stroke="url(#profileMoodLine)"
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <defs>
-                <linearGradient id="profileMoodLine" x1="0" x2="1">
-                  <stop offset="0%" stopColor="#A78BFA" />
-                  <stop offset="100%" stopColor="#67E8F9" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-          <details>
-            <summary>View recent mood values</summary>
-            {entries.length ? (
-              <table>
-                <caption>Mood scores for the most recent 30 entries</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Mood score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {entries
-                    .slice()
-                    .reverse()
-                    .slice(-30)
-                    .map((entry) => (
-                      <tr key={entry.id}>
-                        <th scope="row">{new Date(entry.createdAt).toLocaleString()}</th>
-                        <td>{entry.valence}/10</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No mood entries recorded yet.</p>
-            )}
-          </details>
-          <div className={styles.detailGrid}>
-            <span>Best Month: {bestMonth}</span>
-            <span>
-              Favorite Tag: &quot;{favoriteTag.tag}&quot; ({favoriteTag.count} times)
-            </span>
-          </div>
-          <Link className={styles.pillButton} href="/analytics">
-            <span>View Full Statistics</span>
-            <ArrowRight size={17} aria-hidden="true" />
-          </Link>
-        </article>
-
-        <article className={`${styles.panel} ${styles.musicPanel}`}>
-          <header>
-            <p>Music Integration</p>
-            <h2>{spotifyConnected ? "Spotify preference active" : "Mood playlists active"}</h2>
-          </header>
-          <div className={styles.vinyl}>
-            <Music2 size={36} />
-          </div>
-          <span>
-            Spotify OAuth is not connected yet. Until OAuth keys are configured, VibeJournal uses
-            mood-based playlist suggestions without accessing your Spotify account.
-          </span>
-          <button className={styles.pillButton} onClick={onSpotifyConnection} type="button">
-            <span>
-              {spotifyConnected ? "Disable Spotify preference" : "Enable Spotify preference"}
-            </span>
-            <PlugZap size={17} />
-          </button>
-        </article>
-
-        <article className={`${styles.panel} ${styles.insightsPanel}`}>
-          <header>
-            <p>Journal Insights</p>
-            <h2>Reflection Snapshot</h2>
-          </header>
-          <ul className={styles.insightList}>
-            <li>You&apos;ve written {monthlyEntries} entries this month</li>
-            <li>Most reflective day: {reflectiveDay}</li>
-            <li>
-              {aiConsent
-                ? `AI helped you ${Math.max(0, entries.length * 2 + 1)} times`
-                : "AI insights are off until you consent"}
-            </li>
-          </ul>
-          <Link className={styles.pillButton} href="/analytics">
-            <span>View All Insights</span>
-            <ArrowRight size={17} aria-hidden="true" />
-          </Link>
-        </article>
-      </section>
-
-      <MusicPreferencesForm userId={user.id} />
 
       <form
         className={`${styles.panel} ${styles.settingsPanel}`}
@@ -321,10 +156,10 @@ export function ProfileScreen({
             Appearance
           </h3>
           <button className={styles.settingButton} onClick={onToggleTheme} type="button">
-            <span>Theme: {darkMode ? "Dark" : "Light"} (Lavender accent)</span>
+            <span>Theme: {darkMode ? "Dark" : "Light"}</span>
             <ArrowRight size={17} />
           </button>
-          <span>Mood Color Style: Gradient</span>
+          <span>Choose the appearance that feels comfortable for you.</span>
         </div>
 
         <div className={styles.settingsGroup}>
@@ -348,7 +183,6 @@ export function ProfileScreen({
             type="time"
             value={reminderTime}
           />
-          <span>Weekly AI summary</span>
         </div>
 
         <div className={styles.settingsGroup}>
@@ -550,9 +384,128 @@ export function ProfileScreen({
         ) : null}
       </form>
 
+      <MusicPreferencesForm userId={user.id} />
+
+      <section className={styles.quickStats} aria-label="Quick profile stats">
+        <article>
+          <Flame size={22} />
+          <span>Streak</span>
+          <strong>{streak} days</strong>
+        </article>
+        <article>
+          <PenLine size={22} />
+          <span>Total Entries</span>
+          <strong>{entries.length}</strong>
+        </article>
+        <article>
+          <TrendingUp size={22} />
+          <span>Avg Mood</span>
+          <strong>{averageMood}</strong>
+        </article>
+      </section>
+
+      <section className={styles.featureGrid}>
+        <article className={`${styles.panel} ${styles.progressPanel}`}>
+          <header>
+            <p>My Progress</p>
+            <h2>Mood Overview</h2>
+          </header>
+          <div className={styles.chartBox}>
+            <svg
+              viewBox="0 0 300 90"
+              role="img"
+              aria-label="Mood scores for the most recent 30 entries; values are listed below"
+            >
+              <polyline
+                points={sparkline}
+                fill="none"
+                stroke="var(--accent-strong)"
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <details>
+            <summary>View recent mood values</summary>
+            {entries.length ? (
+              <table>
+                <caption>Mood scores for the most recent 30 entries</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Mood score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entries
+                    .slice()
+                    .reverse()
+                    .slice(-30)
+                    .map((entry) => (
+                      <tr key={entry.id}>
+                        <th scope="row">{new Date(entry.createdAt).toLocaleString()}</th>
+                        <td>{entry.valence}/10</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No mood entries recorded yet.</p>
+            )}
+          </details>
+          <div className={styles.detailGrid}>
+            <span>Best Month: {bestMonth}</span>
+            <span>
+              Favorite Tag: &quot;{favoriteTag.tag}&quot; ({favoriteTag.count} times)
+            </span>
+          </div>
+          <Link className={styles.pillButton} href="/analytics">
+            <span>View Full Statistics</span>
+            <ArrowRight size={17} aria-hidden="true" />
+          </Link>
+        </article>
+
+        <article className={`${styles.panel} ${styles.musicPanel}`}>
+          <header>
+            <p>Music Integration</p>
+            <h2>{spotifyConnected ? "Spotify preference active" : "Mood playlists active"}</h2>
+          </header>
+          <div className={styles.vinyl}>
+            <Music2 size={36} />
+          </div>
+          <span>
+            Spotify OAuth is not connected yet. Until OAuth keys are configured, VibeJournal uses
+            mood-based playlist suggestions without accessing your Spotify account.
+          </span>
+          <button className={styles.pillButton} onClick={onSpotifyConnection} type="button">
+            <span>
+              {spotifyConnected ? "Disable Spotify preference" : "Enable Spotify preference"}
+            </span>
+            <PlugZap size={17} />
+          </button>
+        </article>
+
+        <article className={`${styles.panel} ${styles.insightsPanel}`}>
+          <header>
+            <p>Journal Insights</p>
+            <h2>Reflection Snapshot</h2>
+          </header>
+          <ul className={styles.insightList}>
+            <li>You&apos;ve written {monthlyEntries} entries this month</li>
+            <li>Most reflective day: {reflectiveDay}</li>
+            <li>{aiConsent ? "AI reflections are enabled" : "AI reflections are off"}</li>
+          </ul>
+          <Link className={styles.pillButton} href="/analytics">
+            <span>View All Insights</span>
+            <ArrowRight size={17} aria-hidden="true" />
+          </Link>
+        </article>
+      </section>
+
       <footer className={styles.footer}>
-        <span>Made with care ❤️</span>
-        <span>Version 1.2.3</span>
+        <span>A space that belongs to you.</span>
+        <Link href="/dashboard">Back to your dashboard</Link>
       </footer>
     </section>
   );
@@ -594,12 +547,12 @@ function getFavoriteTag(entries: EntriesProps["entries"]) {
       total[tag] = (total[tag] ?? 0) + 1;
       return total;
     }, {});
-  const [tag, count] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0] ?? ["Grateful", 0];
+  const [tag, count] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0] ?? ["None yet", 0];
   return { tag, count };
 }
 
 function getBestMonth(entries: EntriesProps["entries"]) {
-  if (entries.length === 0) return "April (7.8)";
+  if (entries.length === 0) return "Not recorded";
   const months = entries.reduce<Record<string, { count: number; total: number }>>(
     (total, entry) => {
       const key = new Intl.DateTimeFormat("en", { month: "long" }).format(
@@ -619,7 +572,7 @@ function getBestMonth(entries: EntriesProps["entries"]) {
 }
 
 function getMostReflectiveDay(entries: EntriesProps["entries"]) {
-  if (entries.length === 0) return "Wednesday";
+  if (entries.length === 0) return "Not recorded";
   const days = entries.reduce<Record<string, number>>((total, entry) => {
     const key = new Intl.DateTimeFormat("en", { weekday: "long" }).format(
       new Date(entry.createdAt)
