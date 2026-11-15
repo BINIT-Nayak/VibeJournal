@@ -1,7 +1,7 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useTheme } from "@/components/theme-provider";
 
-import { NewJournalPage } from "./components/JournalPages/NewJournalPage";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -19,11 +19,48 @@ import { AppChrome } from "@/features/journal/components/AppChrome/AppChrome";
 
 import { DashboardScreen } from "@/features/dashboard/DashboardScreen";
 import type { DashboardResponse } from "@/features/dashboard/types";
-import { AnalyticsScreen } from "@/features/analytics/AnalyticsScreen";
-import { JournalScreen } from "@/features/journal/screens/JournalScreen/JournalScreen";
-import { MusicScreen } from "@/features/journal/screens/MusicScreen/MusicScreen";
-import { JournalEditor } from "@/features/journal/components/JournalEditor/JournalEditor";
-import { ProfileScreen } from "@/features/journal/screens/ProfileScreen/ProfileScreen";
+
+const NewJournalPage = dynamic(
+  () => import("./components/JournalPages/NewJournalPage").then((module) => module.NewJournalPage),
+  { loading: () => <p role="status">Loading…</p> }
+);
+
+const AnalyticsScreen = dynamic(
+  () => import("@/features/analytics/AnalyticsScreen").then((module) => module.AnalyticsScreen),
+  { loading: () => <p role="status">Loading…</p> }
+);
+
+const JournalScreen = dynamic(
+  () =>
+    import("@/features/journal/screens/JournalScreen/JournalScreen").then(
+      (module) => module.JournalScreen
+    ),
+  { loading: () => <p role="status">Loading…</p> }
+);
+
+const MusicScreen = dynamic(
+  () =>
+    import("@/features/journal/screens/MusicScreen/MusicScreen").then(
+      (module) => module.MusicScreen
+    ),
+  { loading: () => <p role="status">Loading…</p> }
+);
+
+const JournalEditor = dynamic(
+  () =>
+    import("@/features/journal/components/JournalEditor/JournalEditor").then(
+      (module) => module.JournalEditor
+    ),
+  { loading: () => <p role="status">Loading…</p> }
+);
+
+const ProfileScreen = dynamic(
+  () =>
+    import("@/features/journal/screens/ProfileScreen/ProfileScreen").then(
+      (module) => module.ProfileScreen
+    ),
+  { loading: () => <p role="status">Loading…</p> }
+);
 
 const defaultSettings: ClientSettings = {
   musicPreferences: {

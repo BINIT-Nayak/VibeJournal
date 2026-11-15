@@ -1,0 +1,496 @@
+{
+  "fixtureEntries": 90,
+  "serverRequests": [
+    {
+      "path": "/dashboard",
+      "run": 0,
+      "wallMs": 18,
+      "count": 3,
+      "dbMs": 1,
+      "maxMs": 1,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "UserSettings": 1
+      }
+    },
+    {
+      "path": "/dashboard",
+      "run": 1,
+      "wallMs": 12,
+      "count": 3,
+      "dbMs": 0,
+      "maxMs": 0,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "UserSettings": 1
+      }
+    },
+    {
+      "path": "/dashboard",
+      "run": 2,
+      "wallMs": 14,
+      "count": 3,
+      "dbMs": 0,
+      "maxMs": 0,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "UserSettings": 1
+      }
+    },
+    {
+      "path": "/journal",
+      "run": 0,
+      "wallMs": 19,
+      "count": 3,
+      "dbMs": 0,
+      "maxMs": 0,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "UserSettings": 1
+      }
+    },
+    {
+      "path": "/journal",
+      "run": 1,
+      "wallMs": 16,
+      "count": 3,
+      "dbMs": 0,
+      "maxMs": 0,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "UserSettings": 1
+      }
+    },
+    {
+      "path": "/journal",
+      "run": 2,
+      "wallMs": 17,
+      "count": 3,
+      "dbMs": 0,
+      "maxMs": 0,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "UserSettings": 1
+      }
+    },
+    {
+      "path": "/api/dashboard?timeZone=UTC",
+      "run": 0,
+      "wallMs": 30,
+      "count": 9,
+      "dbMs": 1,
+      "maxMs": 1,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3,
+        "UserSettings": 1
+      }
+    },
+    {
+      "path": "/api/dashboard?timeZone=UTC",
+      "run": 1,
+      "wallMs": 13,
+      "count": 9,
+      "dbMs": 0,
+      "maxMs": 0,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3,
+        "UserSettings": 1
+      }
+    },
+    {
+      "path": "/api/dashboard?timeZone=UTC",
+      "run": 2,
+      "wallMs": 14,
+      "count": 9,
+      "dbMs": 0,
+      "maxMs": 0,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3,
+        "UserSettings": 1
+      }
+    },
+    {
+      "path": "/api/analytics?days=90",
+      "run": 0,
+      "wallMs": 23,
+      "count": 8,
+      "dbMs": 6,
+      "maxMs": 4,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=90",
+      "run": 1,
+      "wallMs": 16,
+      "count": 8,
+      "dbMs": 1,
+      "maxMs": 1,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=90",
+      "run": 2,
+      "wallMs": 21,
+      "count": 8,
+      "dbMs": 3,
+      "maxMs": 2,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=7",
+      "fixtureEntries": 90,
+      "run": 0,
+      "wallMs": 27,
+      "count": 8,
+      "dbMs": 9,
+      "maxMs": 9,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=7",
+      "fixtureEntries": 90,
+      "run": 1,
+      "wallMs": 19,
+      "count": 8,
+      "dbMs": 2,
+      "maxMs": 1,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=7",
+      "fixtureEntries": 90,
+      "run": 2,
+      "wallMs": 17,
+      "count": 8,
+      "dbMs": 3,
+      "maxMs": 1,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=30",
+      "fixtureEntries": 90,
+      "run": 0,
+      "wallMs": 15,
+      "count": 8,
+      "dbMs": 2,
+      "maxMs": 1,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=30",
+      "fixtureEntries": 90,
+      "run": 1,
+      "wallMs": 18,
+      "count": 8,
+      "dbMs": 2,
+      "maxMs": 1,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=30",
+      "fixtureEntries": 90,
+      "run": 2,
+      "wallMs": 15,
+      "count": 8,
+      "dbMs": 2,
+      "maxMs": 1,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=90",
+      "fixtureEntries": 90,
+      "run": 0,
+      "wallMs": 19,
+      "count": 8,
+      "dbMs": 4,
+      "maxMs": 2,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=90",
+      "fixtureEntries": 90,
+      "run": 1,
+      "wallMs": 19,
+      "count": 8,
+      "dbMs": 4,
+      "maxMs": 2,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    },
+    {
+      "path": "/api/analytics?days=90",
+      "fixtureEntries": 90,
+      "run": 2,
+      "wallMs": 22,
+      "count": 8,
+      "dbMs": 4,
+      "maxMs": 2,
+      "tables": {
+        "Session": 1,
+        "User": 1,
+        "transaction": 3,
+        "JournalEntry": 3
+      }
+    }
+  ],
+  "pages": [
+    {
+      "route": "/dashboard",
+      "run": 0,
+      "jsBytes": 200133,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 44,
+      "taskMs": 145,
+      "apiCalls": ["/api/dashboard?timeZone=Asia%2FCalcutta", "/api/music"],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/dashboard",
+      "run": 1,
+      "jsBytes": 200133,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 18,
+      "taskMs": 71,
+      "apiCalls": ["/api/dashboard?timeZone=Asia%2FCalcutta", "/api/music"],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/dashboard",
+      "run": 2,
+      "jsBytes": 200133,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 15,
+      "taskMs": 72,
+      "apiCalls": ["/api/dashboard?timeZone=Asia%2FCalcutta", "/api/music"],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/journal/new",
+      "run": 0,
+      "jsBytes": 205219,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 22,
+      "taskMs": 80,
+      "apiCalls": [],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/journal/new",
+      "run": 1,
+      "jsBytes": 205219,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 17,
+      "taskMs": 72,
+      "apiCalls": [],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/journal/new",
+      "run": 2,
+      "jsBytes": 205219,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 18,
+      "taskMs": 72,
+      "apiCalls": [],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/analytics",
+      "run": 0,
+      "jsBytes": 304651,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 17,
+      "taskMs": 131,
+      "apiCalls": ["/api/analytics?days=30", "/api/analytics?days=7", "/api/analytics?days=90"],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/analytics",
+      "run": 1,
+      "jsBytes": 304651,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 18,
+      "taskMs": 122,
+      "apiCalls": ["/api/analytics?days=30"],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/analytics",
+      "run": 2,
+      "jsBytes": 304651,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 23,
+      "taskMs": 123,
+      "apiCalls": ["/api/analytics?days=30"],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/dashboard#profile",
+      "run": 0,
+      "jsBytes": 207145,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 20,
+      "taskMs": 111,
+      "apiCalls": [
+        "/api/dashboard?timeZone=Asia%2FCalcutta",
+        "/api/auth/me",
+        "/api/music/preferences"
+      ],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/dashboard#profile",
+      "run": 1,
+      "jsBytes": 207145,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 19,
+      "taskMs": 105,
+      "apiCalls": [
+        "/api/dashboard?timeZone=Asia%2FCalcutta",
+        "/api/auth/me",
+        "/api/music/preferences"
+      ],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/dashboard#profile",
+      "run": 2,
+      "jsBytes": 207145,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 22,
+      "taskMs": 86,
+      "apiCalls": [
+        "/api/dashboard?timeZone=Asia%2FCalcutta",
+        "/api/auth/me",
+        "/api/music/preferences"
+      ],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/music",
+      "run": 0,
+      "jsBytes": 192185,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 28,
+      "taskMs": 66,
+      "apiCalls": ["/api/music"],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/music",
+      "run": 1,
+      "jsBytes": 192185,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 18,
+      "taskMs": 63,
+      "apiCalls": ["/api/music"],
+      "chartWarnings": 0
+    },
+    {
+      "route": "/music",
+      "run": 2,
+      "jsBytes": 192185,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "domReadyMs": 44,
+      "taskMs": 68,
+      "apiCalls": ["/api/music"],
+      "chartWarnings": 0
+    }
+  ],
+  "chart": [
+    {
+      "days": "7",
+      "taskMs": 24,
+      "svgNodes": 86
+    },
+    {
+      "days": "90",
+      "taskMs": 22,
+      "svgNodes": 197
+    }
+  ]
+}
