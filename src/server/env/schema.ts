@@ -38,6 +38,7 @@ const positiveInteger = (fallback: number, max: number) =>
 
 export const serverEnvSchema = z
   .object({
+    VIBEJOURNAL_TEST_SERVER: z.enum(["0", "1"]).optional(),
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     DATABASE_URL: urlWithProtocols(["postgres:", "postgresql:"]),
     AUTH_SECRET: z

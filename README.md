@@ -60,6 +60,18 @@ committed migrations. Auth and journal persistence require PostgreSQL; Redis is 
 - Music intent mapping with valence, energy, tempo, and danceability hints plus open-in-Spotify search.
 - Profile actions for JSON data export, account delete-all entries, theme preference, and reminder settings.
 
+## Tests
+
+See [the balanced test strategy](docs/testing.md) for layer responsibilities, isolated test infrastructure, and CI.
+
+```bash
+npm test                    # Fast unit + React Testing Library tests
+npm run test:infra          # Disposable PostgreSQL, separate from development
+npm run test:integration    # Real repository + API contracts
+npx playwright install chromium
+npm run test:e2e            # Two critical user journeys
+```
+
 ## Deployment
 
 This version uses dynamic API routes and Prisma, so deploy it as a Next.js web service, not as a static site. On Render, use a Web Service with:

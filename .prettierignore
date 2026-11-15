@@ -12,3 +12,7 @@ next-env.d.ts
 *.tsbuildinfo
 
 *.log
+
+.next-test-dev/
+playwright-report/
+test-results/

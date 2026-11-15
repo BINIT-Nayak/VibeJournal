@@ -6,3 +6,7 @@ build
 dist
 coverage
 .vercel
+
+.next-test-dev
+playwright-report
+test-results

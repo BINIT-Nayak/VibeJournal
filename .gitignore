@@ -49,3 +49,7 @@ Thumbs.db
 
 # Vercel
 .vercel/
+
+.next-test-dev/
+playwright-report/
+test-results/

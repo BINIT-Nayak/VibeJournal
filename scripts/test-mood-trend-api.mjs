@@ -85,33 +85,27 @@ try {
     { age: 89, score: 7, energy: 5 },
     { age: 90, score: 1, energy: 1 },
   ];
-  await prisma.journalEntry.createMany({
-    data: fixtures.map((row) => ({
-      userId: owner.id,
-      content: "Sparse mood test",
-      moodScore: row.score,
-      energyScore: row.energy,
-      createdAt: new Date(today - row.age * 86400000),
-    })),
-  });
-  await prisma.journalEntry.createMany({
-    data: [
+  // Create valid encrypted records through the public API; only control dates and
+  // archive status directly to make the analytics boundary cases deterministic.
+  async function seed(account, moodScore, energyScore, createdAt, archivedAt = null) {
+    const { entry } = await request(
+      account,
+      "/api/journal",
+      "POST",
       {
-        userId: owner.id,
-        content: "Archived",
-        moodScore: 10,
-        createdAt: new Date(today - 2 * 86400000),
-        archivedAt: new Date(),
+        content: "Synthetic analytics fixture",
+        moodScore,
+        energyScore,
       },
-      { userId: owner.id, content: "Future", moodScore: 10, createdAt: new Date(today + 86400000) },
-      {
-        userId: other.id,
-        content: "Other user",
-        moodScore: 10,
-        createdAt: new Date(today - 3 * 86400000),
-      },
-    ],
-  });
+      201
+    );
+    await prisma.journalEntry.update({ where: { id: entry.id }, data: { createdAt, archivedAt } });
+  }
+  for (const row of fixtures)
+    await seed(owner, row.score, row.energy, new Date(today - row.age * 86400000));
+  await seed(owner, 10, null, new Date(today - 2 * 86400000), new Date());
+  await seed(owner, 10, null, new Date(today + 86400000));
+  await seed(other, 10, null, new Date(today - 3 * 86400000));
   for (const days of ranges) {
     const data = await request(owner, `/api/analytics?days=${days}`);
     // A run crossing UTC midnight should fail clearly, not give misleading assertions.

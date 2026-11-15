@@ -26,9 +26,11 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    ".next-dev/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-dev/types/**/*.ts"
+    ".next-test-dev/types/**/*.ts",
+    "vitest.config.mts"
   ],
   "exclude": ["node_modules"]
 }

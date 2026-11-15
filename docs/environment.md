@@ -26,6 +26,7 @@ Client code can import `publicEnv` from `@/lib/env/public`. Its allowlist is cur
 - Google login requires both client ID and secret, or neither.
 - AI stays disabled when `AI_JOURNAL_PROVIDER` is blank. Selecting `anthropic` requires an API key and model. The timeout is an integer from 1,000 to 120,000 ms, defaulting to 30,000.
 - `JOURNAL_DATA_KEY_VERSION` defaults to 1 and must be a positive safe integer.
+- `VIBEJOURNAL_TEST_SERVER=1` selects an isolated development build directory for the test runner; it does not bypass validation or authentication.
 - `PROFILE_DATABASE` accepts `0` or `1`, defaulting to `0`.
 - Optional text fields may be empty and are treated as absent. Numeric defaults apply when omitted; explicitly empty or malformed numbers are rejected. Unknown non-public platform variables are ignored; only declared application settings enter the typed object.
 

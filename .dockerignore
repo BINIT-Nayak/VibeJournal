@@ -14,3 +14,7 @@ coverage
 *.log
 *.tsbuildinfo
 .DS_Store
+
+.next-test-dev/
+playwright-report/
+test-results/

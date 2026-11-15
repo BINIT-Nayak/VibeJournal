@@ -11,7 +11,12 @@ const nextConfig = (phase: string): NextConfig => {
   }
   return {
     // Keep production builds from overwriting a running dev server's artifacts.
-    distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",
+    distDir:
+      phase === PHASE_DEVELOPMENT_SERVER
+        ? process.env.VIBEJOURNAL_TEST_SERVER === "1"
+          ? ".next-test-dev"
+          : ".next-dev"
+        : ".next",
   };
 };
 

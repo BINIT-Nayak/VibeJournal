@@ -51,7 +51,14 @@
     "infra:status": "docker compose ps",
     "infra:logs": "docker compose logs --tail=100 -f",
     "test:env": "node --conditions=react-server scripts/test-env.mjs",
-    "test:env-startup": "node scripts/test-env-startup.mjs"
+    "test:env-startup": "node scripts/test-env-startup.mjs",
+    "test": "vitest run --project unit --project ui",
+    "test:unit": "vitest run --project unit",
+    "test:ui": "vitest run --project ui",
+    "test:integration": "node scripts/run-tests.mjs integration",
+    "test:e2e": "node scripts/run-tests.mjs e2e",
+    "test:infra": "docker compose -f compose.test.yaml up -d --wait",
+    "test:infra:down": "docker compose -f compose.test.yaml down"
   },
   "dependencies": {
     "@aws-sdk/client-kms": "^3.1169.0",
@@ -73,7 +80,11 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.10",
     "@types/node": "^22.15.21",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
@@ -81,12 +92,14 @@
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
     "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^26.1.0",
     "postcss": "^8.5.32",
     "prettier": "^3.8.3",
     "stylelint": "^17.13.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-order": "^8.1.1",
     "tailwindcss": "^4.3.5",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.12"
   }
 }
